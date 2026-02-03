@@ -10,22 +10,24 @@
       --obsidian: #0d1117;
       --neon-blue: #00f2ff;
     }
-    
+
+    /* Scroll Animation Styles */
     .reveal {
-  opacity: 0;
-  transform: translateY(30px);
-  transition: all 0.8s ease-out;
-}
-    
-.reveal.active {
-  opacity: 1;
-  transform: translateY(0);
-}
+      opacity: 0;
+      transform: translateY(30px);
+      transition: all 0.8s ease-out;
+    }
+
+    .reveal.active {
+      opacity: 1;
+      transform: translateY(0);
+    }
 
     body {
       background-color: var(--obsidian);
       color: #e6edf3;
       font-family: "JetBrains Mono", "Fira Code", "SFMono-Regular", ui-monospace, monospace;
+      overflow-x: hidden;
     }
 
     .grid-overlay {
@@ -44,8 +46,7 @@
     }
 
     @keyframes pulse {
-      0%,
-      100% {
+      0%, 100% {
         text-shadow:
           0 0 10px rgba(0, 242, 255, 0.4),
           0 0 20px rgba(0, 242, 255, 0.25),
@@ -62,7 +63,8 @@
 </head>
 <body class="min-h-screen grid-overlay">
   <main class="mx-auto flex w-full max-w-6xl flex-col gap-16 px-6 py-12 sm:px-10 lg:px-16">
-    <section class="rounded-3xl border border-cyan-400/50 bg-white/5 p-8 shadow-[0_0_30px_rgba(0,242,255,0.25)] backdrop-blur-lg sm:p-12">
+    
+    <section class="reveal rounded-3xl border border-cyan-400/50 bg-white/5 p-8 shadow-[0_0_30px_rgba(0,242,255,0.25)] backdrop-blur-lg sm:p-12">
       <p class="text-xs uppercase tracking-[0.4em] text-cyan-300">Terminal Mode // Online</p>
       <h1 class="mt-6 text-4xl font-black uppercase leading-tight text-white sm:text-6xl lg:text-7xl">
         <span class="pulse-glow">Michael Kage</span>
@@ -71,19 +73,13 @@
         Building the future of high-performance experiences with a gamer-centric UI mindset and a relentless drive to optimize.
       </p>
       <div class="mt-8 flex flex-wrap gap-4">
-        <span class="rounded-full border border-cyan-400/60 bg-cyan-400/10 px-4 py-2 text-xs uppercase tracking-widest text-cyan-200">
-          Full-Stack Builder
-        </span>
-        <span class="rounded-full border border-cyan-400/60 bg-white/5 px-4 py-2 text-xs uppercase tracking-widest text-white/80">
-          Terminal Aesthetic
-        </span>
-        <span class="rounded-full border border-cyan-400/60 bg-cyan-400/10 px-4 py-2 text-xs uppercase tracking-widest text-cyan-200">
-          Performance Tuning
-        </span>
+        <span class="rounded-full border border-cyan-400/60 bg-cyan-400/10 px-4 py-2 text-xs uppercase tracking-widest text-cyan-200">Full-Stack Builder</span>
+        <span class="rounded-full border border-cyan-400/60 bg-white/5 px-4 py-2 text-xs uppercase tracking-widest text-white/80">Terminal Aesthetic</span>
+        <span class="rounded-full border border-cyan-400/60 bg-cyan-400/10 px-4 py-2 text-xs uppercase tracking-widest text-cyan-200">Performance Tuning</span>
       </div>
     </section>
 
-    <section class="rounded-3xl border border-cyan-400/50 bg-white/5 p-8 shadow-[0_0_30px_rgba(0,242,255,0.2)] backdrop-blur-lg">
+    <section class="reveal rounded-3xl border border-cyan-400/50 bg-white/5 p-8 shadow-[0_0_30px_rgba(0,242,255,0.2)] backdrop-blur-lg">
       <div class="flex flex-col gap-2">
         <h2 class="text-2xl font-semibold text-white">The Rig</h2>
         <p class="text-slate-300">PC build essentials, tuned for speed, cooling, and precision.</p>
@@ -104,7 +100,7 @@
       </div>
     </section>
 
-    <section class="rounded-3xl border border-cyan-400/50 bg-white/5 p-8 shadow-[0_0_30px_rgba(0,242,255,0.2)] backdrop-blur-lg">
+    <section class="reveal rounded-3xl border border-cyan-400/50 bg-white/5 p-8 shadow-[0_0_30px_rgba(0,242,255,0.2)] backdrop-blur-lg">
       <h2 class="text-2xl font-semibold text-white">The Roots</h2>
       <p class="mt-2 text-slate-300">A timeline from first build to the current dev journey.</p>
       <div class="mt-8 grid gap-6">
@@ -126,7 +122,7 @@
           </div>
           <div class="rounded-2xl border border-cyan-400/40 bg-white/10 p-5">
             <p class="text-xs uppercase tracking-[0.3em] text-cyan-300">Phase 02</p>
-            <h3 class="mt-2 text-lg font-semibold text-white">Modding &amp; Customization</h3>
+            <h3 class="mt-2 text-lg font-semibold text-white">Modding & Customization</h3>
             <p class="mt-2 text-sm text-slate-300">Built custom lighting, airflow, and desk setups to match a futuristic HUD vibe.</p>
           </div>
         </div>
@@ -143,49 +139,30 @@
       </div>
     </section>
 
-    <section class="rounded-3xl border border-cyan-400/50 bg-white/5 p-8 text-center shadow-[0_0_30px_rgba(0,242,255,0.25)] backdrop-blur-lg">
+    <section class="reveal rounded-3xl border border-cyan-400/50 bg-white/5 p-8 text-center shadow-[0_0_30px_rgba(0,242,255,0.25)] backdrop-blur-lg">
       <h2 class="text-2xl font-semibold text-white">Socials</h2>
       <p class="mt-2 text-slate-300">Follow the stream for builds, progress, and neon drops.</p>
       <div class="mt-6 flex flex-col items-center justify-center gap-4 sm:flex-row">
-        <a
-          class="w-full rounded-xl border border-cyan-300/70 bg-cyan-400/10 px-6 py-4 text-lg font-semibold text-cyan-200 shadow-[0_0_20px_rgba(0,242,255,0.5)] transition hover:scale-105 hover:bg-cyan-400/20 sm:w-auto"
-          href="https://www.tiktok.com/@michaelkage"
-          target="_blank"
-          rel="noreferrer"
-        >
-          TikTok
-        </a>
-        <a
-          class="w-full rounded-xl border border-cyan-300/70 bg-white/10 px-6 py-4 text-lg font-semibold text-white shadow-[0_0_20px_rgba(0,242,255,0.5)] transition hover:scale-105 hover:bg-cyan-400/20 sm:w-auto"
-          href="https://www.instagram.com/actuallyintowomen/"
-          target="_blank"
-          rel="noreferrer"
-        >
-          Instagram
-        </a>
-        <a
-          class="w-full rounded-xl border border-cyan-300/70 bg-cyan-400/10 px-6 py-4 text-lg font-semibold text-cyan-200 shadow-[0_0_20px_rgba(0,242,255,0.5)] transition hover:scale-105 hover:bg-cyan-400/20 sm:w-auto"
-          href="https://web.facebook.com/profile.php?id=61587165912769"
-          target="_blank"
-          rel="noreferrer"
-        >
-          Facebook
-        </a>
+        <a class="w-full rounded-xl border border-cyan-300/70 bg-cyan-400/10 px-6 py-4 text-lg font-semibold text-cyan-200 shadow-[0_0_20px_rgba(0,242,255,0.5)] transition hover:scale-105 hover:bg-cyan-400/20 sm:w-auto" href="https://www.tiktok.com/@michaelkage" target="_blank" rel="noreferrer">TikTok</a>
+        <a class="w-full rounded-xl border border-cyan-300/70 bg-white/10 px-6 py-4 text-lg font-semibold text-white shadow-[0_0_20px_rgba(0,242,255,0.5)] transition hover:scale-105 hover:bg-cyan-400/20 sm:w-auto" href="https://www.instagram.com/actuallyintowomen/" target="_blank" rel="noreferrer">Instagram</a>
+        <a class="w-full rounded-xl border border-cyan-300/70 bg-cyan-400/10 px-6 py-4 text-lg font-semibold text-cyan-200 shadow-[0_0_20px_rgba(0,242,255,0.5)] transition hover:scale-105 hover:bg-cyan-400/20 sm:w-auto" href="https://web.facebook.com/profile.php?id=61587165912769" target="_blank" rel="noreferrer">Facebook</a>
       </div>
     </section>
-  </main>
-  <script>
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        entry.target.classList.add('active');
-      }
-    });
-  }, { threshold: 0.1 });
 
-  document.querySelectorAll('.reveal').forEach(section => {
-    observer.observe(section);
-  });
-</script>
+  </main>
+
+  <script>
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('active');
+        }
+      });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.reveal').forEach(section => {
+      observer.observe(section);
+    });
+  </script>
 </body>
 </html>
