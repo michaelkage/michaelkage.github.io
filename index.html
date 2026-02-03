@@ -274,6 +274,43 @@
 
     <div class="connected-line"></div>
 
+    <section class="section-shell reveal rounded-3xl border border-cyan-400/50 bg-white/5 p-8 shadow-[0_0_30px_rgba(0,242,255,0.25)] backdrop-blur-lg">
+      <div class="flex flex-col gap-2">
+        <h2 class="text-2xl font-semibold text-white">Potential Issues &amp; Risks</h2>
+        <p class="text-slate-300">Quick observations to keep the build clean, scalable, and future-proof.</p>
+      </div>
+      <ul class="mt-6 space-y-3 text-sm text-slate-300">
+        <li><span class="text-cyan-200">Maintainability:</span> repeated inline CSS/JS can make updates tedious and error-prone.</li>
+        <li><span class="text-cyan-200">Separation of concerns:</span> mixing presentation and behavior in HTML can get messy as the site grows.</li>
+        <li><span class="text-cyan-200">Limited reuse:</span> duplicated headers/footers mean manual edits for global changes.</li>
+        <li><span class="text-cyan-200">Asset pipeline:</span> no minification, bundling, or image optimization unless done manually.</li>
+        <li><span class="text-cyan-200">Hidden gaps:</span> SEO, accessibility, or performance issues may exist beyond the copy.</li>
+      </ul>
+      <div class="neon-divider"></div>
+      <div class="grid gap-6 lg:grid-cols-2">
+        <div class="glass-card rounded-2xl p-6">
+          <h3 class="text-lg font-semibold text-cyan-200">Practical Recommendations</h3>
+          <ul class="mt-4 space-y-3 text-sm text-slate-300">
+            <li><span class="text-cyan-200">Project metadata:</span> add or improve a README (purpose, local run, deployment) and include a LICENSE.</li>
+            <li><span class="text-cyan-200">Structure:</span> move repeated styles/scripts into dedicated files to stay DRY.</li>
+            <li><span class="text-cyan-200">Templating:</span> consider a lightweight static site generator for reusable layouts.</li>
+            <li><span class="text-cyan-200">Performance:</span> optimize images (WebP/AVIF, srcset), lazy-load, and minify assets.</li>
+          </ul>
+        </div>
+        <div class="glass-card rounded-2xl p-6">
+          <h3 class="text-lg font-semibold text-cyan-200">QA &amp; Automation</h3>
+          <ul class="mt-4 space-y-3 text-sm text-slate-300">
+            <li><span class="text-cyan-200">SEO:</span> add meta description, Open Graph tags, sitemap.xml, and robots.txt.</li>
+            <li><span class="text-cyan-200">Accessibility:</span> run Lighthouse audits and confirm semantic HTML + alt text.</li>
+            <li><span class="text-cyan-200">CI:</span> add GitHub Actions for linting and optional Lighthouse CI.</li>
+            <li><span class="text-cyan-200">Observability:</span> add analytics and error monitoring if tracking is desired.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <div class="connected-line"></div>
+
     <section class="section-shell reveal rounded-3xl border border-cyan-400/50 bg-white/5 p-8 text-center shadow-[0_0_30px_rgba(0,242,255,0.25)] backdrop-blur-lg">
       <h2 class="text-2xl font-semibold text-white">Socials</h2>
       <div class="mt-6 flex flex-col items-center justify-center gap-4 sm:flex-row">
