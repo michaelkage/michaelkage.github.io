@@ -9,6 +9,8 @@
     :root {
       --obsidian: #0d1117;
       --neon-blue: #00f2ff;
+      --neon-purple: #7c4dff;
+      --soft-white: rgba(230, 237, 243, 0.7);
     }
 
     html {
@@ -46,6 +48,50 @@
       background-size: 48px 48px;
     }
 
+    .section-shell {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .section-shell::after {
+      content: "";
+      position: absolute;
+      inset: -2px;
+      border-radius: 24px;
+      border: 1px solid rgba(0, 242, 255, 0.25);
+      opacity: 0.6;
+      pointer-events: none;
+    }
+
+    .neon-divider {
+      height: 2px;
+      width: 100%;
+      background: linear-gradient(90deg, rgba(0, 242, 255, 0), rgba(0, 242, 255, 0.8), rgba(0, 242, 255, 0));
+      margin: 2.5rem 0;
+    }
+
+    .connected-line {
+      height: 1px;
+      width: 100%;
+      background: linear-gradient(90deg, rgba(0, 242, 255, 0), rgba(124, 77, 255, 0.6), rgba(0, 242, 255, 0));
+      opacity: 0.7;
+    }
+
+    .ambient-ring {
+      position: absolute;
+      inset: -40%;
+      border-radius: 999px;
+      background: radial-gradient(circle, rgba(124, 77, 255, 0.18), transparent 60%);
+      filter: blur(12px);
+      pointer-events: none;
+    }
+
+    .glass-card {
+      background: linear-gradient(145deg, rgba(255, 255, 255, 0.09), rgba(255, 255, 255, 0.03));
+      border: 1px solid rgba(0, 242, 255, 0.3);
+      box-shadow: 0 0 35px rgba(0, 242, 255, 0.15);
+    }
+
     /* Rig Card Hover Glow */
     .rig-card {
       transition: all 0.3s ease-in-out;
@@ -65,52 +111,176 @@
       0%, 100% { text-shadow: 0 0 10px rgba(0, 242, 255, 0.4); }
       50% { text-shadow: 0 0 20px rgba(0, 242, 255, 0.7); }
     }
+
+    .game-panel {
+      background: radial-gradient(circle at top, rgba(0, 242, 255, 0.15), rgba(13, 17, 23, 0.95));
+      border: 1px solid rgba(0, 242, 255, 0.35);
+      box-shadow: inset 0 0 40px rgba(0, 242, 255, 0.15);
+    }
+
+    canvas#circuitGame {
+      background: rgba(5, 12, 20, 0.9);
+      border: 1px solid rgba(0, 242, 255, 0.4);
+      box-shadow: 0 0 20px rgba(0, 242, 255, 0.2);
+      border-radius: 16px;
+    }
+
+    .metric-pill {
+      border: 1px solid rgba(0, 242, 255, 0.4);
+      background: rgba(0, 242, 255, 0.08);
+    }
   </style>
 </head>
 <body class="min-h-screen grid-overlay">
   <main class="mx-auto flex w-full max-w-6xl flex-col gap-16 px-6 py-12 sm:px-10 lg:px-16">
     
-    <section class="reveal rounded-3xl border border-cyan-400/50 bg-white/5 p-8 shadow-[0_0_30px_rgba(0,242,255,0.25)] backdrop-blur-lg sm:p-12">
+    <section class="section-shell reveal rounded-3xl border border-cyan-400/50 bg-white/5 p-8 shadow-[0_0_30px_rgba(0,242,255,0.25)] backdrop-blur-lg sm:p-12">
+      <span class="ambient-ring"></span>
       <p class="text-xs uppercase tracking-[0.4em] text-cyan-300">Terminal Mode // Online</p>
       <h1 class="mt-6 text-4xl font-black uppercase leading-tight text-white sm:text-6xl lg:text-7xl">
         <span class="pulse-glow">Michael Kage</span>
       </h1>
       <p class="mt-6 max-w-2xl text-base text-slate-300 sm:text-lg">
-        Building high-performance experiences with a gamer-centric UI mindset.
+        Building high-performance experiences with a gamer-centric UI mindset. Smooth, synchronized, and always connected.
       </p>
       <div class="mt-8 flex flex-wrap gap-4">
         <span class="rounded-full border border-cyan-400/60 bg-cyan-400/10 px-4 py-2 text-xs uppercase tracking-widest text-cyan-200">Full-Stack Builder</span>
         <span class="rounded-full border border-cyan-400/60 bg-white/5 px-4 py-2 text-xs uppercase tracking-widest text-white/80">Terminal Aesthetic</span>
+        <span class="rounded-full border border-purple-300/50 bg-purple-500/10 px-4 py-2 text-xs uppercase tracking-widest text-purple-200">Connected Systems</span>
+      </div>
+      <div class="neon-divider"></div>
+      <div class="grid gap-4 text-sm text-slate-300 sm:grid-cols-3">
+        <div class="metric-pill rounded-2xl px-4 py-3">Latency Watch: <span class="text-cyan-200">2.1ms</span></div>
+        <div class="metric-pill rounded-2xl px-4 py-3">Thermal Loop: <span class="text-cyan-200">Stable</span></div>
+        <div class="metric-pill rounded-2xl px-4 py-3">Signal Sync: <span class="text-cyan-200">100%</span></div>
       </div>
     </section>
 
-    <section class="reveal rounded-3xl border border-cyan-400/50 bg-white/5 p-8 shadow-[0_0_30px_rgba(0,242,255,0.2)] backdrop-blur-lg">
+    <div class="connected-line"></div>
+
+    <section class="section-shell reveal rounded-3xl border border-cyan-400/50 bg-white/5 p-8 shadow-[0_0_30px_rgba(0,242,255,0.2)] backdrop-blur-lg">
       <div class="flex flex-col gap-2">
         <h2 class="text-2xl font-semibold text-white">The Rig</h2>
-        <p class="text-slate-300">Optimized for speed and precision.</p>
+        <p class="text-slate-300">Optimized for speed, precision, and sustained performance.</p>
       </div>
       <div class="mt-8 grid gap-6 md:grid-cols-3">
         <div class="rig-card rounded-2xl border border-cyan-400/50 bg-white/10 p-6 shadow-[0_0_20px_rgba(0,242,255,0.2)] backdrop-blur">
           <h3 class="text-lg font-semibold text-cyan-200">Processing</h3>
-          <p class="mt-3 text-sm text-slate-300">High-performance multi-core CPU for simultaneous dev and gaming tasks.</p>
+          <p class="mt-3 text-sm text-slate-300">Ryzen 9 9950X3D delidded direct-die for relentless boost stability.</p>
         </div>
         <div class="rig-card rounded-2xl border border-cyan-400/50 bg-white/10 p-6 shadow-[0_0_20px_rgba(0,242,255,0.2)] backdrop-blur">
           <h3 class="text-lg font-semibold text-cyan-200">Visuals</h3>
-          <p class="mt-3 text-sm text-slate-300">RTX-driven graphics for rendering complex UI and high-fidelity environments.</p>
+          <p class="mt-3 text-sm text-slate-300">RTX 5090-class GPU on a full-cover block with active backplate cooling.</p>
         </div>
         <div class="rig-card rounded-2xl border border-cyan-400/50 bg-white/10 p-6 shadow-[0_0_20px_rgba(0,242,255,0.2)] backdrop-blur">
           <h3 class="text-lg font-semibold text-cyan-200">Control</h3>
-          <p class="mt-3 text-sm text-slate-300">Mechanical input systems and ultra-low latency peripherals.</p>
+          <p class="mt-3 text-sm text-slate-300">ROG Crosshair X870E Extreme with NitroPath DRAM and clean power delivery.</p>
+        </div>
+      </div>
+      <div class="neon-divider"></div>
+      <div class="grid gap-6 md:grid-cols-2">
+        <div class="glass-card rounded-2xl p-6">
+          <h3 class="text-lg font-semibold text-cyan-200">Blank-Check Build Philosophy</h3>
+          <p class="mt-3 text-sm text-slate-300">
+            Built for sustained dominance: Ryzen 9 9950X3D direct-die cooling, RTX 5090-class GPU on a full-cover block,
+            PCIe 6.0 enterprise SSD throughput, and dual-loop liquid cooling for absolute thermal authority.
+          </p>
+        </div>
+        <div class="glass-card rounded-2xl p-6">
+          <h3 class="text-lg font-semibold text-cyan-200">Precision Ecosystem</h3>
+          <p class="mt-3 text-sm text-slate-300">
+            ASUS ROG Crosshair X870E Extreme anchors signal integrity, while dual Seasonic TX-1600 PSUs deliver unwavering
+            power. Ultra-wide and 4K displays, studio-grade audio, and VR integration complete the command center.
+          </p>
         </div>
       </div>
     </section>
 
-    <section class="reveal rounded-3xl border border-cyan-400/50 bg-white/5 p-8 text-center shadow-[0_0_30px_rgba(0,242,255,0.25)] backdrop-blur-lg">
+    <div class="connected-line"></div>
+
+    <section class="section-shell reveal rounded-3xl border border-cyan-400/50 bg-white/5 p-8 shadow-[0_0_30px_rgba(0,242,255,0.25)] backdrop-blur-lg">
+      <div class="flex flex-col gap-2">
+        <h2 class="text-2xl font-semibold text-white">System Harmony</h2>
+        <p class="text-slate-300">Every component feeds the next. No waiting, no throttling, no gaps.</p>
+      </div>
+      <div class="mt-8 grid gap-6 lg:grid-cols-3">
+        <div class="glass-card rounded-2xl p-6">
+          <h3 class="text-lg font-semibold text-cyan-200">Thermal Authority</h3>
+          <p class="mt-3 text-sm text-slate-300">Dual loops, triple 480mm radiators, and tuned flow rates keep CPU and GPU heat isolated.</p>
+        </div>
+        <div class="glass-card rounded-2xl p-6">
+          <h3 class="text-lg font-semibold text-cyan-200">Data Without Delay</h3>
+          <p class="mt-3 text-sm text-slate-300">Samsung PM1763 PCIe 6.0 storage pipelines assets fast enough to eliminate load times.</p>
+        </div>
+        <div class="glass-card rounded-2xl p-6">
+          <h3 class="text-lg font-semibold text-cyan-200">Power Certainty</h3>
+          <p class="mt-3 text-sm text-slate-300">Dual Seasonic Prime TX-1600 PSUs keep voltage stable under extreme GPU spikes.</p>
+        </div>
+      </div>
+      <p class="mt-6 text-sm text-[var(--soft-white)]">
+        This is not future-proofing. It is future refusal — a system built to stay ahead without breaking stride.
+      </p>
+    </section>
+
+    <div class="connected-line"></div>
+
+    <section class="section-shell reveal rounded-3xl border border-cyan-400/50 bg-white/5 p-8 shadow-[0_0_30px_rgba(0,242,255,0.25)] backdrop-blur-lg">
+      <div class="flex flex-col gap-2">
+        <h2 class="text-2xl font-semibold text-white">Neon Circuit Game</h2>
+        <p class="text-slate-300">Sync the core node through the grid. Collect pulses before the timer fades.</p>
+      </div>
+      <div class="mt-6 grid gap-6 lg:grid-cols-[2fr_1fr]">
+        <div class="game-panel rounded-2xl p-4">
+          <canvas id="circuitGame" width="520" height="280"></canvas>
+        </div>
+        <div class="glass-card rounded-2xl p-6 text-sm text-slate-300">
+          <h3 class="text-lg font-semibold text-cyan-200">How to Play</h3>
+          <ul class="mt-4 space-y-2">
+            <li>⬆️⬇️⬅️➡️ Move the core node.</li>
+            <li>Collect all pulses to refresh the timer.</li>
+            <li>Press <span class="text-cyan-200">R</span> to reset the run.</li>
+          </ul>
+          <div class="mt-6 grid gap-3 text-sm">
+            <div class="metric-pill rounded-2xl px-4 py-2">Score: <span id="scoreDisplay" class="text-cyan-200">0</span></div>
+            <div class="metric-pill rounded-2xl px-4 py-2">Timer: <span id="timerDisplay" class="text-cyan-200">45</span>s</div>
+            <div class="metric-pill rounded-2xl px-4 py-2">Run Status: <span id="statusDisplay" class="text-cyan-200">Active</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="connected-line"></div>
+
+    <section class="section-shell reveal rounded-3xl border border-cyan-400/50 bg-white/5 p-8 shadow-[0_0_30px_rgba(0,242,255,0.25)] backdrop-blur-lg">
+      <div class="flex flex-col gap-2">
+        <h2 class="text-2xl font-semibold text-white">Signal Gallery</h2>
+        <p class="text-slate-300">Connected visuals that reflect the build's calm power.</p>
+      </div>
+      <div class="mt-8 grid gap-6 md:grid-cols-3">
+        <figure class="glass-card rounded-2xl p-4">
+          <img class="h-44 w-full rounded-xl object-cover" src="https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=900&q=80" alt="Closeup of circuit board in cool neon light" />
+          <figcaption class="mt-3 text-sm text-slate-300">Circuit precision, low-latency pathways.</figcaption>
+        </figure>
+        <figure class="glass-card rounded-2xl p-4">
+          <img class="h-44 w-full rounded-xl object-cover" src="https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=900&q=80" alt="Workspace with monitors and ambient lighting" />
+          <figcaption class="mt-3 text-sm text-slate-300">Command center immersion for multi-display focus.</figcaption>
+        </figure>
+        <figure class="glass-card rounded-2xl p-4">
+          <img class="h-44 w-full rounded-xl object-cover" src="https://images.unsplash.com/photo-1487058792275-0ad4aaf24ca7?auto=format&fit=crop&w=900&q=80" alt="Dark abstract light streaks representing data flow" />
+          <figcaption class="mt-3 text-sm text-slate-300">Data flow that never stalls, never waits.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <div class="connected-line"></div>
+
+    <section class="section-shell reveal rounded-3xl border border-cyan-400/50 bg-white/5 p-8 text-center shadow-[0_0_30px_rgba(0,242,255,0.25)] backdrop-blur-lg">
       <h2 class="text-2xl font-semibold text-white">Socials</h2>
       <div class="mt-6 flex flex-col items-center justify-center gap-4 sm:flex-row">
         <a class="w-full rounded-xl border border-cyan-300/70 bg-cyan-400/10 px-6 py-4 text-lg font-semibold text-cyan-200 transition hover:scale-105 sm:w-auto" href="https://www.tiktok.com/@michaelkage" target="_blank">TikTok</a>
         <a class="w-full rounded-xl border border-cyan-300/70 bg-white/10 px-6 py-4 text-lg font-semibold text-white transition hover:scale-105 sm:w-auto" href="https://www.instagram.com/actuallyintowomen/" target="_blank">Instagram</a>
       </div>
+      <p class="mt-6 text-xs uppercase tracking-[0.4em] text-slate-400">Everything connected. Everything smooth.</p>
     </section>
 
   </main>
@@ -127,6 +297,168 @@
     document.querySelectorAll('.reveal').forEach(section => {
       observer.observe(section);
     });
+
+    const canvas = document.getElementById('circuitGame');
+    const ctx = canvas.getContext('2d');
+    const gridSize = 20;
+    const maxCols = Math.floor(canvas.width / gridSize);
+    const maxRows = Math.floor(canvas.height / gridSize);
+    let score = 0;
+    let timer = 45;
+    let status = 'Active';
+    let player = { x: 4, y: 4 };
+    let pulses = [];
+    let gameInterval;
+    let timerInterval;
+
+    const scoreDisplay = document.getElementById('scoreDisplay');
+    const timerDisplay = document.getElementById('timerDisplay');
+    const statusDisplay = document.getElementById('statusDisplay');
+
+    const spawnPulses = () => {
+      pulses = [];
+      while (pulses.length < 6) {
+        const pulse = {
+          x: Math.floor(Math.random() * maxCols),
+          y: Math.floor(Math.random() * maxRows)
+        };
+        if ((pulse.x !== player.x || pulse.y !== player.y)
+          && !pulses.find(existing => existing.x === pulse.x && existing.y === pulse.y)) {
+          pulses.push(pulse);
+        }
+      }
+    };
+
+    const drawGrid = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.strokeStyle = 'rgba(0, 242, 255, 0.15)';
+      for (let x = 0; x <= maxCols; x++) {
+        ctx.beginPath();
+        ctx.moveTo(x * gridSize, 0);
+        ctx.lineTo(x * gridSize, canvas.height);
+        ctx.stroke();
+      }
+      for (let y = 0; y <= maxRows; y++) {
+        ctx.beginPath();
+        ctx.moveTo(0, y * gridSize);
+        ctx.lineTo(canvas.width, y * gridSize);
+        ctx.stroke();
+      }
+    };
+
+    const drawPlayer = () => {
+      ctx.fillStyle = 'rgba(0, 242, 255, 0.9)';
+      ctx.beginPath();
+      ctx.arc(
+        player.x * gridSize + gridSize / 2,
+        player.y * gridSize + gridSize / 2,
+        gridSize / 2.4,
+        0,
+        Math.PI * 2
+      );
+      ctx.fill();
+    };
+
+    const drawPulses = () => {
+      pulses.forEach(pulse => {
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
+        ctx.beginPath();
+        ctx.arc(
+          pulse.x * gridSize + gridSize / 2,
+          pulse.y * gridSize + gridSize / 2,
+          gridSize / 3,
+          0,
+          Math.PI * 2
+        );
+        ctx.fill();
+      });
+    };
+
+    const drawGame = () => {
+      drawGrid();
+      drawPulses();
+      drawPlayer();
+    };
+
+    const updateScoreboard = () => {
+      scoreDisplay.textContent = score;
+      timerDisplay.textContent = timer;
+      statusDisplay.textContent = status;
+    };
+
+    const checkPulsePickup = () => {
+      const pulseIndex = pulses.findIndex(pulse => pulse.x === player.x && pulse.y === player.y);
+      if (pulseIndex !== -1) {
+        pulses.splice(pulseIndex, 1);
+        score += 10;
+        if (!pulses.length) {
+          timer = Math.min(timer + 15, 60);
+          spawnPulses();
+        }
+      }
+    };
+
+    const resetGame = () => {
+      score = 0;
+      timer = 45;
+      status = 'Active';
+      player = { x: 4, y: 4 };
+      spawnPulses();
+      updateScoreboard();
+      drawGame();
+    };
+
+    const endGame = () => {
+      status = 'Sync Lost';
+      updateScoreboard();
+      clearInterval(timerInterval);
+    };
+
+    const startGame = () => {
+      spawnPulses();
+      updateScoreboard();
+      drawGame();
+      clearInterval(timerInterval);
+      timerInterval = setInterval(() => {
+        if (timer > 0) {
+          timer -= 1;
+          updateScoreboard();
+        } else {
+          endGame();
+        }
+      }, 1000);
+    };
+
+    document.addEventListener('keydown', (event) => {
+      if (status !== 'Active' && event.key.toLowerCase() !== 'r') {
+        return;
+      }
+      switch (event.key) {
+        case 'ArrowUp':
+          player.y = Math.max(0, player.y - 1);
+          break;
+        case 'ArrowDown':
+          player.y = Math.min(maxRows - 1, player.y + 1);
+          break;
+        case 'ArrowLeft':
+          player.x = Math.max(0, player.x - 1);
+          break;
+        case 'ArrowRight':
+          player.x = Math.min(maxCols - 1, player.x + 1);
+          break;
+        case 'r':
+        case 'R':
+          resetGame();
+          return;
+        default:
+          return;
+      }
+      checkPulsePickup();
+      updateScoreboard();
+      drawGame();
+    });
+
+    startGame();
   </script>
 </body>
 </html>
