@@ -29,14 +29,30 @@ jobs:
           set -uo pipefail
 
           urls=(
+            "https://michaelkage.github.io/"
             "https://michaelkage.github.io/campus-plug67/"
             "https://michaelkage.github.io/OmniPocket/"
-            "https://github.com/michaelkage/Life-Itself"
-            "https://github.com/michaelkage/autonomous-media-network"
-            "https://github.com/michaelkage/campus-plug67"
-            "https://github.com/michaelkage/OmniPocket"
-            "https://github.com/michaelkage/unilag-watcher"
+            "https://michaelkage.github.io/wastelens-dashboard-prototype/"
+            "https://github.com/michaelkage/michaelkage"
             "https://github.com/michaelkage/Daily-Log"
+            "https://github.com/michaelkage/The-Vault"
+            "https://github.com/michaelkage/campus-plug67"
+            "https://github.com/michaelkage/JaFaFaWeb"
+            "https://github.com/michaelkage/RecordsDataBase"
+            "https://github.com/michaelkage/Student_Database_with_Siliblings"
+            "https://github.com/michaelkage/MinecraftServer"
+            "https://github.com/michaelkage/LaundrySolution"
+            "https://github.com/michaelkage/OmniPocket"
+            "https://github.com/michaelkage/wastelens-dashboard-prototype"
+            "https://github.com/michaelkage/Terranova"
+            "https://github.com/michaelkage/unilag-watcher"
+            "https://github.com/michaelkage/autonomous-media-network"
+            "https://github.com/michaelkage/Life-Itself"
+            "https://github.com/michaelkage/OmniRoute"
+            "https://github.com/michaelkage/Ai-Gateway"
+            "https://github.com/michaelkage/Axiom"
+            "https://github.com/michaelkage/OmniLauncher"
+            "https://github.com/michaelkage/Vanguard"
           )
 
           failures=0
