@@ -155,6 +155,60 @@
     .force-reduced-motion *, .force-reduced-motion *::before, .force-reduced-motion *::after { scroll-behavior:auto !important; animation-duration:.01ms !important; animation-iteration-count:1 !important; transition-duration:.01ms !important; }
     @media (max-width:620px) { .top-actions { gap:6px; } .top-actions .status { display:none; } .utility-button { padding:0 7px; font-size:8px; } .settings-panel { padding:17px; } .settings-actions { align-items:flex-start; } }
 
+
+    .desktop-overlay { position:fixed; inset:0; z-index:850; display:flex; flex-direction:column; overflow:hidden; color:#e8f1fb; background:radial-gradient(ellipse at 18% 14%,rgba(0,229,255,.14),transparent 34rem),radial-gradient(ellipse at 88% 82%,rgba(155,123,255,.15),transparent 32rem),linear-gradient(135deg,#080d18,#0b1424 58%,#090e1a); }
+    .desktop-overlay[hidden] { display:none; }
+    .desktop-topbar { display:flex; flex:0 0 48px; align-items:center; justify-content:space-between; gap:12px; padding:0 17px; border-bottom:1px solid rgba(255,255,255,.1); background:rgba(5,10,18,.72); backdrop-filter:blur(16px); }
+    .desktop-brand,.desktop-top-actions { display:flex; align-items:center; gap:10px; }
+    .desktop-brand { color:#dceafa; font-size:10px; font-weight:700; letter-spacing:.12em; }
+    .desktop-brand small { display:block; margin-top:3px; color:#72839c; font-size:7px; font-weight:400; }
+    .desktop-brand-mark { display:grid; width:27px; height:27px; place-items:center; border:1px solid rgba(0,229,255,.5); border-radius:7px; color:var(--cyan); background:rgba(0,229,255,.08); font-size:9px; }
+    .desktop-top-actions { color:#8495ad; font-size:8px; letter-spacing:.12em; }
+    .desktop-close { width:29px; height:29px; border:1px solid rgba(255,255,255,.13); border-radius:7px; color:#aab8ca; background:rgba(255,255,255,.04); font-size:18px; cursor:pointer; }
+    .desktop-stage { position:relative; flex:1; min-height:0; overflow:hidden; }
+    .desktop-shortcuts { position:absolute; z-index:1; top:17px; left:17px; display:grid; grid-template-columns:repeat(2,82px); align-content:start; gap:10px; }
+    .desktop-icon { display:flex; min-height:78px; flex-direction:column; align-items:center; justify-content:center; gap:8px; padding:8px 5px; border:1px solid transparent; border-radius:9px; color:#d8e4f4; background:transparent; font:inherit; cursor:pointer; text-align:center; }
+    .desktop-icon:hover,.desktop-icon:focus-visible { border-color:rgba(0,229,255,.28); background:rgba(0,229,255,.08); }
+    .desktop-icon-glyph { display:grid; width:35px; height:35px; place-items:center; border:1px solid rgba(0,229,255,.34); border-radius:10px; color:var(--cyan); background:linear-gradient(145deg,rgba(0,229,255,.14),rgba(155,123,255,.1)); font-size:14px; box-shadow:0 8px 24px rgba(0,0,0,.2); }
+    .desktop-icon-name { max-width:78px; font-size:8px; line-height:1.4; text-shadow:0 1px 5px #000; overflow-wrap:anywhere; }
+    .desktop-windows { position:absolute; inset:0; pointer-events:none; }
+    .desktop-window { position:absolute; top:50%; left:50%; display:flex; width:min(760px,calc(100% - 40px)); height:min(540px,calc(100% - 34px)); min-width:min(300px,calc(100% - 12px)); min-height:210px; flex-direction:column; overflow:hidden; transform:translate(-50%,-50%); border:1px solid rgba(0,229,255,.28); border-radius:11px; background:#0a111d; box-shadow:0 24px 90px rgba(0,0,0,.58); pointer-events:auto; resize:both; }
+    .desktop-window.is-maximized { top:8px!important; left:8px!important; width:calc(100% - 16px)!important; height:calc(100% - 16px)!important; min-width:0; min-height:0; transform:none; resize:none; }
+    .desktop-window[hidden] { display:none; }
+    .window-titlebar { display:flex; flex:0 0 39px; align-items:center; gap:9px; padding:0 10px 0 13px; border-bottom:1px solid rgba(255,255,255,.08); background:linear-gradient(90deg,rgba(0,229,255,.08),rgba(255,255,255,.025)); cursor:grab; touch-action:none; user-select:none; }
+    .window-titlebar:active { cursor:grabbing; }
+    .window-title { min-width:0; flex:1; overflow:hidden; color:#dce8f7; font-size:9px; font-weight:700; letter-spacing:.08em; text-overflow:ellipsis; white-space:nowrap; }
+    .window-controls { display:flex; gap:5px; }
+    .window-control { display:grid; width:25px; height:24px; place-items:center; border:1px solid rgba(255,255,255,.1); border-radius:5px; color:#aab8ca; background:rgba(255,255,255,.04); font:inherit; font-size:12px; cursor:pointer; }
+    .window-control:hover { border-color:rgba(0,229,255,.35); color:var(--cyan); }
+    .window-control.window-close:hover { border-color:rgba(255,120,120,.45); color:#ff9b9b; }
+    .window-content { position:relative; flex:1; min-height:0; overflow:auto; background:#0a111d; }
+    .window-frame { display:block; width:100%; height:100%; min-height:200px; border:0; background:#fff; }
+    .window-preview { display:flex; min-height:100%; flex-direction:column; align-items:flex-start; justify-content:center; padding:clamp(20px,5vw,48px); background:radial-gradient(ellipse at 15% 15%,rgba(0,229,255,.08),transparent 26rem),#0a111d; }
+    .window-preview .eyebrow { color:var(--cyan); }
+    .window-preview h3 { max-width:560px; margin:12px 0; color:#e8f1fb; font-size:clamp(20px,4vw,32px); letter-spacing:-.04em; }
+    .window-preview p { max-width:540px; color:#9aaac0; font-size:11px; line-height:1.8; }
+    .window-preview .stage-label { margin-top:8px; }
+    .window-launch { display:inline-flex; align-items:center; min-height:37px; margin-top:15px; padding:0 13px; border:1px solid rgba(0,229,255,.38); border-radius:7px; color:var(--cyan); background:rgba(0,229,255,.07); font:inherit; font-size:9px; text-decoration:none; }
+    .window-launch:hover { background:rgba(0,229,255,.14); }
+    .window-footer { display:flex; flex:0 0 27px; align-items:center; justify-content:space-between; gap:10px; padding:0 11px; border-top:1px solid rgba(255,255,255,.07); color:#71819a; background:#0c1522; font-size:8px; }
+    .desktop-dock { display:flex; flex:0 0 51px; align-items:center; gap:10px; padding:0 13px; border-top:1px solid rgba(255,255,255,.1); background:rgba(5,10,18,.82); backdrop-filter:blur(18px); }
+    .dock-home,.dock-task { display:grid; min-width:31px; height:30px; place-items:center; border:1px solid rgba(0,229,255,.25); border-radius:7px; color:var(--cyan); background:rgba(0,229,255,.07); font:inherit; font-size:12px; cursor:pointer; }
+    .dock-running { display:flex; min-width:0; flex:1; gap:6px; overflow-x:auto; }
+    .dock-task { display:block; max-width:160px; padding:0 10px; overflow:hidden; color:#aebbd0; font-size:8px; text-overflow:ellipsis; white-space:nowrap; }
+    .dock-task[aria-pressed="true"] { border-color:rgba(0,229,255,.55); color:var(--cyan); background:rgba(0,229,255,.13); }
+    .dock-indicator { color:#71819a; font-size:8px; letter-spacing:.1em; white-space:nowrap; }
+    @media (max-width:620px) {
+      .desktop-topbar { flex-basis:43px; padding-inline:10px; }
+      .desktop-shortcuts { top:10px; left:8px; grid-template-columns:repeat(2,66px); gap:5px; }
+      .desktop-icon { min-height:70px; }
+      .desktop-window { top:8px; left:8px; width:calc(100% - 16px); height:calc(100% - 16px); min-width:0; transform:none; }
+      .desktop-dock { flex-basis:47px; gap:6px; padding-inline:8px; }
+      .dock-task { max-width:108px; }
+      .dock-indicator { font-size:7px; }
+      .top-actions { flex-wrap:wrap; justify-content:flex-end; }
+    }
+
     .palette[hidden] { display:none; }
     .palette { position:fixed; inset:0; z-index:900; display:grid; align-items:start; justify-items:center; padding: min(16vh,120px) 18px 24px; background:rgba(2,5,10,.78); backdrop-filter:blur(10px); }
     .palette-panel { width:min(100%,620px); overflow:hidden; border:1px solid rgba(0,229,255,.35); border-radius:13px; background:#0b1220; box-shadow:0 25px 90px rgba(0,0,0,.6); }
@@ -281,7 +335,7 @@
           <p class="brand-name">MK.SYSTEMS</p>
         </div>
       </div>
-      <div class="top-actions"><button class="utility-button" id="palette-open" type="button">⌕ COMMAND <kbd>Ctrl K</kbd></button><button class="utility-button" id="settings-open" type="button" aria-haspopup="dialog">⚙ SETTINGS <kbd>Ctrl ,</kbd></button><span class="status">Gateway online</span></div>
+      <div class="top-actions"><button class="utility-button" id="desktop-open" type="button">▦ DESKTOP <kbd>Ctrl ⇧ D</kbd></button><button class="utility-button" id="palette-open" type="button">⌕ COMMAND <kbd>Ctrl K</kbd></button><button class="utility-button" id="settings-open" type="button" aria-haspopup="dialog">⚙ SETTINGS <kbd>Ctrl ,</kbd></button><span class="status">Gateway online</span></div>
     </header>
 
     <section class="hero" aria-labelledby="page-title">
@@ -580,6 +634,22 @@
       <span>© <span id="year">2026</span> Michael Kage</span>
     </footer>
   </main>
+
+  <section class="desktop-overlay" id="desktop-overlay" aria-label="MK Systems desktop" hidden>
+    <header class="desktop-topbar">
+      <div class="desktop-brand"><span class="desktop-brand-mark">MK</span><span>MK.SYSTEMS <small>DESKTOP ENVIRONMENT</small></span></div>
+      <div class="desktop-top-actions"><span id="desktop-clock" aria-live="off">LOCAL SESSION</span><button class="desktop-close" id="desktop-close" type="button" aria-label="Close desktop">×</button></div>
+    </header>
+    <div class="desktop-stage" id="desktop-stage">
+      <nav class="desktop-shortcuts" id="desktop-shortcuts" aria-label="Desktop applications"></nav>
+      <div class="desktop-windows" id="desktop-windows"></div>
+    </div>
+    <footer class="desktop-dock">
+      <button class="dock-home" id="dock-home" type="button" aria-label="Show desktop shortcuts">⌂</button>
+      <div class="dock-running" id="dock-running" aria-label="Open windows"></div>
+      <span class="dock-indicator" id="dock-indicator">0 WINDOWS</span>
+    </footer>
+  </section>
 
   <script>
     (() => {
@@ -910,6 +980,262 @@
           else openSettings();
         }
       });
+
+      // Desktop window manager. Production apps remain independent routes; only the
+      // two same-origin deployments are embedded. External destinations get safe launch panels.
+      const desktop = document.getElementById("desktop-overlay");
+      const desktopOpen = document.getElementById("desktop-open");
+      const desktopClose = document.getElementById("desktop-close");
+      const desktopShortcuts = document.getElementById("desktop-shortcuts");
+      const desktopWindows = document.getElementById("desktop-windows");
+      const dockRunning = document.getElementById("dock-running");
+      const dockIndicator = document.getElementById("dock-indicator");
+      const desktopClock = document.getElementById("desktop-clock");
+      const appDefinitions = [...document.querySelectorAll(".app-link")].map((element, index) => ({
+        id: "app-" + index,
+        name: element.querySelector(".app-name")?.textContent.trim() || "Application",
+        description: element.querySelector(".app-desc")?.textContent.trim() || "",
+        stage: element.querySelector(".stage-label")?.textContent.trim() || "APPLICATION",
+        href: element.href,
+        local: element.origin === window.location.origin,
+        element
+      }));
+      const openWindows = new Map();
+      let focusedWindow = null;
+      let windowLayer = 10;
+      const focusWindow = (id) => {
+        const record = openWindows.get(id);
+        if (!record) return;
+        focusedWindow = id;
+        record.element.style.zIndex = String(++windowLayer);
+        for (const [windowId, entry] of openWindows) {
+          entry.task.setAttribute("aria-pressed", String(windowId === id && !entry.element.hidden));
+        }
+      };
+      const updateDock = () => {
+        dockRunning.replaceChildren();
+        let visible = 0;
+        for (const [id, record] of openWindows) {
+          const task = document.createElement("button");
+          task.type = "button";
+          task.className = "dock-task";
+          task.textContent = record.app.name;
+          task.title = record.app.name;
+          task.setAttribute("aria-pressed", String(id === focusedWindow && !record.element.hidden));
+          task.addEventListener("click", () => {
+            if (!record.element.hidden && focusedWindow === id) {
+              record.element.hidden = true;
+              focusedWindow = null;
+              task.setAttribute("aria-pressed", "false");
+            } else {
+              record.element.hidden = false;
+              focusWindow(id);
+            }
+            updateDock();
+          });
+          record.task = task;
+          dockRunning.append(task);
+          if (!record.element.hidden) visible++;
+        }
+        dockIndicator.textContent = visible + " ACTIVE / " + openWindows.size + " WINDOWS";
+      };
+      const closeWindow = (id) => {
+        const record = openWindows.get(id);
+        if (!record) return;
+        record.element.remove();
+        record.task?.remove();
+        openWindows.delete(id);
+        if (focusedWindow === id) focusedWindow = null;
+        const remaining = [...openWindows.entries()].filter(([, entry]) => !entry.element.hidden);
+        if (remaining.length) focusWindow(remaining[remaining.length - 1][0]);
+        updateDock();
+      };
+      const toggleMaximize = (record) => {
+        const element = record.element;
+        if (!element.classList.contains("is-maximized")) {
+          record.previousBounds = {
+            left: element.style.left, top: element.style.top,
+            width: element.style.width, height: element.style.height,
+            transform: element.style.transform
+          };
+          element.classList.add("is-maximized");
+        } else {
+          element.classList.remove("is-maximized");
+          const bounds = record.previousBounds || {};
+          for (const [property, value] of Object.entries(bounds)) element.style[property] = value;
+        }
+      };
+      const makeDraggable = (record, titlebar) => {
+        let drag = null;
+        titlebar.addEventListener("pointerdown", (event) => {
+          if (event.target.closest("button") || record.element.classList.contains("is-maximized")) return;
+          const rect = record.element.getBoundingClientRect();
+          drag = { pointerId:event.pointerId, x:event.clientX, y:event.clientY, left:rect.left, top:rect.top };
+          titlebar.setPointerCapture(event.pointerId);
+          focusWindow(record.app.id);
+        });
+        titlebar.addEventListener("pointermove", (event) => {
+          if (!drag || drag.pointerId !== event.pointerId) return;
+          const stageRect = document.getElementById("desktop-stage").getBoundingClientRect();
+          const maxLeft = Math.max(0, stageRect.width - record.element.offsetWidth);
+          const maxTop = Math.max(0, stageRect.height - record.element.offsetHeight);
+          const nextLeft = Math.min(maxLeft, Math.max(0, drag.left + event.clientX - drag.x));
+          const nextTop = Math.min(maxTop, Math.max(0, drag.top + event.clientY - drag.y));
+          record.element.style.left = nextLeft + "px";
+          record.element.style.top = nextTop + "px";
+          record.element.style.transform = "none";
+        });
+        const stopDrag = (event) => {
+          if (drag && drag.pointerId === event.pointerId) drag = null;
+        };
+        titlebar.addEventListener("pointerup", stopDrag);
+        titlebar.addEventListener("pointercancel", stopDrag);
+      };
+      const createWindow = (app) => {
+        const existing = openWindows.get(app.id);
+        if (existing) {
+          existing.element.hidden = false;
+          focusWindow(app.id);
+          updateDock();
+          return;
+        }
+        const element = document.createElement("section");
+        element.className = "desktop-window";
+        element.setAttribute("role", "region");
+        element.setAttribute("aria-label", app.name + " window");
+        const titlebar = document.createElement("div");
+        titlebar.className = "window-titlebar";
+        const title = document.createElement("span");
+        title.className = "window-title";
+        title.textContent = app.name.toUpperCase();
+        const controls = document.createElement("div");
+        controls.className = "window-controls";
+        const minimize = document.createElement("button");
+        minimize.type = "button";
+        minimize.className = "window-control";
+        minimize.textContent = "−";
+        minimize.setAttribute("aria-label", "Minimize " + app.name);
+        const maximize = document.createElement("button");
+        maximize.type = "button";
+        maximize.className = "window-control";
+        maximize.textContent = "□";
+        maximize.setAttribute("aria-label", "Maximize or restore " + app.name);
+        const close = document.createElement("button");
+        close.type = "button";
+        close.className = "window-control window-close";
+        close.textContent = "×";
+        close.setAttribute("aria-label", "Close " + app.name);
+        controls.append(minimize, maximize, close);
+        titlebar.append(title, controls);
+        const content = document.createElement("div");
+        content.className = "window-content";
+        if (app.local) {
+          const frame = document.createElement("iframe");
+          frame.className = "window-frame";
+          frame.title = app.name + " live application preview";
+          frame.src = app.href;
+          frame.loading = "lazy";
+          frame.referrerPolicy = "same-origin";
+          content.append(frame);
+        } else {
+          const preview = document.createElement("div");
+          preview.className = "window-preview";
+          const eyebrow = document.createElement("p");
+          eyebrow.className = "eyebrow";
+          eyebrow.textContent = "EXTERNAL SYSTEM // GITHUB";
+          const heading = document.createElement("h3");
+          heading.textContent = app.name;
+          const description = document.createElement("p");
+          description.textContent = app.description;
+          const stage = document.createElement("span");
+          stage.className = "stage-label";
+          stage.textContent = app.stage;
+          const launch = document.createElement("a");
+          launch.className = "window-launch";
+          launch.href = app.href;
+          launch.target = "_blank";
+          launch.rel = "noopener noreferrer";
+          launch.textContent = "Open repository ↗";
+          preview.append(eyebrow, heading, description, stage, launch);
+          content.append(preview);
+        }
+        const footer = document.createElement("div");
+        footer.className = "window-footer";
+        const route = document.createElement("span");
+        route.textContent = app.local ? "SAME-ORIGIN LIVE PREVIEW" : "EXTERNAL DESTINATION";
+        const openLink = document.createElement("a");
+        openLink.href = app.href;
+        openLink.target = app.local ? "_self" : "_blank";
+        openLink.rel = "noopener noreferrer";
+        openLink.textContent = app.local ? "Open full application ↗" : "Open destination ↗";
+        openLink.style.color = "var(--cyan)";
+        openLink.style.textDecoration = "none";
+        footer.append(route, openLink);
+        element.append(titlebar, content, footer);
+        desktopWindows.append(element);
+        const record = { app, element, task:null, previousBounds:null };
+        openWindows.set(app.id, record);
+        makeDraggable(record, titlebar);
+        element.addEventListener("pointerdown", () => focusWindow(app.id));
+        minimize.addEventListener("click", () => {
+          element.hidden = true;
+          if (focusedWindow === app.id) focusedWindow = null;
+          updateDock();
+        });
+        maximize.addEventListener("click", () => toggleMaximize(record));
+        close.addEventListener("click", () => closeWindow(app.id));
+        focusWindow(app.id);
+        updateDock();
+      };
+      const renderDesktopShortcuts = () => {
+        desktopShortcuts.replaceChildren();
+        for (const app of appDefinitions) {
+          const button = document.createElement("button");
+          button.type = "button";
+          button.className = "desktop-icon";
+          button.title = "Open " + app.name;
+          const glyph = document.createElement("span");
+          glyph.className = "desktop-icon-glyph";
+          glyph.textContent = app.local ? "▣" : "↗";
+          const name = document.createElement("span");
+          name.className = "desktop-icon-name";
+          name.textContent = app.name;
+          button.append(glyph, name);
+          button.addEventListener("click", () => createWindow(app));
+          desktopShortcuts.append(button);
+        }
+      };
+      const openDesktop = () => {
+        desktop.hidden = false;
+        renderDesktopShortcuts();
+        desktopClose.focus();
+      };
+      const closeDesktop = () => {
+        desktop.hidden = true;
+        desktopOpen.focus();
+      };
+      desktopOpen.addEventListener("click", openDesktop);
+      desktopClose.addEventListener("click", closeDesktop);
+      document.getElementById("dock-home").addEventListener("click", () => {
+        for (const record of openWindows.values()) record.element.hidden = true;
+        focusedWindow = null;
+        updateDock();
+      });
+      desktop.addEventListener("keydown", (event) => {
+        if (event.key === "Escape" && event.target === desktop) closeDesktop();
+      });
+      document.addEventListener("keydown", (event) => {
+        if ((event.ctrlKey || event.metaKey) && event.shiftKey && event.key.toLowerCase() === "d") {
+          event.preventDefault();
+          if (desktop.hidden) openDesktop();
+          else closeDesktop();
+        }
+      });
+      const updateDesktopClock = () => {
+        desktopClock.textContent = new Date().toLocaleTimeString([], { hour:"2-digit", minute:"2-digit" });
+      };
+      updateDesktopClock();
+      window.setInterval(updateDesktopClock, 30000);
 
       const fetchWithTimeout = async (url, timeoutMs = 8000) => {
         const controller = new AbortController();
