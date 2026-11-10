@@ -117,7 +117,8 @@
     .stage-label { display: inline-block; margin-top: 9px; padding: 4px 7px; border: 1px solid rgba(155,123,255,.24); border-radius: 5px; color: #b8a4ff; background: rgba(155,123,255,.06); font-size: 8px; letter-spacing: .09em; }
     .stage-note { display: block; margin-top: 6px; color: #9aaac0; font-size: 10px; line-height: 1.55; }
     .stage-source { display: block; margin-top: 5px; color: #71819a; font-size: 8px; letter-spacing: .06em; text-transform: uppercase; }
-    .repo-tools { display: flex; align-items: center; gap: 12px; margin: 0 0 12px; }
+    .repo-tools { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin: 0 0 12px; }
+    .repo-search { flex: 1 1 240px; }
     .repo-search { width: min(100%, 420px); min-height: 42px; padding: 0 13px; border: 1px solid rgba(125,151,183,.25); border-radius: 8px; color: var(--text); background: rgba(9,15,25,.9); font: inherit; font-size: 11px; }
     .repo-search::placeholder { color: #71819a; }
     .repo-sort { min-height: 42px; padding: 0 11px; border: 1px solid rgba(125,151,183,.25); border-radius: 8px; color: var(--text); background: rgba(9,15,25,.9); font: inherit; font-size: 10px; }
@@ -136,6 +137,10 @@
     .repo-card .app-desc { min-height: 34px; }
     .repo-card .stage-label { margin-top: 10px; }
     .repo-card .app-meta { margin-top: 8px; }
+    .activity-controls { display: flex; align-items: center; justify-content: flex-end; gap: 12px; }
+    .activity-refresh { min-height: 32px; padding: 0 10px; border: 1px solid rgba(0,229,255,.28); border-radius: 7px; color: var(--cyan); background: rgba(0,229,255,.06); font: inherit; font-size: 9px; cursor: pointer; }
+    .activity-refresh:hover:not(:disabled) { border-color: rgba(0,229,255,.65); background: rgba(0,229,255,.12); }
+    .activity-refresh:disabled { opacity: .55; cursor: wait; }
     .activity-panel { padding: 18px 19px; border: 1px solid rgba(0,229,255,.18); border-radius: 12px; background: rgba(9,15,25,.76); }
     .activity-list { display: grid; gap: 13px; margin: 0; padding: 0; list-style: none; }
     .activity-item { display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 12px; align-items: start; padding-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,.06); }
@@ -159,6 +164,8 @@
       .hero { padding-top: 58px; }
       .app-grid { grid-template-columns: 1fr; }
       .repo-grid { grid-template-columns: 1fr; }
+      .activity-controls { gap: 8px; }
+      .activity-controls .section-hint { display: block; }
       .app-link { min-height: 98px; }
       .section-hint { display: none; }
       .footer { align-items: flex-start; flex-direction: column; gap: 8px; }
@@ -416,7 +423,7 @@
     <section class="section" aria-labelledby="activity-title">
       <div class="section-head">
         <h2 class="section-label" id="activity-title">03 // Recent public activity</h2>
-        <span class="section-hint" id="activity-updated">GitHub event feed</span>
+        <div class="activity-controls"><span class="section-hint" id="activity-updated">GitHub event feed</span><button class="activity-refresh" id="activity-refresh" type="button">Refresh feed</button></div>
       </div>
       <div class="activity-panel">
         <ul class="activity-list" id="activity-list" aria-live="polite">
@@ -582,6 +589,8 @@
 
       const activityList = document.getElementById("activity-list");
       const activityUpdated = document.getElementById("activity-updated");
+      const activityRefresh = document.getElementById("activity-refresh");
+      let activityLoading = false;
       const describeEvent = (event) => {
         const payload = event.payload || {};
         const issue = payload.issue || payload.pull_request || {};
@@ -621,6 +630,10 @@
       };
 
       const loadRecentActivity = async () => {
+        if (activityLoading) return;
+        activityLoading = true;
+        activityRefresh.disabled = true;
+        activityRefresh.textContent = "Refreshing…";
         activityList.setAttribute("aria-busy", "true");
         try {
           // Fetch a wider event window before filtering. The previous per_page=8
@@ -699,8 +712,12 @@
           activityUpdated.textContent = "Feed unavailable";
         } finally {
           activityList.removeAttribute("aria-busy");
+          activityLoading = false;
+          activityRefresh.disabled = false;
+          activityRefresh.textContent = "Refresh feed";
         }
       };
+      activityRefresh.addEventListener("click", loadRecentActivity);
       loadRecentActivity();
     })();
   </script>
