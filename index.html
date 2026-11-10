@@ -829,7 +829,7 @@
         }
       });
       document.addEventListener("keydown", (event) => {
-        if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "k") {
+        if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "k" && !settingsDialog.open) {
           event.preventDefault();
           if (palette.hidden) openPalette(); else closePalette();
         } else if (event.key === "Escape" && !palette.hidden) {
