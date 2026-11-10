@@ -635,7 +635,7 @@
     </footer>
   </main>
 
-  <section class="desktop-overlay" id="desktop-overlay" aria-label="MK Systems desktop" hidden>
+  <section class="desktop-overlay" id="desktop-overlay" role="dialog" aria-modal="true" aria-label="MK Systems desktop environment" tabindex="-1" hidden>
     <header class="desktop-topbar">
       <div class="desktop-brand"><span class="desktop-brand-mark">MK</span><span>MK.SYSTEMS <small>DESKTOP ENVIRONMENT</small></span></div>
       <div class="desktop-top-actions"><span id="desktop-clock" aria-live="off">LOCAL SESSION</span><button class="desktop-close" id="desktop-close" type="button" aria-label="Close desktop">×</button></div>
@@ -1070,7 +1070,8 @@
         titlebar.addEventListener("pointerdown", (event) => {
           if (event.target.closest("button") || record.element.classList.contains("is-maximized")) return;
           const rect = record.element.getBoundingClientRect();
-          drag = { pointerId:event.pointerId, x:event.clientX, y:event.clientY, left:rect.left, top:rect.top };
+          const stageRect = document.getElementById("desktop-stage").getBoundingClientRect();
+          drag = { pointerId:event.pointerId, x:event.clientX, y:event.clientY, left:rect.left - stageRect.left, top:rect.top - stageRect.top };
           titlebar.setPointerCapture(event.pointerId);
           focusWindow(record.app.id);
         });
@@ -1207,11 +1208,13 @@
       };
       const openDesktop = () => {
         desktop.hidden = false;
+        shell.inert = true;
         renderDesktopShortcuts();
         desktopClose.focus();
       };
       const closeDesktop = () => {
         desktop.hidden = true;
+        shell.inert = false;
         desktopOpen.focus();
       };
       desktopOpen.addEventListener("click", openDesktop);
@@ -1221,8 +1224,11 @@
         focusedWindow = null;
         updateDock();
       });
-      desktop.addEventListener("keydown", (event) => {
-        if (event.key === "Escape" && event.target === desktop) closeDesktop();
+      document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape" && !desktop.hidden && !settingsDialog.open && palette.hidden) {
+          event.preventDefault();
+          closeDesktop();
+        }
       });
       document.addEventListener("keydown", (event) => {
         if ((event.ctrlKey || event.metaKey) && event.shiftKey && event.key.toLowerCase() === "d") {
