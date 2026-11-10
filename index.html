@@ -115,6 +115,8 @@
     .app-meta[data-state="ready"] { color: var(--green); }
     .app-meta[data-state="error"] { color: #8291a7; }
     .stage-label { display: inline-block; margin-top: 9px; padding: 4px 7px; border: 1px solid rgba(155,123,255,.24); border-radius: 5px; color: #b8a4ff; background: rgba(155,123,255,.06); font-size: 8px; letter-spacing: .09em; }
+    .stage-note { display: block; margin-top: 6px; color: #9aaac0; font-size: 10px; line-height: 1.55; }
+    .stage-source { display: block; margin-top: 5px; color: #71819a; font-size: 8px; letter-spacing: .06em; text-transform: uppercase; }
     .repo-tools { display: flex; align-items: center; gap: 12px; margin: 0 0 12px; }
     .repo-search { width: min(100%, 420px); min-height: 42px; padding: 0 13px; border: 1px solid rgba(125,151,183,.25); border-radius: 8px; color: var(--text); background: rgba(9,15,25,.9); font: inherit; font-size: 11px; }
     .repo-search::placeholder { color: #71819a; }
@@ -200,7 +202,7 @@
     <section class="section" aria-labelledby="apps-title">
       <div class="section-head">
         <h2 class="section-label" id="apps-title">01 // Application routing</h2>
-        <span class="section-hint">Select a node or press 1–6</span>
+        <span class="section-hint">Maintained stage + live GitHub activity · Press 1–6</span>
       </div>
       <nav class="app-grid" aria-label="Application launcher">
         <a class="app-link" href="./campus-plug67/" data-shortcut="1" data-repo="michaelkage/campus-plug67">
@@ -210,7 +212,9 @@
             <span class="app-desc">University P2P marketplace with escrow workflows.</span>
             <span class="app-path">./campus-plug67/</span>
             <span class="stage-label">ACTIVE DEVELOPMENT</span>
-            <span class="app-meta" data-repo-meta aria-live="polite">Repository telemetry loading…</span>
+            <span class="stage-note">Marketplace flows and seven-state escrow workflow are under active development.</span>
+            <span class="stage-source">Maintained project stage · Manual</span>
+            <span class="app-meta" data-repo-meta aria-live="polite">GitHub activity · Loading…</span>
           </span>
           <span class="arrow" aria-hidden="true">↗</span>
         </a>
@@ -221,7 +225,9 @@
             <span class="app-desc">Local-first, multi-currency financial workspace.</span>
             <span class="app-path">./OmniPocket/</span>
             <span class="stage-label">ACTIVE DEVELOPMENT</span>
-            <span class="app-meta" data-repo-meta aria-live="polite">Repository telemetry loading…</span>
+            <span class="stage-note">Local-first finance workspace; bank-data synchronization is handled through Supabase.</span>
+            <span class="stage-source">Maintained project stage · Manual</span>
+            <span class="app-meta" data-repo-meta aria-live="polite">GitHub activity · Loading…</span>
           </span>
           <span class="arrow" aria-hidden="true">↗</span>
         </a>
@@ -232,7 +238,9 @@
             <span class="app-desc">Deterministic open-world life simulation engine.</span>
             <span class="app-path">github.com/michaelkage/Life-Itself</span>
             <span class="stage-label">CORE ENGINE IN PROGRESS</span>
-            <span class="app-meta" data-repo-meta aria-live="polite">Repository telemetry loading…</span>
+            <span class="stage-note">Simulation core is in progress; no Unreal Engine integration is claimed.</span>
+            <span class="stage-source">Maintained project stage · Manual</span>
+            <span class="app-meta" data-repo-meta aria-live="polite">GitHub activity · Loading…</span>
           </span>
           <span class="arrow" aria-hidden="true">↗</span>
         </a>
@@ -243,7 +251,9 @@
             <span class="app-desc">Automated media ingestion, vetting, and publishing.</span>
             <span class="app-path">github.com/michaelkage/autonomous-media-network</span>
             <span class="stage-label">PIPELINE IMPLEMENTED</span>
-            <span class="app-meta" data-repo-meta aria-live="polite">Repository telemetry loading…</span>
+            <span class="stage-note">Reddit ingestion and vetting pipeline, with optional Bluesky publishing.</span>
+            <span class="stage-source">Maintained project stage · Manual</span>
+            <span class="app-meta" data-repo-meta aria-live="polite">GitHub activity · Loading…</span>
           </span>
           <span class="arrow" aria-hidden="true">↗</span>
         </a>
@@ -254,7 +264,9 @@
             <span class="app-desc">Feed change detection with retry-safe Telegram alerts.</span>
             <span class="app-path">github.com/michaelkage/unilag-watcher</span>
             <span class="stage-label">AUTOMATED MONITORING</span>
-            <span class="app-meta" data-repo-meta aria-live="polite">Repository telemetry loading…</span>
+            <span class="stage-note">Automated feed-change detection with retry-safe Telegram notifications.</span>
+            <span class="stage-source">Maintained project stage · Manual</span>
+            <span class="app-meta" data-repo-meta aria-live="polite">GitHub activity · Loading…</span>
           </span>
           <span class="arrow" aria-hidden="true">↗</span>
         </a>
@@ -265,7 +277,9 @@
             <span class="app-desc">Development notes, milestones, and technical decisions.</span>
             <span class="app-path">github.com/michaelkage/Daily-Log</span>
             <span class="stage-label">ENGINEERING JOURNAL</span>
-            <span class="app-meta" data-repo-meta aria-live="polite">Repository telemetry loading…</span>
+            <span class="stage-note">Ongoing technical notes, implementation milestones, and engineering decisions.</span>
+            <span class="stage-source">Maintained project stage · Manual</span>
+            <span class="app-meta" data-repo-meta aria-live="polite">GitHub activity · Loading…</span>
           </span>
           <span class="arrow" aria-hidden="true">↗</span>
         </a>
@@ -294,19 +308,19 @@
           <span class="app-name">Developer Profile</span>
           <span class="app-desc">Profile README, engineering focus, featured systems, and build principles.</span>
           <span class="stage-label">PROFILE README</span>
-          <span class="app-meta" data-repo-meta aria-live="polite">Repository telemetry loading…</span>
+          <span class="app-meta" data-repo-meta aria-live="polite">GitHub activity · Loading…</span>
         </a>
         <a class="repo-card" href="https://github.com/michaelkage/JaFaFaWeb" target="_blank" rel="noopener noreferrer" data-repo="michaelkage/JaFaFaWeb">
           <span class="app-name">JaFaFaWeb</span>
           <span class="app-desc">Vehicle telemetry and fleet-monitoring admin command center plus customer portal.</span>
           <span class="stage-label">FRONTEND PROTOTYPE</span>
-          <span class="app-meta" data-repo-meta aria-live="polite">Repository telemetry loading…</span>
+          <span class="app-meta" data-repo-meta aria-live="polite">GitHub activity · Loading…</span>
         </a>
         <a class="repo-card" href="https://github.com/michaelkage/RecordsDataBase" target="_blank" rel="noopener noreferrer" data-repo="michaelkage/RecordsDataBase">
           <span class="app-name">RecordsDataBase</span>
           <span class="app-desc">Student and institutional records with separate admin and student portals.</span>
           <span class="stage-label">FRONTEND PORTAL</span>
-          <span class="app-meta" data-repo-meta aria-live="polite">Repository telemetry loading…</span>
+          <span class="app-meta" data-repo-meta aria-live="polite">GitHub activity · Loading…</span>
         </a>
         <div class="repo-card" aria-label="Student database repository currently inaccessible">
           <span class="app-name">Student_Database_with_Siliblings</span>
@@ -318,61 +332,61 @@
           <span class="app-name">MinecraftServer</span>
           <span class="app-desc">Minecraft server project repository.</span>
           <span class="stage-label">REPOSITORY</span>
-          <span class="app-meta" data-repo-meta aria-live="polite">Repository telemetry loading…</span>
+          <span class="app-meta" data-repo-meta aria-live="polite">GitHub activity · Loading…</span>
         </a>
         <a class="repo-card" href="https://github.com/michaelkage/LaundrySolution" target="_blank" rel="noopener noreferrer" data-repo="michaelkage/LaundrySolution">
           <span class="app-name">LaundrySolution</span>
           <span class="app-desc">Laundry solution project repository.</span>
           <span class="stage-label">REPOSITORY</span>
-          <span class="app-meta" data-repo-meta aria-live="polite">Repository telemetry loading…</span>
+          <span class="app-meta" data-repo-meta aria-live="polite">GitHub activity · Loading…</span>
         </a>
         <a class="repo-card" href="https://github.com/michaelkage/wastelens-dashboard-prototype" target="_blank" rel="noopener noreferrer" data-repo="michaelkage/wastelens-dashboard-prototype">
           <span class="app-name">wastelens-dashboard-prototype</span>
           <span class="app-desc">WasteLens operations dashboard with simulated telemetry, hotspot analysis, reporting, and demo inference.</span>
           <span class="stage-label">STATIC DEMO DEPLOYMENT</span>
-          <span class="app-meta" data-repo-meta aria-live="polite">Repository telemetry loading…</span>
+          <span class="app-meta" data-repo-meta aria-live="polite">GitHub activity · Loading…</span>
         </a>
         <a class="repo-card" href="https://github.com/michaelkage/Terranova" target="_blank" rel="noopener noreferrer" data-repo="michaelkage/Terranova">
           <span class="app-name">Terranova</span>
           <span class="app-desc">Environmental innovation project landing page and WasteLens overview.</span>
           <span class="stage-label">PROJECT LANDING PAGE</span>
-          <span class="app-meta" data-repo-meta aria-live="polite">Repository telemetry loading…</span>
+          <span class="app-meta" data-repo-meta aria-live="polite">GitHub activity · Loading…</span>
         </a>
         <a class="repo-card" href="https://github.com/michaelkage/OmniRoute" target="_blank" rel="noopener noreferrer" data-repo="michaelkage/OmniRoute">
           <span class="app-name">OmniRoute</span>
           <span class="app-desc">Provider-agnostic AI gateway with model routing, free-tier catalog, and fallback strategies.</span>
           <span class="stage-label">AI GATEWAY</span>
-          <span class="app-meta" data-repo-meta aria-live="polite">Repository telemetry loading…</span>
+          <span class="app-meta" data-repo-meta aria-live="polite">GitHub activity · Loading…</span>
         </a>
         <a class="repo-card" href="https://github.com/michaelkage/Ai-Gateway" target="_blank" rel="noopener noreferrer" data-repo="michaelkage/Ai-Gateway">
           <span class="app-name">Ai-Gateway</span>
           <span class="app-desc">OpenAI-compatible edge AI gateway with provider routing and streaming.</span>
           <span class="stage-label">EDGE API GATEWAY</span>
-          <span class="app-meta" data-repo-meta aria-live="polite">Repository telemetry loading…</span>
+          <span class="app-meta" data-repo-meta aria-live="polite">GitHub activity · Loading…</span>
         </a>
         <a class="repo-card" href="https://github.com/michaelkage/Axiom" target="_blank" rel="noopener noreferrer" data-repo="michaelkage/Axiom">
           <span class="app-name">Axiom</span>
           <span class="app-desc">Standalone AI-first desktop workspace for planning, changing, and verifying software projects.</span>
           <span class="stage-label">DESKTOP APP</span>
-          <span class="app-meta" data-repo-meta aria-live="polite">Repository telemetry loading…</span>
+          <span class="app-meta" data-repo-meta aria-live="polite">GitHub activity · Loading…</span>
         </a>
         <a class="repo-card" href="https://github.com/michaelkage/OmniLauncher" target="_blank" rel="noopener noreferrer" data-repo="michaelkage/OmniLauncher">
           <span class="app-name">OmniLauncher</span>
           <span class="app-desc">Modular Android launcher engine for switching home-screen layouts.</span>
           <span class="stage-label">ANDROID LAUNCHER ENGINE</span>
-          <span class="app-meta" data-repo-meta aria-live="polite">Repository telemetry loading…</span>
+          <span class="app-meta" data-repo-meta aria-live="polite">GitHub activity · Loading…</span>
         </a>
         <a class="repo-card" href="https://github.com/michaelkage/Vanguard" target="_blank" rel="noopener noreferrer" data-repo="michaelkage/Vanguard">
           <span class="app-name">Vanguard</span>
           <span class="app-desc">Local-first campus mesh identity and communication protocol with Android storage foundation.</span>
           <span class="stage-label">PROTOCOL CORE</span>
-          <span class="app-meta" data-repo-meta aria-live="polite">Repository telemetry loading…</span>
+          <span class="app-meta" data-repo-meta aria-live="polite">GitHub activity · Loading…</span>
         </a>
         <a class="repo-card" href="https://github.com/michaelkage/The-Vault" target="_blank" rel="noopener noreferrer" data-repo="michaelkage/The-Vault">
           <span class="app-name">The-Vault</span>
           <span class="app-desc">Second-brain collection of developer, AI, hardware, and workflow resources.</span>
           <span class="stage-label">RESOURCE COLLECTION</span>
-          <span class="app-meta" data-repo-meta aria-live="polite">Repository telemetry loading…</span>
+          <span class="app-meta" data-repo-meta aria-live="polite">GitHub activity · Loading…</span>
         </a>
         <p class="repo-empty" id="repo-empty" hidden>No repositories match that filter.</p>
       </nav>
@@ -468,8 +482,9 @@
 
       // Fetch the public repository inventory once, then hydrate every card locally.
       // One request avoids burning the visitor's unauthenticated GitHub API rate limit.
-      const repoCards = [...document.querySelectorAll("[data-repo][data-repo-meta]")];
-      const directoryCards = [...document.querySelectorAll("#repo-grid .repo-card")];
+      const repoCards = [...document.querySelectorAll("[data-repo]")].filter((card) => card.querySelector("[data-repo-meta]"));
+      const repoGrid = document.getElementById("repo-grid");
+      const directoryCards = [...repoGrid.querySelectorAll(".repo-card")];
       const repoSearch = document.getElementById("repo-search");
       const repoCount = document.getElementById("repo-count");
       const repoSort = document.getElementById("repo-sort");
@@ -499,6 +514,19 @@
       };
       repoSearch.addEventListener("input", filterRepositories);
       repoSort.addEventListener("change", sortRepositories);
+      const fetchWithTimeout = async (url, timeoutMs = 8000) => {
+        const controller = new AbortController();
+        const timeout = window.setTimeout(() => controller.abort(), timeoutMs);
+        try {
+          return await fetch(url, {
+            signal: controller.signal,
+            headers: { Accept: "application/vnd.github+json" },
+          });
+        } finally {
+          window.clearTimeout(timeout);
+        }
+      };
+
       const formatAge = (timestamp) => {
         const elapsed = Math.max(0, Date.now() - new Date(timestamp).getTime());
         const minutes = Math.floor(elapsed / 60000);
@@ -512,9 +540,7 @@
 
       const loadRepositoryTelemetry = async () => {
         try {
-          const response = await fetch("https://api.github.com/users/michaelkage/repos?per_page=100&type=public", {
-            headers: { Accept: "application/vnd.github+json" },
-          });
+          const response = await fetchWithTimeout("https://api.github.com/users/michaelkage/repos?per_page=100&type=public");
           if (!response.ok) throw new Error("GitHub repositories API " + response.status);
           const repositories = await response.json();
           const byName = new Map(repositories.map((repo) => [repo.full_name.toLowerCase(), repo]));
@@ -536,10 +562,15 @@
           }
           sortRepositories();
           filterRepositories();
-        } catch {
+        } catch (error) {
+          const reason = error && error.name === "AbortError"
+            ? "GitHub telemetry timed out after 8s"
+            : error && /403|429/.test(error.message)
+              ? "GitHub API rate limit reached"
+              : "GitHub telemetry unavailable";
           for (const card of repoCards) {
             const target = card.querySelector("[data-repo-meta]");
-            target.textContent = "Live repository data unavailable";
+            target.textContent = reason + " · retry on page refresh";
             target.dataset.state = "error";
           }
         }
@@ -565,9 +596,7 @@
 
       const loadRecentActivity = async () => {
         try {
-          const response = await fetch("https://api.github.com/users/michaelkage/events/public?per_page=8", {
-            headers: { Accept: "application/vnd.github+json" },
-          });
+          const response = await fetchWithTimeout("https://api.github.com/users/michaelkage/events/public?per_page=8");
           if (!response.ok) throw new Error("GitHub events API " + response.status);
           const events = await response.json();
           const relevant = events.filter((event) => ["PushEvent", "PullRequestEvent", "IssuesEvent", "CreateEvent", "ReleaseEvent"].includes(event.type)).slice(0, 5);
@@ -598,11 +627,13 @@
             }
           }
           activityUpdated.textContent = "Updated just now";
-        } catch {
+        } catch (error) {
           activityList.replaceChildren();
           const empty = document.createElement("li");
           empty.className = "activity-empty";
-          empty.textContent = "Public activity feed unavailable. Project links and information remain available above.";
+          empty.textContent = error && error.name === "AbortError"
+            ? "GitHub activity request timed out after 8 seconds. Project links and maintained stage information remain available above."
+            : "Public activity feed unavailable. Project links and maintained stage information remain available above.";
           activityList.append(empty);
           activityUpdated.textContent = "Feed unavailable";
         }
