@@ -595,7 +595,7 @@
         const payload = event.payload || {};
         const issue = payload.issue || payload.pull_request || {};
         const number = issue.number || payload.number;
-        const title = (issue.title || "").replace(/\\s+/g, " ").trim();
+        const title = (issue.title || "").replace(/\s+/g, " ").trim();
         const suffix = number ? " #" + number : "";
         const titleSuffix = title ? ": " + title : "";
 
@@ -603,7 +603,7 @@
           case "PushEvent": {
             const commits = Array.isArray(payload.commits) ? payload.commits : [];
             const latest = commits.length ? commits[commits.length - 1] : null;
-            const message = latest && latest.message ? latest.message.split("\\n")[0].trim() : "";
+            const message = latest && latest.message ? latest.message.split("\n")[0].trim() : "";
             return message || ((payload.size || 0) + " commit(s) pushed");
           }
           case "PullRequestEvent":
