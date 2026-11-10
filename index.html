@@ -106,6 +106,15 @@
     .app-meta { display: block; margin-top: 7px; color: #7f91a9; font-size: 9px; line-height: 1.5; letter-spacing: .02em; }
     .app-meta[data-state="ready"] { color: var(--green); }
     .app-meta[data-state="error"] { color: #8291a7; }
+    .stage-label { display: inline-block; margin-top: 9px; padding: 4px 7px; border: 1px solid rgba(155,123,255,.24); border-radius: 5px; color: #b8a4ff; background: rgba(155,123,255,.06); font-size: 8px; letter-spacing: .09em; }
+    .activity-panel { padding: 18px 19px; border: 1px solid rgba(0,229,255,.18); border-radius: 12px; background: rgba(9,15,25,.76); }
+    .activity-list { display: grid; gap: 13px; margin: 0; padding: 0; list-style: none; }
+    .activity-item { display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 12px; align-items: start; padding-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,.06); }
+    .activity-item:last-child { padding-bottom: 0; border-bottom: 0; }
+    .activity-title { display: block; color: #dce8f7; font-size: 11px; line-height: 1.6; overflow-wrap: anywhere; }
+    .activity-repo { display: block; margin-top: 3px; color: var(--cyan); font-size: 9px; }
+    .activity-time { color: #71819a; font-size: 9px; white-space: nowrap; }
+    .activity-empty { margin: 0; color: var(--muted); font-size: 11px; line-height: 1.7; }
     .arrow { margin-left: auto; color: #62748e; font-size: 16px; }
     .nodes { padding: 17px 19px; border: 1px solid rgba(155,123,255,.2); border-radius: 12px; background: rgba(16,20,34,.72); }
     .node-list { justify-content: flex-start; flex-wrap: wrap; gap: 12px 24px; }
@@ -171,6 +180,7 @@
             <span class="app-name">Campus Plug</span>
             <span class="app-desc">University P2P marketplace with escrow workflows.</span>
             <span class="app-path">./campus-plug67/</span>
+            <span class="stage-label">ACTIVE DEVELOPMENT</span>
             <span class="app-meta" data-repo-meta aria-live="polite">Repository telemetry loading…</span>
           </span>
           <span class="arrow" aria-hidden="true">↗</span>
@@ -181,6 +191,7 @@
             <span class="app-name">OmniPocket</span>
             <span class="app-desc">Local-first, multi-currency financial workspace.</span>
             <span class="app-path">./OmniPocket/</span>
+            <span class="stage-label">ACTIVE DEVELOPMENT</span>
             <span class="app-meta" data-repo-meta aria-live="polite">Repository telemetry loading…</span>
           </span>
           <span class="arrow" aria-hidden="true">↗</span>
@@ -191,6 +202,7 @@
             <span class="app-name">Life Itself</span>
             <span class="app-desc">Deterministic open-world life simulation engine.</span>
             <span class="app-path">github.com/michaelkage/Life-Itself</span>
+            <span class="stage-label">CORE ENGINE IN PROGRESS</span>
             <span class="app-meta" data-repo-meta aria-live="polite">Repository telemetry loading…</span>
           </span>
           <span class="arrow" aria-hidden="true">↗</span>
@@ -201,6 +213,7 @@
             <span class="app-name">Autonomous Media Network</span>
             <span class="app-desc">Automated media ingestion, vetting, and publishing.</span>
             <span class="app-path">github.com/michaelkage/autonomous-media-network</span>
+            <span class="stage-label">PIPELINE IMPLEMENTED</span>
             <span class="app-meta" data-repo-meta aria-live="polite">Repository telemetry loading…</span>
           </span>
           <span class="arrow" aria-hidden="true">↗</span>
@@ -211,6 +224,7 @@
             <span class="app-name">UNILAG Watcher</span>
             <span class="app-desc">Feed change detection with retry-safe Telegram alerts.</span>
             <span class="app-path">github.com/michaelkage/unilag-watcher</span>
+            <span class="stage-label">AUTOMATED MONITORING</span>
             <span class="app-meta" data-repo-meta aria-live="polite">Repository telemetry loading…</span>
           </span>
           <span class="arrow" aria-hidden="true">↗</span>
@@ -221,6 +235,7 @@
             <span class="app-name">Engineering Log</span>
             <span class="app-desc">Development notes, milestones, and technical decisions.</span>
             <span class="app-path">github.com/michaelkage/Daily-Log</span>
+            <span class="stage-label">ENGINEERING JOURNAL</span>
             <span class="app-meta" data-repo-meta aria-live="polite">Repository telemetry loading…</span>
           </span>
           <span class="arrow" aria-hidden="true">↗</span>
@@ -247,6 +262,17 @@
       </div>
     </section>
 
+    <section class="section" aria-labelledby="activity-title">
+      <div class="section-head">
+        <h2 class="section-label" id="activity-title">03 // Recent public activity</h2>
+        <span class="section-hint" id="activity-updated">GitHub event feed</span>
+      </div>
+      <div class="activity-panel">
+        <ul class="activity-list" id="activity-list" aria-live="polite">
+          <li class="activity-empty">Loading recent public activity…</li>
+        </ul>
+      </div>
+    </section>
     <footer class="footer">
       <span>MK.SYSTEMS // ROOT GATEWAY</span>
       <span>Vanilla HTML · CSS · JS // Zero runtime dependencies</span>
@@ -340,6 +366,69 @@
       };
 
       Promise.allSettled(repoCards.map(loadRepositoryTelemetry));
+
+      const activityList = document.getElementById("activity-list");
+      const activityUpdated = document.getElementById("activity-updated");
+      const describeEvent = (event) => {
+        const payload = event.payload || {};
+        if (event.type === "PushEvent") {
+          const commits = payload.commits || [];
+          const latest = commits.length ? commits[commits.length - 1] : null;
+          return latest ? latest.message : ((payload.size || 0) + " commit(s) pushed");
+        }
+        if (event.type === "PullRequestEvent") return (payload.action || "Updated") + " pull request";
+        if (event.type === "IssuesEvent") return (payload.action || "Updated") + " issue";
+        if (event.type === "CreateEvent") return "Created " + (payload.ref_type || "repository resource");
+        if (event.type === "ReleaseEvent") return "Published a release";
+        return "Updated repository";
+      };
+
+      const loadRecentActivity = async () => {
+        try {
+          const response = await fetch("https://api.github.com/users/michaelkage/events/public?per_page=8", {
+            headers: { Accept: "application/vnd.github+json" },
+            cache: "no-store"
+          });
+          if (!response.ok) throw new Error("GitHub events API " + response.status);
+          const events = await response.json();
+          const relevant = events.filter((event) => ["PushEvent", "PullRequestEvent", "IssuesEvent", "CreateEvent", "ReleaseEvent"].includes(event.type)).slice(0, 5);
+          activityList.replaceChildren();
+          if (!relevant.length) {
+            const empty = document.createElement("li");
+            empty.className = "activity-empty";
+            empty.textContent = "No recent public events are available in GitHub event history.";
+            activityList.append(empty);
+          } else {
+            for (const event of relevant) {
+              const item = document.createElement("li");
+              item.className = "activity-item";
+              const copy = document.createElement("span");
+              const title = document.createElement("span");
+              title.className = "activity-title";
+              title.textContent = describeEvent(event);
+              const repo = document.createElement("span");
+              repo.className = "activity-repo";
+              repo.textContent = event.repo ? event.repo.name : "GitHub";
+              copy.append(title, repo);
+              const time = document.createElement("time");
+              time.className = "activity-time";
+              time.dateTime = event.created_at;
+              time.textContent = formatAge(event.created_at);
+              item.append(copy, time);
+              activityList.append(item);
+            }
+          }
+          activityUpdated.textContent = "Updated just now";
+        } catch {
+          activityList.replaceChildren();
+          const empty = document.createElement("li");
+          empty.className = "activity-empty";
+          empty.textContent = "Public activity feed unavailable. Project links and information remain available above.";
+          activityList.append(empty);
+          activityUpdated.textContent = "Feed unavailable";
+        }
+      };
+      loadRecentActivity();
     })();
   </script>
 </body>
