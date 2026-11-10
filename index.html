@@ -131,6 +131,30 @@
     .palette-pin[aria-pressed="true"] { color:var(--green); border-color:rgba(101,243,178,.35); background:rgba(101,243,178,.07); }
     @media (max-width:620px) { .pinned-grid { grid-template-columns:1fr; } }
 
+
+    .settings-dialog { width:min(calc(100% - 28px),560px); max-width:560px; max-height:min(82vh,720px); padding:0; overflow:auto; border:1px solid rgba(0,229,255,.32); border-radius:14px; color:var(--text); background:#0b1220; box-shadow:0 28px 100px rgba(0,0,0,.68); }
+    .settings-dialog::backdrop { background:rgba(2,5,10,.8); backdrop-filter:blur(9px); }
+    .settings-panel { padding:22px; }
+    .settings-heading,.settings-footer,.settings-actions,.settings-label { display:flex; align-items:center; justify-content:space-between; gap:14px; }
+    .settings-heading h2 { margin:6px 0 0; color:#e8f2ff; font-size:20px; letter-spacing:-.03em; }
+    .settings-close { width:32px; height:32px; border:1px solid rgba(125,151,183,.25); border-radius:7px; color:var(--muted); background:rgba(255,255,255,.03); font-size:20px; cursor:pointer; }
+    .settings-intro { margin:14px 0 18px; color:var(--muted); font-size:10px; line-height:1.7; }
+    .settings-group { display:flex; align-items:center; justify-content:space-between; gap:16px; padding:15px 0; border-top:1px solid rgba(255,255,255,.07); }
+    .settings-label { width:100%; cursor:pointer; }
+    .settings-group strong,.settings-actions strong { display:block; color:#dce8f7; font-size:11px; font-weight:600; }
+    .settings-group small,.settings-actions small { display:block; margin-top:5px; color:#8291a7; font-size:9px; line-height:1.5; }
+    .settings-select { max-width:190px; min-height:36px; padding:0 9px; border:1px solid rgba(125,151,183,.25); border-radius:7px; color:var(--text); background:#101a2a; font:inherit; font-size:9px; }
+    .settings-label input { width:17px; height:17px; accent-color:var(--cyan); }
+    .settings-action,.settings-done { min-height:32px; padding:0 10px; border:1px solid rgba(0,229,255,.3); border-radius:7px; color:var(--cyan); background:rgba(0,229,255,.06); font:inherit; font-size:9px; cursor:pointer; }
+    .settings-danger { color:#ff9b9b; border-color:rgba(255,120,120,.3); background:rgba(255,120,120,.06); }
+    .settings-status { min-height:16px; margin:12px 0; color:#8291a7; font-size:9px; line-height:1.5; }
+    .settings-footer { padding-top:14px; border-top:1px solid rgba(255,255,255,.08); color:#71819a; font-size:8px; letter-spacing:.1em; }
+    .shell.is-compact .section { margin-top:30px; }
+    .shell.is-compact .app-link,.shell.is-compact .repo-card { padding:12px 13px; }
+    .shell.is-compact .app-grid,.shell.is-compact .repo-grid,.shell.is-compact .pinned-grid { gap:7px; }
+    .force-reduced-motion *, .force-reduced-motion *::before, .force-reduced-motion *::after { scroll-behavior:auto !important; animation-duration:.01ms !important; animation-iteration-count:1 !important; transition-duration:.01ms !important; }
+    @media (max-width:620px) { .top-actions { gap:6px; } .top-actions .status { display:none; } .utility-button { padding:0 7px; font-size:8px; } .settings-panel { padding:17px; } .settings-actions { align-items:flex-start; } }
+
     .palette[hidden] { display:none; }
     .palette { position:fixed; inset:0; z-index:900; display:grid; align-items:start; justify-items:center; padding: min(16vh,120px) 18px 24px; background:rgba(2,5,10,.78); backdrop-filter:blur(10px); }
     .palette-panel { width:min(100%,620px); overflow:hidden; border:1px solid rgba(0,229,255,.35); border-radius:13px; background:#0b1220; box-shadow:0 25px 90px rgba(0,0,0,.6); }
@@ -257,7 +281,7 @@
           <p class="brand-name">MK.SYSTEMS</p>
         </div>
       </div>
-      <div class="top-actions"><button class="utility-button" id="palette-open" type="button">⌕ COMMAND <kbd>Ctrl K</kbd></button><span class="status">Gateway online</span></div>
+      <div class="top-actions"><button class="utility-button" id="palette-open" type="button">⌕ COMMAND <kbd>Ctrl K</kbd></button><button class="utility-button" id="settings-open" type="button" aria-haspopup="dialog">⚙ SETTINGS <kbd>Ctrl ,</kbd></button><span class="status">Gateway online</span></div>
     </header>
 
     <section class="hero" aria-labelledby="page-title">
@@ -523,6 +547,33 @@
       <div class="palette-hint"><span>↑ ↓ Navigate · Enter Open</span><span>ESC Close</span></div>
     </div>
   </div>
+  <dialog class="settings-dialog" id="system-settings" aria-labelledby="settings-title">
+    <div class="settings-panel">
+      <div class="settings-heading">
+        <div><p class="eyebrow">MK.SYSTEMS // CONFIGURATION</p><h2 id="settings-title">System settings</h2></div>
+        <button class="settings-close" id="settings-close" type="button" aria-label="Close system settings">×</button>
+      </div>
+      <p class="settings-intro">Local interface preferences. Changes are saved in this browser and do not affect your application repositories.</p>
+      <div class="settings-group">
+        <label class="settings-label" for="motion-setting"><span><strong>Motion effects</strong><small>Respect your device preference or reduce interface animation.</small></span>
+          <select class="settings-select" id="motion-setting"><option value="system">Follow device preference</option><option value="reduced">Reduce motion</option></select>
+        </label>
+      </div>
+      <div class="settings-group">
+        <label class="settings-label" for="compact-setting"><span><strong>Compact layout</strong><small>Reduce spacing to fit more systems on screen.</small></span><input id="compact-setting" type="checkbox"></label>
+      </div>
+      <div class="settings-group settings-actions">
+        <div><strong>Boot sequence</strong><small>Replay startup diagnostics on your next visit.</small></div>
+        <button class="settings-action" id="boot-replay" type="button">Replay next visit</button>
+      </div>
+      <div class="settings-group settings-actions">
+        <div><strong>Pinned systems</strong><small>Remove all locally saved favourites.</small></div>
+        <button class="settings-action settings-danger" id="pins-reset" type="button">Clear pins</button>
+      </div>
+      <p class="settings-status" id="settings-status" role="status" aria-live="polite">Preferences are stored locally.</p>
+      <div class="settings-footer"><span>CONFIGURATION // LOCAL DEVICE</span><button class="settings-done" id="settings-done" type="button">Done</button></div>
+    </div>
+  </dialog>
   <footer class="footer">
       <span>MK.SYSTEMS // ROOT GATEWAY</span>
       <span>Vanilla HTML · CSS · JS // Zero runtime dependencies</span>
@@ -546,7 +597,21 @@
         ["System diagnostics complete.", true],
         ["Status: Operational", true]
       ];
-      const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      const systemReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      const SETTINGS_STORAGE_KEY = "mk.system.settings.v1";
+      const systemSettings = { motion: "system", compact: false };
+      let settingsStorageAvailable = true;
+      try {
+        const savedSettings = JSON.parse(localStorage.getItem(SETTINGS_STORAGE_KEY) || "null");
+        if (savedSettings && typeof savedSettings === "object") {
+          if (["system", "reduced"].includes(savedSettings.motion)) systemSettings.motion = savedSettings.motion;
+          if (typeof savedSettings.compact === "boolean") systemSettings.compact = savedSettings.compact;
+        }
+      } catch (_) { settingsStorageAvailable = false; }
+      const reducedMotion = systemSettings.motion === "reduced" || (systemSettings.motion === "system" && systemReducedMotion);
+      const shell = document.querySelector(".shell");
+      if (systemSettings.compact) shell.classList.add("is-compact");
+      if (systemSettings.motion === "reduced") document.documentElement.classList.add("force-reduced-motion");
       document.getElementById("year").textContent = String(new Date().getFullYear());
 
       let hasBooted = false;
@@ -772,6 +837,79 @@
         }
       });
       collectPaletteItems();
+
+      // Native dialog provides focus handling, Escape dismissal, and modal semantics.
+      const settingsDialog = document.getElementById("system-settings");
+      const settingsOpen = document.getElementById("settings-open");
+      const settingsClose = document.getElementById("settings-close");
+      const settingsDone = document.getElementById("settings-done");
+      const motionSetting = document.getElementById("motion-setting");
+      const compactSetting = document.getElementById("compact-setting");
+      const settingsStatus = document.getElementById("settings-status");
+      motionSetting.value = systemSettings.motion;
+      compactSetting.checked = systemSettings.compact;
+      const persistSettings = () => {
+        try {
+          localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(systemSettings));
+          settingsStorageAvailable = true;
+        } catch (_) { settingsStorageAvailable = false; }
+        settingsStatus.textContent = settingsStorageAvailable
+          ? "Preferences saved on this device."
+          : "Browser storage unavailable. Preferences apply for this visit only.";
+      };
+      const openSettings = () => {
+        if (typeof settingsDialog.showModal === "function") settingsDialog.showModal();
+        else settingsDialog.setAttribute("open", "");
+        settingsClose.focus();
+      };
+      const closeSettings = () => {
+        if (typeof settingsDialog.close === "function" && settingsDialog.open) settingsDialog.close();
+        else settingsDialog.removeAttribute("open");
+        settingsOpen.focus();
+      };
+      settingsOpen.addEventListener("click", openSettings);
+      settingsClose.addEventListener("click", closeSettings);
+      settingsDone.addEventListener("click", closeSettings);
+      settingsDialog.addEventListener("click", (event) => {
+        if (event.target === settingsDialog) closeSettings();
+      });
+      settingsDialog.addEventListener("close", () => settingsOpen.focus());
+      motionSetting.addEventListener("change", () => {
+        systemSettings.motion = motionSetting.value;
+        document.documentElement.classList.toggle("force-reduced-motion", systemSettings.motion === "reduced");
+        persistSettings();
+      });
+      compactSetting.addEventListener("change", () => {
+        systemSettings.compact = compactSetting.checked;
+        shell.classList.toggle("is-compact", systemSettings.compact);
+        persistSettings();
+      });
+      document.getElementById("boot-replay").addEventListener("click", () => {
+        try {
+          localStorage.removeItem("mk.system.booted.v1");
+          settingsStatus.textContent = "Boot sequence reset. It will run on your next visit.";
+        } catch (_) {
+          settingsStatus.textContent = "Browser storage is unavailable. The boot sequence cannot be reset.";
+        }
+      });
+      document.getElementById("pins-reset").addEventListener("click", () => {
+        if (!pinnedHrefs.size) {
+          settingsStatus.textContent = "There are no pinned systems to clear.";
+          return;
+        }
+        pinnedHrefs.clear();
+        persistPins();
+        renderPinned();
+        if (!palette.hidden) renderPalette();
+        settingsStatus.textContent = "All pinned systems cleared.";
+      });
+      document.addEventListener("keydown", (event) => {
+        if ((event.ctrlKey || event.metaKey) && event.key === ",") {
+          event.preventDefault();
+          if (settingsDialog.open) closeSettings();
+          else openSettings();
+        }
+      });
 
       const fetchWithTimeout = async (url, timeoutMs = 8000) => {
         const controller = new AbortController();
