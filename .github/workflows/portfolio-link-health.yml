@@ -12,10 +12,6 @@ on:
   schedule:
     - cron: "17 8 * * *"
   workflow_dispatch:
-  workflow_run:
-    workflows: ["pages build and deployment"]
-    types: [completed]
-    branches: [main]
 
 permissions:
   contents: read
@@ -93,8 +89,31 @@ jobs:
           console.log("Manifest, service worker, and application icon are present.");
           JS
 
+      - name: Wait for the root shell deployment
+        if: github.event_name == 'push'
+        shell: bash
+        run: |
+          set -euo pipefail
+          root="https://michaelkage.github.io"
+          expected_cache_line=$(grep -E '^const CACHE_NAME = CACHE_PREFIX \\+ "v[0-9]+";' sw.js | head -n 1)
+          if [ -z "$expected_cache_line" ]; then
+            echo "Could not determine the expected service-worker cache version."
+            exit 1
+          fi
+          for attempt in $(seq 1 30); do
+            if curl --fail --silent --show-error --max-time 10 "$root/sw.js" -o /tmp/live-sw.js 2>/dev/null &&
+              grep -Fq "$expected_cache_line" /tmp/live-sw.js &&
+              curl --fail --silent --show-error --max-time 10 "$root/manifest.webmanifest" -o /dev/null 2>/dev/null; then
+              echo "The deployed root shell matches the repository service-worker version."
+              exit 0
+            fi
+            echo "Waiting for GitHub Pages deployment ($attempt/30)..."
+            sleep 5
+          done
+          echo "The current root shell was not published within 150 seconds."
+          exit 1
+
       - name: Check production applications and repositories
-        if: ${{ github.event_name != 'push' && (github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success') }}
         shell: bash
         run: |
           set -uo pipefail
