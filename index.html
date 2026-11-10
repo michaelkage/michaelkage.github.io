@@ -101,6 +101,32 @@
     .boot-caption { margin: 13px 0 0; color: #64758d; font-size: 9px; letter-spacing: .16em; text-align: right; }
     @media (max-width: 480px) { .boot-screen { padding: 18px; } .boot-screen .boot-output { min-height: 190px; padding: 16px; } .boot-brand { font-size: 10px; } }
 
+
+    .top-actions { display:flex; align-items:center; gap:9px; }
+    .utility-button { min-height:34px; padding:0 10px; border:1px solid rgba(0,229,255,.28); border-radius:7px; color:var(--cyan); background:rgba(0,229,255,.06); font:inherit; font-size:9px; cursor:pointer; }
+    .utility-button:hover { border-color:rgba(0,229,255,.7); background:rgba(0,229,255,.12); }
+    .monitor-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; }
+    .monitor-card { min-width:0; padding:14px; border:1px solid rgba(125,151,183,.18); border-radius:10px; background:rgba(13,19,32,.78); }
+    .monitor-name { display:block; color:#c7d3e3; font-size:10px; letter-spacing:.08em; text-transform:uppercase; }
+    .monitor-state { display:flex; align-items:center; gap:7px; margin-top:11px; color:var(--muted); font-size:11px; }
+    .monitor-state::before { content:""; width:7px; height:7px; flex:0 0 7px; border-radius:50%; background:#71819a; }
+    .monitor-state[data-state="online"] { color:var(--green); }
+    .monitor-state[data-state="online"]::before { background:var(--green); box-shadow:0 0 10px var(--green); }
+    .monitor-state[data-state="error"] { color:#ff9b9b; }
+    .monitor-state[data-state="error"]::before { background:#ff7777; }
+    .monitor-detail { display:block; margin-top:7px; color:#71819a; font-size:9px; line-height:1.5; overflow-wrap:anywhere; }
+    .palette[hidden] { display:none; }
+    .palette { position:fixed; inset:0; z-index:900; display:grid; align-items:start; justify-items:center; padding: min(16vh,120px) 18px 24px; background:rgba(2,5,10,.78); backdrop-filter:blur(10px); }
+    .palette-panel { width:min(100%,620px); overflow:hidden; border:1px solid rgba(0,229,255,.35); border-radius:13px; background:#0b1220; box-shadow:0 25px 90px rgba(0,0,0,.6); }
+    .palette-input { width:100%; min-height:58px; padding:0 18px; border:0; border-bottom:1px solid rgba(255,255,255,.09); outline:none; color:var(--text); background:transparent; font:inherit; font-size:13px; }
+    .palette-results { max-height:min(55vh,430px); overflow:auto; padding:8px; }
+    .palette-result { display:flex; align-items:center; justify-content:space-between; gap:12px; width:100%; padding:12px; border:0; border-radius:7px; color:var(--text); background:transparent; text-align:left; font:inherit; cursor:pointer; }
+    .palette-result:hover,.palette-result[aria-selected="true"] { background:rgba(0,229,255,.1); outline:1px solid rgba(0,229,255,.22); }
+    .palette-result small { color:var(--muted); font-size:9px; }
+    .palette-empty { padding:18px 12px; color:var(--muted); font-size:11px; }
+    .palette-hint { display:flex; justify-content:space-between; padding:10px 14px; border-top:1px solid rgba(255,255,255,.07); color:#71819a; font-size:9px; }
+    @media (max-width:620px) { .monitor-grid { grid-template-columns:1fr; } .top-actions { gap:6px; } .utility-button { padding:0 8px; } }
+
     .section { margin-top: 42px; }
     .section-head { margin-bottom: 15px; }
     .section-label { margin: 0; color: #c7d3e3; font-size: 11px; font-weight: 700; }
@@ -215,7 +241,7 @@
           <p class="brand-name">MK.SYSTEMS</p>
         </div>
       </div>
-      <span class="status">Gateway online</span>
+      <div class="top-actions"><button class="utility-button" id="palette-open" type="button">⌕ COMMAND <kbd>Ctrl K</kbd></button><span class="status">Gateway online</span></div>
     </header>
 
     <section class="hero" aria-labelledby="page-title">
@@ -418,6 +444,19 @@
       </nav>
     </section>
 
+
+    <section class="section" aria-labelledby="monitor-title">
+      <div class="section-head">
+        <h2 class="section-label" id="monitor-title">02 // System monitor</h2>
+        <span class="section-hint" id="monitor-checked">Waiting for diagnostics</span>
+      </div>
+      <div class="monitor-grid" aria-live="polite">
+        <div class="monitor-card"><span class="monitor-name">GitHub repository API</span><span class="monitor-state" id="monitor-api" data-state="checking">Checking…</span><span class="monitor-detail" id="monitor-api-detail">Public repository inventory</span></div>
+        <div class="monitor-card"><span class="monitor-name">Activity event feed</span><span class="monitor-state" id="monitor-activity" data-state="checking">Checking…</span><span class="monitor-detail" id="monitor-activity-detail">Public events endpoint</span></div>
+        <div class="monitor-card"><span class="monitor-name">Production routes</span><span class="monitor-state" id="monitor-routes" data-state="checking">Checking…</span><span class="monitor-detail" id="monitor-routes-detail">Campus Plug · OmniPocket</span></div>
+      </div>
+    </section>
+
     <section class="section" aria-labelledby="nodes-title">
       <div class="section-head">
         <h2 class="section-label" id="nodes-title">02 // Active network nodes</h2>
@@ -448,7 +487,16 @@
         </ul>
       </div>
     </section>
-    <footer class="footer">
+    
+  <div class="palette" id="command-palette" hidden>
+    <div class="palette-panel" role="dialog" aria-modal="true" aria-labelledby="palette-title">
+      <label class="sr-only" id="palette-title" for="palette-input">Search applications and repositories</label>
+      <input class="palette-input" id="palette-input" type="search" placeholder="Search apps and repositories…" autocomplete="off" spellcheck="false">
+      <div class="palette-results" id="palette-results" role="listbox" aria-label="Launch results"></div>
+      <div class="palette-hint"><span>↑ ↓ Navigate · Enter Open</span><span>ESC Close</span></div>
+    </div>
+  </div>
+  <footer class="footer">
       <span>MK.SYSTEMS // ROOT GATEWAY</span>
       <span>Vanilla HTML · CSS · JS // Zero runtime dependencies</span>
       <span>© <span id="year">2026</span> Michael Kage</span>
@@ -545,6 +593,92 @@
       };
       repoSearch.addEventListener("input", filterRepositories);
       repoSort.addEventListener("change", sortRepositories);
+
+      // Command palette: index existing links, so destinations never drift from the launcher.
+      const palette = document.getElementById("command-palette");
+      const paletteInput = document.getElementById("palette-input");
+      const paletteResults = document.getElementById("palette-results");
+      const paletteOpen = document.getElementById("palette-open");
+      let paletteItems = [];
+      let paletteActive = 0;
+      const collectPaletteItems = () => {
+        paletteItems = [...document.querySelectorAll(".app-link, .repo-card[href]")].map((link) => ({
+          name: link.querySelector(".app-name")?.textContent.trim() || link.textContent.trim(),
+          detail: link.querySelector(".app-desc")?.textContent.trim() || link.getAttribute("href"),
+          href: link.href,
+          external: link.target === "_blank",
+          element: link
+        }));
+      };
+      const renderPalette = () => {
+        const query = paletteInput.value.trim().toLocaleLowerCase();
+        const matches = paletteItems.filter((item) => (item.name + " " + item.detail).toLocaleLowerCase().includes(query));
+        paletteResults.replaceChildren();
+        if (!matches.length) {
+          const empty = document.createElement("p");
+          empty.className = "palette-empty";
+          empty.textContent = "No matching applications or repositories.";
+          paletteResults.append(empty);
+          paletteActive = 0;
+          return;
+        }
+        paletteActive = Math.min(paletteActive, matches.length - 1);
+        matches.forEach((item, index) => {
+          const button = document.createElement("button");
+          button.type = "button";
+          button.className = "palette-result";
+          button.setAttribute("role", "option");
+          button.setAttribute("aria-selected", String(index === paletteActive));
+          const name = document.createElement("span");
+          name.textContent = item.name;
+          const detail = document.createElement("small");
+          detail.textContent = item.external ? "EXTERNAL REPOSITORY" : "LOCAL APPLICATION";
+          button.append(name, detail);
+          button.addEventListener("click", () => { window.location.href = item.href; });
+          paletteResults.append(button);
+        });
+        paletteResults.querySelector('[aria-selected="true"]')?.scrollIntoView({ block: "nearest" });
+      };
+      const openPalette = () => {
+        collectPaletteItems();
+        palette.hidden = false;
+        paletteInput.value = "";
+        paletteActive = 0;
+        renderPalette();
+        paletteInput.focus();
+      };
+      const closePalette = () => {
+        palette.hidden = true;
+        paletteOpen.focus();
+      };
+      paletteOpen.addEventListener("click", openPalette);
+      palette.addEventListener("click", (event) => { if (event.target === palette) closePalette(); });
+      paletteInput.addEventListener("input", () => { paletteActive = 0; renderPalette(); });
+      paletteInput.addEventListener("keydown", (event) => {
+        const options = [...paletteResults.querySelectorAll(".palette-result")];
+        if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+          event.preventDefault();
+          if (!options.length) return;
+          paletteActive = (paletteActive + (event.key === "ArrowDown" ? 1 : -1) + options.length) % options.length;
+          options.forEach((option, index) => option.setAttribute("aria-selected", String(index === paletteActive)));
+          options[paletteActive].scrollIntoView({ block: "nearest" });
+        } else if (event.key === "Enter" && options.length) {
+          event.preventDefault();
+          options[paletteActive].click();
+        } else if (event.key === "Escape") {
+          event.preventDefault();
+          closePalette();
+        }
+      });
+      document.addEventListener("keydown", (event) => {
+        if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "k") {
+          event.preventDefault();
+          if (palette.hidden) openPalette(); else closePalette();
+        } else if (event.key === "Escape" && !palette.hidden) {
+          closePalette();
+        }
+      });
+
       const fetchWithTimeout = async (url, timeoutMs = 8000) => {
         const controller = new AbortController();
         const timeout = window.setTimeout(() => controller.abort(), timeoutMs);
@@ -557,6 +691,34 @@
           window.clearTimeout(timeout);
         }
       };
+
+
+      const setMonitor = (name, state, detail) => {
+        const target = document.getElementById("monitor-" + name);
+        const description = document.getElementById("monitor-" + name + "-detail");
+        target.dataset.state = state;
+        target.textContent = state === "online" ? "Operational" : state === "error" ? "Unavailable" : "Checking…";
+        description.textContent = detail;
+        document.getElementById("monitor-checked").textContent = "Last checked " + new Date().toLocaleTimeString();
+      };
+      const checkProductionRoutes = async () => {
+        const routes = [
+          ["Campus Plug", "./campus-plug67/"],
+          ["OmniPocket", "./OmniPocket/"]
+        ];
+        const results = await Promise.all(routes.map(async ([name, path]) => {
+          try {
+            const response = await fetchWithTimeout(path, 8000);
+            return { name, ok: response.ok, status: response.status };
+          } catch (error) {
+            return { name, ok: false, status: error.name === "AbortError" ? "timeout" : "network error" };
+          }
+        }));
+        const healthy = results.filter((result) => result.ok).length;
+        setMonitor("routes", healthy === results.length ? "online" : "error",
+          results.map((result) => result.name + " " + (result.ok ? "HTTP " + result.status : result.status)).join(" · ") + " · HTTP reachability only, not backend health");
+      };
+      checkProductionRoutes();
 
       const formatAge = (timestamp) => {
         const elapsed = Math.max(0, Date.now() - new Date(timestamp).getTime());
@@ -574,6 +736,7 @@
           const response = await fetchWithTimeout("https://api.github.com/users/michaelkage/repos?per_page=100&type=public");
           if (!response.ok) throw new Error("GitHub repositories API " + response.status);
           const repositories = await response.json();
+          setMonitor("api", "online", repositories.length + " public repositories returned · HTTP " + response.status);
           const byName = new Map(repositories.map((repo) => [repo.full_name.toLowerCase(), repo]));
           for (const card of repoCards) {
             const target = card.querySelector("[data-repo-meta]");
@@ -594,6 +757,7 @@
           sortRepositories();
           filterRepositories();
         } catch (error) {
+          setMonitor("api", "error", error && error.name === "AbortError" ? "Request timed out after 8 seconds" : "GitHub API request failed");
           const reason = error && error.name === "AbortError"
             ? "GitHub telemetry timed out after 8s"
             : error && /403|429/.test(error.message)
@@ -664,6 +828,7 @@
           const response = await fetchWithTimeout("https://api.github.com/users/michaelkage/events/public?per_page=100");
           if (!response.ok) throw new Error("GitHub events API " + response.status);
           const events = await response.json();
+          setMonitor("activity", "online", events.length + " recent public events returned · HTTP " + response.status);
           if (!Array.isArray(events)) throw new Error("Unexpected GitHub events response");
           const relevant = events
             .map((event) => ({ event, description: describeEvent(event) }))
@@ -722,6 +887,7 @@
             activityUpdated.textContent = "Showing " + relevant.length + " recent events · checked just now";
           }
         } catch (error) {
+          setMonitor("activity", "error", error && error.name === "AbortError" ? "Request timed out after 8 seconds" : "GitHub events API request failed");
           activityList.replaceChildren();
           const empty = document.createElement("li");
           empty.className = "activity-empty";
