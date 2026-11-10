@@ -7,6 +7,8 @@
   <meta name="description" content="Michael Kage system gateway. Launch production applications, explore 20 public project repositories, and inspect recent engineering activity.">
   <meta name="robots" content="index, follow">
   <link rel="canonical" href="https://michaelkage.github.io/">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="icon" href="./icons/mk-system.svg" type="image/svg+xml">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://michaelkage.github.io/">
   <meta name="twitter:card" content="summary">
@@ -211,7 +213,7 @@
 
 
     .system-tray{display:flex;align-items:center;gap:6px;margin-left:auto}.tray-button{height:30px;min-width:30px;padding:0 7px;border:1px solid rgba(125,151,183,.22);border-radius:7px;color:#aebbd0;background:rgba(255,255,255,.035);font:inherit;font-size:9px;cursor:pointer}.tray-button[aria-expanded="true"]{border-color:var(--cyan);color:var(--cyan)}.tray-count{display:inline-grid;min-width:15px;height:15px;place-items:center;border-radius:8px;color:#081019;background:var(--cyan);font-size:8px}.tray-count[hidden]{display:none}.tray-status-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:#c6a45b}.tray-status-dot[data-state="online"]{background:var(--green)}.tray-status-dot[data-state="error"]{background:#ff7777}
-    .tray-panel{position:absolute;right:8px;bottom:60px;z-index:30;width:min(360px,calc(100vw - 20px));max-height:65vh;overflow:auto;padding:14px;border:1px solid rgba(0,229,255,.28);border-radius:12px;background:rgba(8,15,27,.97);box-shadow:0 22px 70px rgba(0,0,0,.58)}.tray-panel[hidden]{display:none}.tray-panel-head{display:flex;justify-content:space-between;gap:10px;margin-bottom:12px}.tray-panel-head strong{font-size:10px;letter-spacing:.1em;text-transform:uppercase}.tray-panel-head button,.tray-notice button{padding:5px 8px;border:1px solid rgba(125,151,183,.22);border-radius:6px;color:#9eacc0;background:transparent;font:inherit;font-size:8px;cursor:pointer}.tray-notice{display:grid;grid-template-columns:1fr auto;gap:8px;padding:10px 0;border-top:1px solid rgba(255,255,255,.07)}.tray-notice strong{font-size:9px}.tray-notice p{margin:4px 0;color:#8291a7;font-size:8px;line-height:1.6;overflow-wrap:anywhere}.tray-notice time{color:#65758d;font-size:7px}.tray-empty{padding:14px 4px;color:#8291a7;font-size:9px}.quick-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.quick-tile{min-height:64px;padding:10px;border:1px solid rgba(125,151,183,.2);border-radius:8px;color:#dce8f7;background:rgba(255,255,255,.035);text-align:left;font:inherit;cursor:pointer}.quick-tile[aria-pressed="true"]{border-color:var(--cyan);background:rgba(0,229,255,.08)}.quick-tile strong,.quick-tile small{display:block}.quick-tile strong{font-size:9px}.quick-tile small{margin-top:6px;color:#8291a7;font-size:8px}.tray-panel-status{margin:10px 0 0;color:#8291a7;font-size:8px}@media(max-width:620px){.tray-panel{right:5px;bottom:55px}}
+    .tray-panel{position:absolute;right:8px;bottom:60px;z-index:30;width:min(360px,calc(100vw - 20px));max-height:65vh;overflow:auto;padding:14px;border:1px solid rgba(0,229,255,.28);border-radius:12px;background:rgba(8,15,27,.97);box-shadow:0 22px 70px rgba(0,0,0,.58)}.tray-panel[hidden]{display:none}.tray-panel-head{display:flex;justify-content:space-between;gap:10px;margin-bottom:12px}.tray-panel-head strong{font-size:10px;letter-spacing:.1em;text-transform:uppercase}.tray-panel-head button,.tray-notice button{padding:5px 8px;border:1px solid rgba(125,151,183,.22);border-radius:6px;color:#9eacc0;background:transparent;font:inherit;font-size:8px;cursor:pointer}.tray-notice{display:grid;grid-template-columns:1fr auto;gap:8px;padding:10px 0;border-top:1px solid rgba(255,255,255,.07)}.tray-notice strong{font-size:9px}.tray-notice p{margin:4px 0;color:#8291a7;font-size:8px;line-height:1.6;overflow-wrap:anywhere}.tray-notice time{color:#65758d;font-size:7px}.tray-empty{padding:14px 4px;color:#8291a7;font-size:9px}.quick-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.quick-tile{min-height:64px;padding:10px;border:1px solid rgba(125,151,183,.2);border-radius:8px;color:#dce8f7;background:rgba(255,255,255,.035);text-align:left;font:inherit;cursor:pointer}.quick-tile[aria-pressed="true"]{border-color:var(--cyan);background:rgba(0,229,255,.08)}.quick-tile strong,.quick-tile small{display:block}.quick-tile strong{font-size:9px}.quick-tile small{margin-top:6px;color:#8291a7;font-size:8px} .tray-panel-status{margin:10px 0 0;color:#8291a7;font-size:8px}.quick-actions{display:flex;flex-wrap:wrap;gap:7px;margin-top:9px}.quick-actions button{min-height:30px;padding:0 9px;border:1px solid rgba(0,229,255,.3);border-radius:6px;color:var(--cyan);background:rgba(0,229,255,.06);font:inherit;font-size:8px;cursor:pointer}.quick-actions button:disabled{opacity:.5;cursor:wait}.quick-actions button[hidden]{display:none}@media(max-width:620px){.tray-panel{right:5px;bottom:55px}}
     .palette[hidden] { display:none; }
     .palette { position:fixed; inset:0; z-index:900; display:grid; align-items:start; justify-items:center; padding: min(16vh,120px) 18px 24px; background:rgba(2,5,10,.78); backdrop-filter:blur(10px); }
     .palette-panel { width:min(100%,620px); overflow:hidden; border:1px solid rgba(0,229,255,.35); border-radius:13px; background:#0b1220; box-shadow:0 25px 90px rgba(0,0,0,.6); }
@@ -661,7 +663,7 @@
       </section>
       <section class="tray-panel" id="tray-quick" aria-label="Quick settings" hidden>
         <div class="tray-panel-head"><strong>Quick settings</strong><button id="tray-open-settings" type="button">All settings ↗</button></div>
-        <div class="quick-grid"><button class="quick-tile" id="quick-compact" type="button" aria-pressed="false"><strong>Compact layout</strong><small>Fit more systems on screen</small></button><button class="quick-tile" id="quick-motion" type="button" aria-pressed="false"><strong>Reduced motion</strong><small>Limit interface animation</small></button></div><p class="tray-panel-status" id="quick-status" role="status"></p>
+        <div class="quick-grid"><button class="quick-tile" id="quick-compact" type="button" aria-pressed="false"><strong>Compact layout</strong><small>Fit more systems on screen</small></button><button class="quick-tile" id="quick-motion" type="button" aria-pressed="false"><strong>Reduced motion</strong><small>Limit interface animation</small></button></div><div class="quick-actions"><button id="pwa-install" type="button" hidden>Install MK.SYSTEMS</button><button id="pwa-update" type="button" hidden>Reload to apply update</button></div><p class="tray-panel-status" id="quick-status" role="status"></p>
       </section>
     </footer>
   </section>
@@ -1552,6 +1554,67 @@
       };
       activityRefresh.addEventListener("click", loadRecentActivity);
       loadRecentActivity();
+
+      // Installable shell: cache only the gateway, never its production sub-apps or API data.
+      const installAction=document.getElementById("pwa-install");
+      const updateAction=document.getElementById("pwa-update");
+      let deferredInstallPrompt=null;
+      window.addEventListener("beforeinstallprompt",(event)=>{
+        event.preventDefault();
+        deferredInstallPrompt=event;
+        installAction.hidden=false;
+      });
+      installAction.addEventListener("click",async()=>{
+        if(!deferredInstallPrompt)return;
+        const prompt=deferredInstallPrompt;
+        deferredInstallPrompt=null;
+        installAction.disabled=true;
+        try{
+          await prompt.prompt();
+          const choice=await prompt.userChoice;
+          if(choice.outcome==="accepted")pushNotification("Installation accepted","MK.SYSTEMS is being added to this device.");
+          installAction.hidden=true;
+        }catch(_){
+          installAction.hidden=true;
+        }finally{installAction.disabled=false;}
+      });
+      window.addEventListener("appinstalled",()=>{
+        deferredInstallPrompt=null;
+        installAction.hidden=true;
+        pushNotification("MK.SYSTEMS installed","The gateway is available from your device launcher.");
+      });
+      if("serviceWorker" in navigator&&window.isSecureContext){
+        navigator.serviceWorker.register("./sw.js",{scope:"./"}).then((registration)=>{
+          const revealUpdate=()=>{
+            if(registration.waiting&&navigator.serviceWorker.controller)updateAction.hidden=false;
+          };
+          revealUpdate();
+          registration.addEventListener("updatefound",()=>{
+            const worker=registration.installing;
+            if(!worker)return;
+            worker.addEventListener("statechange",()=>{
+              if(worker.state==="installed"&&navigator.serviceWorker.controller){
+                updateAction.hidden=false;
+                pushNotification("Gateway update ready","A newer system shell is ready. Apply it from Quick settings.");
+              }
+            });
+          });
+          updateAction.addEventListener("click",()=>{
+            if(registration.waiting){
+              updateAction.disabled=true;
+              registration.waiting.postMessage({type:"SKIP_WAITING"});
+            }else registration.update().catch(()=>{});
+          });
+          let hadController=Boolean(navigator.serviceWorker.controller);
+          navigator.serviceWorker.addEventListener("controllerchange",()=>{
+            if(hadController)window.location.reload();
+            else hadController=true;
+          });
+          document.addEventListener("visibilitychange",()=>{
+            if(document.visibilityState==="visible")registration.update().catch(()=>{});
+          });
+        }).catch(()=>{/* The gateway remains fully usable without offline support. */});
+      }
     })();
   </script>
 </body>
