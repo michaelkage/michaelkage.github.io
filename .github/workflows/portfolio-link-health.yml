@@ -95,7 +95,7 @@ jobs:
         run: |
           set -euo pipefail
           root="https://michaelkage.github.io"
-          expected_cache_line=$(grep -E '^const CACHE_NAME = CACHE_PREFIX \\+ "v[0-9]+";' sw.js | head -n 1)
+          expected_cache_line=$(grep -F 'const CACHE_NAME = CACHE_PREFIX +' sw.js | head -n 1)
           if [ -z "$expected_cache_line" ]; then
             echo "Could not determine the expected service-worker cache version."
             exit 1
