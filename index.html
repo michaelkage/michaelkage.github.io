@@ -628,13 +628,14 @@
       const pinnedCount = document.getElementById("pinned-count");
       const PIN_STORAGE_KEY = "mk.system.pinned.v1";
       let pinnedHrefs = new Set();
+      let pinStorageAvailable = true;
       try {
         const storedPins = JSON.parse(localStorage.getItem(PIN_STORAGE_KEY) || "[]");
         if (Array.isArray(storedPins)) pinnedHrefs = new Set(storedPins.filter((href) => typeof href === "string"));
-      } catch (_) {}
+      } catch (_) { pinStorageAvailable = false; }
       const persistPins = () => {
         try { localStorage.setItem(PIN_STORAGE_KEY, JSON.stringify([...pinnedHrefs])); }
-        catch (_) { pinnedCount.textContent = "Storage unavailable · pins last until this page closes"; }
+        catch (_) { pinStorageAvailable = false; }
       };
       const renderPinned = () => {
         pinnedGrid.replaceChildren();
@@ -665,7 +666,7 @@
           card.append(link, remove);
           pinnedGrid.append(card);
         }
-        pinnedCount.textContent = validItems.length + " favourite" + (validItems.length === 1 ? "" : "s") + " · stored on this device";
+        pinnedCount.textContent = validItems.length + " favourite" + (validItems.length === 1 ? "" : "s") + (pinStorageAvailable ? " · stored on this device" : " · session only, browser storage unavailable");
       };
 
       // Command palette: index existing links, so destinations never drift from the launcher.
