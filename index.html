@@ -931,6 +931,7 @@
       const motionSetting = document.getElementById("motion-setting");
       const compactSetting = document.getElementById("compact-setting");
       const settingsStatus = document.getElementById("settings-status");
+      let settingsReturnFocus = settingsOpen;
       motionSetting.value = systemSettings.motion;
       compactSetting.checked = systemSettings.compact;
       const persistSettings = () => {
@@ -944,6 +945,7 @@
         if(typeof syncQuick==="function")syncQuick();
       };
       const openSettings = () => {
+        settingsReturnFocus = document.activeElement instanceof HTMLElement ? document.activeElement : settingsOpen;
         if (typeof settingsDialog.showModal === "function") settingsDialog.showModal();
         else settingsDialog.setAttribute("open", "");
         settingsClose.focus();
@@ -951,7 +953,7 @@
       const closeSettings = () => {
         if (typeof settingsDialog.close === "function" && settingsDialog.open) settingsDialog.close();
         else settingsDialog.removeAttribute("open");
-        settingsOpen.focus();
+        (settingsReturnFocus && settingsReturnFocus.isConnected ? settingsReturnFocus : settingsOpen).focus();
       };
       settingsOpen.addEventListener("click", openSettings);
       settingsClose.addEventListener("click", closeSettings);
@@ -959,7 +961,7 @@
       settingsDialog.addEventListener("click", (event) => {
         if (event.target === settingsDialog) closeSettings();
       });
-      settingsDialog.addEventListener("close", () => settingsOpen.focus());
+      settingsDialog.addEventListener("close", () => (settingsReturnFocus && settingsReturnFocus.isConnected ? settingsReturnFocus : settingsOpen).focus());
       motionSetting.addEventListener("change", () => {
         systemSettings.motion = motionSetting.value;
         document.documentElement.classList.toggle("force-reduced-motion", systemSettings.motion === "reduced");
@@ -1019,6 +1021,17 @@
       const openWindows = new Map();
       let focusedWindow = null;
       let windowLayer = 10;
+      const WINDOW_STATE_KEY = "mk.system.windows.v1";
+      let savedWindowState = {};
+      try { const value=JSON.parse(localStorage.getItem(WINDOW_STATE_KEY)||"{}"); if(value&&typeof value==="object"&&!Array.isArray(value))savedWindowState=value; } catch (_) {}
+      const persistWindowState = () => {
+        const state={},origin=document.getElementById("desktop-stage").getBoundingClientRect();
+        for(const [id,record] of openWindows){
+          if(record.element.classList.contains("is-maximized"))state[id]={maximized:true,previousBounds:record.previousBounds||null};
+          else {const r=record.element.getBoundingClientRect();state[id]={left:Math.round(r.left-origin.left),top:Math.round(r.top-origin.top),width:Math.round(r.width),height:Math.round(r.height)};}
+        }
+        try{localStorage.setItem(WINDOW_STATE_KEY,JSON.stringify(state));savedWindowState=state;}catch(_){}
+      };
       const focusWindow = (id) => {
         const record = openWindows.get(id);
         if (!record) return;
@@ -1065,9 +1078,8 @@
       const closeWindow = (id) => {
         const record = openWindows.get(id);
         if (!record) return;
-        record.element.remove();
-        record.task?.remove();
-        openWindows.delete(id);
+        record.resizeObserver?.disconnect();
+        record.element.remove();record.task?.remove();openWindows.delete(id);persistWindowState();
         if (focusedWindow === id) focusedWindow = null;
         focusTopVisibleWindow();
         updateDock();
@@ -1086,6 +1098,7 @@
           const bounds = record.previousBounds || {};
           for (const [property, value] of Object.entries(bounds)) element.style[property] = value;
         }
+        persistWindowState();
       };
       const makeDraggable = (record, titlebar) => {
         let drag = null;
@@ -1109,7 +1122,7 @@
           record.element.style.transform = "none";
         });
         const stopDrag = (event) => {
-          if (drag && drag.pointerId === event.pointerId) drag = null;
+          if (drag && drag.pointerId === event.pointerId) { drag = null; persistWindowState(); }
         };
         titlebar.addEventListener("pointerup", stopDrag);
         titlebar.addEventListener("pointercancel", stopDrag);
@@ -1198,7 +1211,16 @@
         desktopWindows.append(element);
         const record = { app, element, task:null, previousBounds:null };
         openWindows.set(app.id, record);
+        const saved=savedWindowState[app.id],stage=document.getElementById("desktop-stage");
+        if(saved&&saved.maximized===true){element.classList.add("is-maximized");record.previousBounds=saved.previousBounds||null;}
+        else if(saved&&[saved.left,saved.top,saved.width,saved.height].every(v=>Number.isFinite(Number(v)))&&Number(saved.width)>=300&&Number(saved.height)>=210){
+          element.style.width=Math.min(Number(saved.width),Math.max(300,stage.clientWidth-16))+"px";
+          element.style.height=Math.min(Number(saved.height),Math.max(210,stage.clientHeight-16))+"px";
+          element.style.left=Math.max(8,Math.min(Number(saved.left),stage.clientWidth-300))+"px";
+          element.style.top=Math.max(8,Math.min(Number(saved.top),stage.clientHeight-210))+"px";element.style.transform="none";
+        }
         makeDraggable(record, titlebar);
+        if(typeof ResizeObserver==="function"){let timer;const observer=new ResizeObserver(()=>{clearTimeout(timer);timer=setTimeout(persistWindowState,180);});observer.observe(element);record.resizeObserver=observer;}
         element.addEventListener("pointerdown", () => focusWindow(app.id));
         minimize.addEventListener("click", () => {
           element.hidden = true;
@@ -1208,6 +1230,7 @@
         maximize.addEventListener("click", () => toggleMaximize(record));
         close.addEventListener("click", () => closeWindow(app.id));
         focusWindow(app.id);
+        persistWindowState();
         updateDock();
       };
       const renderDesktopShortcuts = () => {
