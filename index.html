@@ -209,6 +209,9 @@
       .top-actions { flex-wrap:wrap; justify-content:flex-end; }
     }
 
+
+    .system-tray{display:flex;align-items:center;gap:6px;margin-left:auto}.tray-button{height:30px;min-width:30px;padding:0 7px;border:1px solid rgba(125,151,183,.22);border-radius:7px;color:#aebbd0;background:rgba(255,255,255,.035);font:inherit;font-size:9px;cursor:pointer}.tray-button[aria-expanded="true"]{border-color:var(--cyan);color:var(--cyan)}.tray-count{display:inline-grid;min-width:15px;height:15px;place-items:center;border-radius:8px;color:#081019;background:var(--cyan);font-size:8px}.tray-count[hidden]{display:none}.tray-status-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--green)}.tray-status-dot[data-state="error"]{background:#ff7777}
+    .tray-panel{position:absolute;right:8px;bottom:60px;z-index:30;width:min(360px,calc(100vw - 20px));max-height:65vh;overflow:auto;padding:14px;border:1px solid rgba(0,229,255,.28);border-radius:12px;background:rgba(8,15,27,.97);box-shadow:0 22px 70px rgba(0,0,0,.58)}.tray-panel[hidden]{display:none}.tray-panel-head{display:flex;justify-content:space-between;gap:10px;margin-bottom:12px}.tray-panel-head strong{font-size:10px;letter-spacing:.1em;text-transform:uppercase}.tray-panel-head button,.tray-notice button{padding:5px 8px;border:1px solid rgba(125,151,183,.22);border-radius:6px;color:#9eacc0;background:transparent;font:inherit;font-size:8px;cursor:pointer}.tray-notice{display:grid;grid-template-columns:1fr auto;gap:8px;padding:10px 0;border-top:1px solid rgba(255,255,255,.07)}.tray-notice strong{font-size:9px}.tray-notice p{margin:4px 0;color:#8291a7;font-size:8px;line-height:1.6;overflow-wrap:anywhere}.tray-notice time{color:#65758d;font-size:7px}.tray-empty{padding:14px 4px;color:#8291a7;font-size:9px}.quick-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.quick-tile{min-height:64px;padding:10px;border:1px solid rgba(125,151,183,.2);border-radius:8px;color:#dce8f7;background:rgba(255,255,255,.035);text-align:left;font:inherit;cursor:pointer}.quick-tile[aria-pressed="true"]{border-color:var(--cyan);background:rgba(0,229,255,.08)}.quick-tile strong,.quick-tile small{display:block}.quick-tile strong{font-size:9px}.quick-tile small{margin-top:6px;color:#8291a7;font-size:8px}.tray-panel-status{margin:10px 0 0;color:#8291a7;font-size:8px}@media(max-width:620px){.tray-panel{right:5px;bottom:55px}}
     .palette[hidden] { display:none; }
     .palette { position:fixed; inset:0; z-index:900; display:grid; align-items:start; justify-items:center; padding: min(16vh,120px) 18px 24px; background:rgba(2,5,10,.78); backdrop-filter:blur(10px); }
     .palette-panel { width:min(100%,620px); overflow:hidden; border:1px solid rgba(0,229,255,.35); border-radius:13px; background:#0b1220; box-shadow:0 25px 90px rgba(0,0,0,.6); }
@@ -648,6 +651,18 @@
       <button class="dock-home" id="dock-home" type="button" aria-label="Show desktop shortcuts">⌂</button>
       <div class="dock-running" id="dock-running" aria-label="Open windows"></div>
       <span class="dock-indicator" id="dock-indicator">0 WINDOWS</span>
+      <div class="system-tray" aria-label="System tray">
+        <button class="tray-button" id="tray-health" type="button" aria-label="System health"><span class="tray-status-dot" id="tray-health-dot"></span></button>
+        <button class="tray-button" id="tray-notifications-toggle" type="button" aria-expanded="false" aria-controls="tray-notifications" aria-label="Open notifications">◉<span class="tray-count" id="tray-unread" hidden>0</span></button>
+        <button class="tray-button" id="tray-quick-toggle" type="button" aria-expanded="false" aria-controls="tray-quick" aria-label="Open quick settings">☷</button>
+      </div>
+      <section class="tray-panel" id="tray-notifications" aria-label="Notification center" hidden>
+        <div class="tray-panel-head"><strong>Notification center</strong><button id="tray-clear-notifications" type="button">Clear all</button></div><div id="tray-notification-list" aria-live="polite"></div>
+      </section>
+      <section class="tray-panel" id="tray-quick" aria-label="Quick settings" hidden>
+        <div class="tray-panel-head"><strong>Quick settings</strong><button id="tray-open-settings" type="button">All settings ↗</button></div>
+        <div class="quick-grid"><button class="quick-tile" id="quick-compact" type="button" aria-pressed="false"><strong>Compact layout</strong><small>Fit more systems on screen</small></button><button class="quick-tile" id="quick-motion" type="button" aria-pressed="false"><strong>Reduced motion</strong><small>Limit interface animation</small></button></div><p class="tray-panel-status" id="quick-status" role="status"></p>
+      </section>
     </footer>
   </section>
 
@@ -926,6 +941,7 @@
         settingsStatus.textContent = settingsStorageAvailable
           ? "Preferences saved on this device."
           : "Browser storage unavailable. Preferences apply for this visit only.";
+        if(typeof syncQuick==="function")syncQuick();
       };
       const openSettings = () => {
         if (typeof settingsDialog.showModal === "function") settingsDialog.showModal();
@@ -1231,7 +1247,7 @@
         updateDock();
       });
       document.addEventListener("keydown", (event) => {
-        if (event.key === "Escape" && !desktop.hidden && !settingsDialog.open && palette.hidden) {
+        if (event.key === "Escape" && !desktop.hidden && !settingsDialog.open && palette.hidden && noticePanel.hidden && quickPanel.hidden) {
           event.preventDefault();
           closeDesktop();
         }
@@ -1249,6 +1265,40 @@
       updateDesktopClock();
       window.setInterval(updateDesktopClock, 30000);
 
+      // Persistent notification center and quick controls share existing settings state.
+      const NOTICE_KEY="mk.system.notifications.v1",noticeList=document.getElementById("tray-notification-list");
+      const noticePanel=document.getElementById("tray-notifications"),noticeToggle=document.getElementById("tray-notifications-toggle");
+      const quickPanel=document.getElementById("tray-quick"),quickToggle=document.getElementById("tray-quick-toggle");
+      const unreadBadge=document.getElementById("tray-unread"),healthDot=document.getElementById("tray-health-dot");
+      let notifications=[];
+      try{const saved=JSON.parse(localStorage.getItem(NOTICE_KEY)||"[]");if(Array.isArray(saved))notifications=saved.filter(n=>n&&typeof n.id==="string"&&typeof n.title==="string"&&typeof n.message==="string"&&Number.isFinite(n.createdAt)).slice(0,20);}catch(_){}
+      const persistNotifications=()=>{try{localStorage.setItem(NOTICE_KEY,JSON.stringify(notifications));}catch(_){}};
+      const renderNotifications=()=>{
+        noticeList.replaceChildren();const unread=notifications.filter(n=>!n.read).length;
+        unreadBadge.textContent=unread>9?"9+":String(unread);unreadBadge.hidden=!unread;
+        noticeToggle.setAttribute("aria-label",unread?"Open notifications, "+unread+" unread":"Open notifications");
+        if(!notifications.length){const p=document.createElement("p");p.className="tray-empty";p.textContent="No system notifications. Service warnings will appear here.";noticeList.append(p);return;}
+        for(const n of notifications){const row=document.createElement("article");row.className="tray-notice";const copy=document.createElement("div");
+          const title=document.createElement("strong");title.textContent=n.title;const msg=document.createElement("p");msg.textContent=n.message;
+          const time=document.createElement("time");time.dateTime=new Date(n.createdAt).toISOString();time.textContent=new Date(n.createdAt).toLocaleString();copy.append(title,msg,time);
+          const dismiss=document.createElement("button");dismiss.type="button";dismiss.textContent="Dismiss";dismiss.setAttribute("aria-label","Dismiss notification: "+n.title);
+          dismiss.addEventListener("click",()=>{notifications=notifications.filter(x=>x.id!==n.id);persistNotifications();renderNotifications();});row.append(copy,dismiss);noticeList.append(row);}
+      };
+      const pushNotification=(title,message)=>{notifications.unshift({id:Date.now().toString(36)+Math.random().toString(36).slice(2,7),title,message,createdAt:Date.now(),read:false});notifications=notifications.slice(0,20);persistNotifications();renderNotifications();};
+      const setTrayPanel=name=>{const show=name==="notifications";noticePanel.hidden=!show;quickPanel.hidden=name!=="quick";noticeToggle.setAttribute("aria-expanded",String(show));quickToggle.setAttribute("aria-expanded",String(name==="quick"));if(show){notifications=notifications.map(n=>({...n,read:true}));persistNotifications();renderNotifications();}};
+      noticeToggle.addEventListener("click",()=>setTrayPanel(noticePanel.hidden?"notifications":null));
+      quickToggle.addEventListener("click",()=>setTrayPanel(quickPanel.hidden?"quick":null));
+      document.getElementById("tray-clear-notifications").addEventListener("click",()=>{notifications=[];persistNotifications();renderNotifications();});
+      document.getElementById("tray-open-settings").addEventListener("click",()=>{setTrayPanel(null);openSettings();});
+      const quickCompact=document.getElementById("quick-compact"),quickMotion=document.getElementById("quick-motion");
+      const syncQuick=()=>{quickCompact.setAttribute("aria-pressed",String(systemSettings.compact));quickMotion.setAttribute("aria-pressed",String(systemSettings.motion==="reduced"));document.getElementById("quick-status").textContent=settingsStorageAvailable?"Preferences saved on this device.":"Storage unavailable. Visit-only changes.";};
+      quickCompact.addEventListener("click",()=>{systemSettings.compact=!systemSettings.compact;compactSetting.checked=systemSettings.compact;shell.classList.toggle("is-compact",systemSettings.compact);persistSettings();syncQuick();});
+      quickMotion.addEventListener("click",()=>{systemSettings.motion=systemSettings.motion==="reduced"?"system":"reduced";motionSetting.value=systemSettings.motion;document.documentElement.classList.toggle("force-reduced-motion",systemSettings.motion==="reduced");persistSettings();syncQuick();});
+      document.getElementById("tray-health").addEventListener("click",()=>{setTrayPanel("notifications");document.getElementById("monitor-checked")?.scrollIntoView({behavior:reducedMotion?"auto":"smooth",block:"center"});});
+      document.addEventListener("pointerdown",e=>{if(!e.target.closest(".system-tray")&&!e.target.closest(".tray-panel"))setTrayPanel(null);});
+      document.addEventListener("keydown",e=>{if(e.key==="Escape"&&(!noticePanel.hidden||!quickPanel.hidden))setTrayPanel(null);});
+      renderNotifications();syncQuick();
+
       const fetchWithTimeout = async (url, timeoutMs = 8000) => {
         const controller = new AbortController();
         const timeout = window.setTimeout(() => controller.abort(), timeoutMs);
@@ -1263,13 +1313,15 @@
       };
 
 
-      const setMonitor = (name, state, detail) => {
-        const target = document.getElementById("monitor-" + name);
-        const description = document.getElementById("monitor-" + name + "-detail");
-        target.dataset.state = state;
-        target.textContent = state === "online" ? "Operational" : state === "error" ? "Unavailable" : "Checking…";
-        description.textContent = detail;
-        document.getElementById("monitor-checked").textContent = "Last checked " + new Date().toLocaleTimeString();
+      const monitorStates=new Map();
+      const setMonitor=(name,state,detail)=>{
+        const target=document.getElementById("monitor-"+name),description=document.getElementById("monitor-"+name+"-detail"),previous=monitorStates.get(name);
+        monitorStates.set(name,state);target.dataset.state=state;target.textContent=state==="online"?"Operational":state==="error"?"Unavailable":"Checking…";description.textContent=detail;
+        document.getElementById("monitor-checked").textContent="Last checked "+new Date().toLocaleTimeString();
+        healthDot.dataset.state=[...monitorStates.values()].includes("error")?"error":"online";
+        const labels={api:"GitHub repository API",activity:"GitHub activity feed",routes:"Production routes"};
+        if(state==="error"&&previous!=="error")pushNotification((labels[name]||"System service")+" unavailable",detail);
+        else if(state==="online"&&previous==="error")pushNotification((labels[name]||"System service")+" recovered","The latest health check completed successfully.");
       };
       const checkProductionRoutes = async () => {
         const routes = [
