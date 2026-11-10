@@ -85,7 +85,7 @@ Clearing browser storage resets these local preferences. It does not change depl
 
 ## Validation and deployment
 
-GitHub Pages publishes the root gateway through its managed deployment workflow. The link-health workflow runs on relevant source changes, on its scheduled cadence, and manually.
+GitHub Pages publishes the root gateway through its managed deployment workflow. Source pushes trigger structural and JavaScript validation; public route checks run after a successful Pages deployment, on the scheduled cadence, and when manually dispatched.
 
 The workflow validates:
 - HTML structure and unique element IDs.
