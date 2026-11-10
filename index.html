@@ -103,6 +103,9 @@
     .app-name { display: block; margin: 1px 0 7px; font-size: 14px; font-weight: 700; }
     .app-desc { display: block; color: var(--muted); font-size: 11px; line-height: 1.6; }
     .app-path { display: block; margin-top: 10px; color: #6d819d; font-size: 10px; }
+    .app-meta { display: block; margin-top: 7px; color: #7f91a9; font-size: 9px; line-height: 1.5; letter-spacing: .02em; }
+    .app-meta[data-state="ready"] { color: var(--green); }
+    .app-meta[data-state="error"] { color: #8291a7; }
     .arrow { margin-left: auto; color: #62748e; font-size: 16px; }
     .nodes { padding: 17px 19px; border: 1px solid rgba(155,123,255,.2); border-radius: 12px; background: rgba(16,20,34,.72); }
     .node-list { justify-content: flex-start; flex-wrap: wrap; gap: 12px 24px; }
@@ -162,57 +165,63 @@
         <span class="section-hint">Select a node or press 1–6</span>
       </div>
       <nav class="app-grid" aria-label="Application launcher">
-        <a class="app-link" href="./campus-plug67/" data-shortcut="1">
+        <a class="app-link" href="./campus-plug67/" data-shortcut="1" data-repo="michaelkage/campus-plug67">
           <span class="key" aria-hidden="true">01</span>
           <span class="app-copy">
             <span class="app-name">Campus Plug</span>
             <span class="app-desc">University P2P marketplace with escrow workflows.</span>
             <span class="app-path">./campus-plug67/</span>
+            <span class="app-meta" data-repo-meta aria-live="polite">Repository telemetry loading…</span>
           </span>
           <span class="arrow" aria-hidden="true">↗</span>
         </a>
-        <a class="app-link" href="./OmniPocket/" data-shortcut="2">
+        <a class="app-link" href="./OmniPocket/" data-shortcut="2" data-repo="michaelkage/OmniPocket">
           <span class="key" aria-hidden="true">02</span>
           <span class="app-copy">
             <span class="app-name">OmniPocket</span>
             <span class="app-desc">Local-first, multi-currency financial workspace.</span>
             <span class="app-path">./OmniPocket/</span>
+            <span class="app-meta" data-repo-meta aria-live="polite">Repository telemetry loading…</span>
           </span>
           <span class="arrow" aria-hidden="true">↗</span>
         </a>
-        <a class="app-link" href="https://github.com/michaelkage/Life-Itself" target="_blank" rel="noopener noreferrer" data-shortcut="3">
+        <a class="app-link" href="https://github.com/michaelkage/Life-Itself" target="_blank" rel="noopener noreferrer" data-shortcut="3" data-repo="michaelkage/Life-Itself">
           <span class="key" aria-hidden="true">03</span>
           <span class="app-copy">
             <span class="app-name">Life Itself</span>
             <span class="app-desc">Deterministic open-world life simulation engine.</span>
             <span class="app-path">github.com/michaelkage/Life-Itself</span>
+            <span class="app-meta" data-repo-meta aria-live="polite">Repository telemetry loading…</span>
           </span>
           <span class="arrow" aria-hidden="true">↗</span>
         </a>
-        <a class="app-link" href="https://github.com/michaelkage/autonomous-media-network" target="_blank" rel="noopener noreferrer" data-shortcut="4">
+        <a class="app-link" href="https://github.com/michaelkage/autonomous-media-network" target="_blank" rel="noopener noreferrer" data-shortcut="4" data-repo="michaelkage/autonomous-media-network">
           <span class="key" aria-hidden="true">04</span>
           <span class="app-copy">
             <span class="app-name">Autonomous Media Network</span>
             <span class="app-desc">Automated media ingestion, vetting, and publishing.</span>
             <span class="app-path">github.com/michaelkage/autonomous-media-network</span>
+            <span class="app-meta" data-repo-meta aria-live="polite">Repository telemetry loading…</span>
           </span>
           <span class="arrow" aria-hidden="true">↗</span>
         </a>
-        <a class="app-link" href="https://github.com/michaelkage/unilag-watcher" target="_blank" rel="noopener noreferrer" data-shortcut="5">
+        <a class="app-link" href="https://github.com/michaelkage/unilag-watcher" target="_blank" rel="noopener noreferrer" data-shortcut="5" data-repo="michaelkage/unilag-watcher">
           <span class="key" aria-hidden="true">05</span>
           <span class="app-copy">
             <span class="app-name">UNILAG Watcher</span>
             <span class="app-desc">Feed change detection with retry-safe Telegram alerts.</span>
             <span class="app-path">github.com/michaelkage/unilag-watcher</span>
+            <span class="app-meta" data-repo-meta aria-live="polite">Repository telemetry loading…</span>
           </span>
           <span class="arrow" aria-hidden="true">↗</span>
         </a>
-        <a class="app-link" href="https://github.com/michaelkage/Daily-Log" target="_blank" rel="noopener noreferrer" data-shortcut="6">
+        <a class="app-link" href="https://github.com/michaelkage/Daily-Log" target="_blank" rel="noopener noreferrer" data-shortcut="6" data-repo="michaelkage/Daily-Log">
           <span class="key" aria-hidden="true">06</span>
           <span class="app-copy">
             <span class="app-name">Engineering Log</span>
             <span class="app-desc">Development notes, milestones, and technical decisions.</span>
             <span class="app-path">github.com/michaelkage/Daily-Log</span>
+            <span class="app-meta" data-repo-meta aria-live="polite">Repository telemetry loading…</span>
           </span>
           <span class="arrow" aria-hidden="true">↗</span>
         </a>
@@ -295,6 +304,42 @@
         const link = document.querySelector('[data-shortcut="' + event.key + '"]');
         if (link && !event.repeat) window.location.href = link.href;
       });
+
+      // Public GitHub REST API telemetry. No token, SDK, or build step required.
+      // The launcher remains fully usable when the API is unavailable or rate-limited.
+      const repoCards = [...document.querySelectorAll("[data-repo][data-shortcut]")];
+      const formatAge = (timestamp) => {
+        const elapsed = Math.max(0, Date.now() - new Date(timestamp).getTime());
+        const minutes = Math.floor(elapsed / 60000);
+        if (minutes < 60) return minutes + "m ago";
+        const hours = Math.floor(minutes / 60);
+        if (hours < 24) return hours + "h ago";
+        const days = Math.floor(hours / 24);
+        if (days < 30) return days + "d ago";
+        return Math.floor(days / 30) + "mo ago";
+      };
+
+      const loadRepositoryTelemetry = async (card) => {
+        const target = card.querySelector("[data-repo-meta]");
+        const repository = card.dataset.repo;
+        try {
+          const response = await fetch("https://api.github.com/repos/" + repository, {
+            headers: { Accept: "application/vnd.github+json" },
+            cache: "no-store"
+          });
+          if (!response.ok) throw new Error("GitHub API " + response.status);
+          const data = await response.json();
+          const stars = new Intl.NumberFormat().format(data.stargazers_count);
+          const forks = new Intl.NumberFormat().format(data.forks_count);
+          target.textContent = "★ " + stars + " stars  · ⑂ " + forks + " forks  · Updated " + formatAge(data.pushed_at);
+          target.dataset.state = "ready";
+        } catch {
+          target.textContent = "Live repository data unavailable";
+          target.dataset.state = "error";
+        }
+      };
+
+      Promise.allSettled(repoCards.map(loadRepositoryTelemetry));
     })();
   </script>
 </body>
