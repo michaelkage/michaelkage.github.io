@@ -4,7 +4,12 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#080b12">
-  <meta name="description" content="Michael Kage system gateway. Launch production applications, browse repositories, and inspect development logs.">
+  <meta name="description" content="Michael Kage system gateway. Launch production applications, explore 20 public project repositories, and inspect recent engineering activity.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://michaelkage.github.io/">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://michaelkage.github.io/">
+  <meta name="twitter:card" content="summary">
   <meta property="og:title" content="Michael Kage | System Gateway">
   <meta property="og:description" content="A central gateway to production applications, source repositories, and system logs.">
   <title>Michael Kage // System Gateway</title>
@@ -44,6 +49,9 @@
       background-size: auto, auto, 36px 36px, 36px 36px, auto;
     }
     a { color: inherit; }
+    .skip-link { position: absolute; top: 10px; left: 10px; z-index: 10; padding: 10px 12px; transform: translateY(-160%); border: 1px solid var(--cyan); border-radius: 7px; color: var(--text); background: var(--panel); }
+    .skip-link:focus { transform: translateY(0); }
+    .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
     a:focus-visible, button:focus-visible { outline: 2px solid var(--cyan); outline-offset: 4px; }
     .shell { width: min(100% - 40px, 1040px); margin-inline: auto; padding: 42px 0 30px; }
     .topbar, .top-meta, .section-head, .node-list, .footer {
@@ -107,6 +115,12 @@
     .app-meta[data-state="ready"] { color: var(--green); }
     .app-meta[data-state="error"] { color: #8291a7; }
     .stage-label { display: inline-block; margin-top: 9px; padding: 4px 7px; border: 1px solid rgba(155,123,255,.24); border-radius: 5px; color: #b8a4ff; background: rgba(155,123,255,.06); font-size: 8px; letter-spacing: .09em; }
+    .repo-tools { display: flex; align-items: center; gap: 12px; margin: 0 0 12px; }
+    .repo-search { width: min(100%, 420px); min-height: 42px; padding: 0 13px; border: 1px solid rgba(125,151,183,.25); border-radius: 8px; color: var(--text); background: rgba(9,15,25,.9); font: inherit; font-size: 11px; }
+    .repo-search::placeholder { color: #71819a; }
+    .repo-count { margin: 0; color: var(--muted); font-size: 10px; }
+    .repo-empty { grid-column: 1 / -1; margin: 0; padding: 18px; border: 1px dashed rgba(125,151,183,.25); border-radius: 10px; color: var(--muted); font-size: 11px; }
+    .repo-card[hidden] { display: none; }
     .repo-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
     .repo-card {
       display: block; min-width: 0; padding: 16px 17px; text-decoration: none;
@@ -151,6 +165,7 @@
   </style>
 </head>
 <body>
+  <a class="skip-link" href="#apps-title">Skip to portfolio content</a>
   <main class="shell">
     <header class="topbar" aria-label="System header">
       <div class="brand">
@@ -261,7 +276,12 @@
         <h2 class="section-label" id="repos-title">04 // Public repository directory</h2>
         <span class="section-hint">14 additional repositories · live GitHub telemetry</span>
       </div>
-      <nav class="repo-grid" aria-label="Additional public repositories">
+      <div class="repo-tools">
+        <label class="sr-only" for="repo-search">Filter public repositories</label>
+        <input class="repo-search" id="repo-search" type="search" placeholder="Filter by repository, project, or description…" autocomplete="off" spellcheck="false">
+        <p class="repo-count" id="repo-count" aria-live="polite">14 entries</p>
+      </div>
+      <nav class="repo-grid" id="repo-grid" aria-label="Additional public repositories">
         <a class="repo-card" href="https://github.com/michaelkage/michaelkage" target="_blank" rel="noopener noreferrer" data-repo="michaelkage/michaelkage">
           <span class="app-name">Developer Profile</span>
           <span class="app-desc">Profile README, engineering focus, featured systems, and build principles.</span>
@@ -346,6 +366,7 @@
           <span class="stage-label">RESOURCE COLLECTION</span>
           <span class="app-meta" data-repo-meta aria-live="polite">Repository telemetry loading…</span>
         </a>
+        <p class="repo-empty" id="repo-empty" hidden>No repositories match that filter.</p>
       </nav>
     </section>
 
@@ -396,7 +417,7 @@
         ["Loading six application routes and public repository directory...", false],
         ["Checking child application boundaries...", false],
         ["Supabase handshake: not queried by this static gateway.", false],
-        ["Six application shortcuts and nineteen public repositories registered.", true],
+        ["Six application shortcuts and twenty public project repositories indexed; one URL unavailable.", true],
         ["Status: Operational", true]
       ];
       const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -439,7 +460,22 @@
 
       // Fetch the public repository inventory once, then hydrate every card locally.
       // One request avoids burning the visitor's unauthenticated GitHub API rate limit.
-      const repoCards = [...document.querySelectorAll("[data-repo][data-repo-meta]")];
+      const repoCards = [...document.querySelectorAll("#repo-grid .repo-card")];
+      const repoSearch = document.getElementById("repo-search");
+      const repoCount = document.getElementById("repo-count");
+      const repoEmpty = document.getElementById("repo-empty");
+      const filterRepositories = () => {
+        const query = repoSearch.value.trim().toLocaleLowerCase();
+        let visible = 0;
+        for (const card of repoCards) {
+          const matches = card.textContent.toLocaleLowerCase().includes(query);
+          card.hidden = !matches;
+          if (matches) visible++;
+        }
+        repoCount.textContent = visible + " of " + repoCards.length + " entries";
+        repoEmpty.hidden = visible !== 0;
+      };
+      repoSearch.addEventListener("input", filterRepositories);
       const formatAge = (timestamp) => {
         const elapsed = Math.max(0, Date.now() - new Date(timestamp).getTime());
         const minutes = Math.floor(elapsed / 60000);
