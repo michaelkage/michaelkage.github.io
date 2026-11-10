@@ -107,6 +107,18 @@
     .app-meta[data-state="ready"] { color: var(--green); }
     .app-meta[data-state="error"] { color: #8291a7; }
     .stage-label { display: inline-block; margin-top: 9px; padding: 4px 7px; border: 1px solid rgba(155,123,255,.24); border-radius: 5px; color: #b8a4ff; background: rgba(155,123,255,.06); font-size: 8px; letter-spacing: .09em; }
+    .repo-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+    .repo-card {
+      display: block; min-width: 0; padding: 16px 17px; text-decoration: none;
+      border: 1px solid rgba(125,151,183,.16); border-radius: 10px;
+      background: rgba(13,19,32,.78);
+      transition: border-color .18s ease, transform .18s ease;
+    }
+    .repo-card:hover { transform: translateY(-2px); border-color: rgba(0,229,255,.48); }
+    .repo-card .app-name { margin: 0 0 7px; }
+    .repo-card .app-desc { min-height: 34px; }
+    .repo-card .stage-label { margin-top: 10px; }
+    .repo-card .app-meta { margin-top: 8px; }
     .activity-panel { padding: 18px 19px; border: 1px solid rgba(0,229,255,.18); border-radius: 12px; background: rgba(9,15,25,.76); }
     .activity-list { display: grid; gap: 13px; margin: 0; padding: 0; list-style: none; }
     .activity-item { display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 12px; align-items: start; padding-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,.06); }
@@ -243,6 +255,93 @@
       </nav>
     </section>
 
+    <section class="section" aria-labelledby="repos-title">
+      <div class="section-head">
+        <h2 class="section-label" id="repos-title">04 // Public repository directory</h2>
+        <span class="section-hint">13 additional repositories · live GitHub telemetry</span>
+      </div>
+      <nav class="repo-grid" aria-label="Additional public repositories">
+        <a class="repo-card" href="https://github.com/michaelkage/JaFaFaWeb" target="_blank" rel="noopener noreferrer" data-repo="michaelkage/JaFaFaWeb">
+          <span class="app-name">JaFaFaWeb</span>
+          <span class="app-desc">Vehicle telemetry and fleet-monitoring admin command center plus customer portal.</span>
+          <span class="stage-label">FRONTEND PROTOTYPE</span>
+          <span class="app-meta" data-repo-meta aria-live="polite">Repository telemetry loading…</span>
+        </a>
+        <a class="repo-card" href="https://github.com/michaelkage/RecordsDataBase" target="_blank" rel="noopener noreferrer" data-repo="michaelkage/RecordsDataBase">
+          <span class="app-name">RecordsDataBase</span>
+          <span class="app-desc">Student and institutional records with separate admin and student portals.</span>
+          <span class="stage-label">FRONTEND PORTAL</span>
+          <span class="app-meta" data-repo-meta aria-live="polite">Repository telemetry loading…</span>
+        </a>
+        <a class="repo-card" href="https://github.com/michaelkage/Student_Database_with_Siliblings" target="_blank" rel="noopener noreferrer" data-repo="michaelkage/Student_Database_with_Siliblings">
+          <span class="app-name">Student_Database_with_Siliblings</span>
+          <span class="app-desc">Student database project repository.</span>
+          <span class="stage-label">REPOSITORY</span>
+          <span class="app-meta" data-repo-meta aria-live="polite">Repository telemetry loading…</span>
+        </a>
+        <a class="repo-card" href="https://github.com/michaelkage/MinecraftServer" target="_blank" rel="noopener noreferrer" data-repo="michaelkage/MinecraftServer">
+          <span class="app-name">MinecraftServer</span>
+          <span class="app-desc">Minecraft server project repository.</span>
+          <span class="stage-label">REPOSITORY</span>
+          <span class="app-meta" data-repo-meta aria-live="polite">Repository telemetry loading…</span>
+        </a>
+        <a class="repo-card" href="https://github.com/michaelkage/LaundrySolution" target="_blank" rel="noopener noreferrer" data-repo="michaelkage/LaundrySolution">
+          <span class="app-name">LaundrySolution</span>
+          <span class="app-desc">Laundry solution project repository.</span>
+          <span class="stage-label">REPOSITORY</span>
+          <span class="app-meta" data-repo-meta aria-live="polite">Repository telemetry loading…</span>
+        </a>
+        <a class="repo-card" href="https://github.com/michaelkage/wastelens-dashboard-prototype" target="_blank" rel="noopener noreferrer" data-repo="michaelkage/wastelens-dashboard-prototype">
+          <span class="app-name">wastelens-dashboard-prototype</span>
+          <span class="app-desc">WasteLens operations dashboard with simulated telemetry, hotspot analysis, reporting, and demo inference.</span>
+          <span class="stage-label">STATIC DEMO DEPLOYMENT</span>
+          <span class="app-meta" data-repo-meta aria-live="polite">Repository telemetry loading…</span>
+        </a>
+        <a class="repo-card" href="https://github.com/michaelkage/Terranova" target="_blank" rel="noopener noreferrer" data-repo="michaelkage/Terranova">
+          <span class="app-name">Terranova</span>
+          <span class="app-desc">Environmental innovation project landing page and WasteLens overview.</span>
+          <span class="stage-label">PROJECT LANDING PAGE</span>
+          <span class="app-meta" data-repo-meta aria-live="polite">Repository telemetry loading…</span>
+        </a>
+        <a class="repo-card" href="https://github.com/michaelkage/OmniRoute" target="_blank" rel="noopener noreferrer" data-repo="michaelkage/OmniRoute">
+          <span class="app-name">OmniRoute</span>
+          <span class="app-desc">Provider-agnostic AI gateway with model routing, free-tier catalog, and fallback strategies.</span>
+          <span class="stage-label">AI GATEWAY</span>
+          <span class="app-meta" data-repo-meta aria-live="polite">Repository telemetry loading…</span>
+        </a>
+        <a class="repo-card" href="https://github.com/michaelkage/Ai-Gateway" target="_blank" rel="noopener noreferrer" data-repo="michaelkage/Ai-Gateway">
+          <span class="app-name">Ai-Gateway</span>
+          <span class="app-desc">OpenAI-compatible edge AI gateway with provider routing and streaming.</span>
+          <span class="stage-label">EDGE API GATEWAY</span>
+          <span class="app-meta" data-repo-meta aria-live="polite">Repository telemetry loading…</span>
+        </a>
+        <a class="repo-card" href="https://github.com/michaelkage/Axiom" target="_blank" rel="noopener noreferrer" data-repo="michaelkage/Axiom">
+          <span class="app-name">Axiom</span>
+          <span class="app-desc">Standalone AI-first desktop workspace for planning, changing, and verifying software projects.</span>
+          <span class="stage-label">DESKTOP APP</span>
+          <span class="app-meta" data-repo-meta aria-live="polite">Repository telemetry loading…</span>
+        </a>
+        <a class="repo-card" href="https://github.com/michaelkage/OmniLauncher" target="_blank" rel="noopener noreferrer" data-repo="michaelkage/OmniLauncher">
+          <span class="app-name">OmniLauncher</span>
+          <span class="app-desc">Modular Android launcher engine for switching home-screen layouts.</span>
+          <span class="stage-label">ANDROID LAUNCHER ENGINE</span>
+          <span class="app-meta" data-repo-meta aria-live="polite">Repository telemetry loading…</span>
+        </a>
+        <a class="repo-card" href="https://github.com/michaelkage/Vanguard" target="_blank" rel="noopener noreferrer" data-repo="michaelkage/Vanguard">
+          <span class="app-name">Vanguard</span>
+          <span class="app-desc">Local-first campus mesh identity and communication protocol with Android storage foundation.</span>
+          <span class="stage-label">PROTOCOL CORE</span>
+          <span class="app-meta" data-repo-meta aria-live="polite">Repository telemetry loading…</span>
+        </a>
+        <a class="repo-card" href="https://github.com/michaelkage/The-Vault" target="_blank" rel="noopener noreferrer" data-repo="michaelkage/The-Vault">
+          <span class="app-name">The-Vault</span>
+          <span class="app-desc">Second-brain collection of developer, AI, hardware, and workflow resources.</span>
+          <span class="stage-label">RESOURCE COLLECTION</span>
+          <span class="app-meta" data-repo-meta aria-live="polite">Repository telemetry loading…</span>
+        </a>
+      </nav>
+    </section>
+
     <section class="section" aria-labelledby="nodes-title">
       <div class="section-head">
         <h2 class="section-label" id="nodes-title">02 // Active network nodes</h2>
@@ -287,10 +386,10 @@
       const output = document.getElementById("boot-output");
       const lines = [
         ["Initializing gateway core modules...", false],
-        ["Loading six portfolio system routes...", false],
+        ["Loading six application routes and public repository directory...", false],
         ["Checking child application boundaries...", false],
         ["Supabase handshake: not queried by this static gateway.", false],
-        ["Six portfolio routes registered. Local application routes remain same-origin.", true],
+        ["Six application shortcuts and nineteen public repositories registered.", true],
         ["Status: Operational", true]
       ];
       const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -333,7 +432,7 @@
 
       // Public GitHub REST API telemetry. No token, SDK, or build step required.
       // The launcher remains fully usable when the API is unavailable or rate-limited.
-      const repoCards = [...document.querySelectorAll("[data-repo][data-shortcut]")];
+      const repoCards = [...document.querySelectorAll("[data-repo][data-repo-meta]")];
       const formatAge = (timestamp) => {
         const elapsed = Math.max(0, Date.now() - new Date(timestamp).getTime());
         const minutes = Math.floor(elapsed / 60000);
