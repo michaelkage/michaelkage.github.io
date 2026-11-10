@@ -74,7 +74,6 @@ Clearing browser storage resets these local preferences. It does not change depl
 .
 ├── .github/
 │   └── workflows/
-│       ├── pages deployment workflow
 │       └── portfolio-link-health.yml
 ├── icons/
 │   └── mk-system.svg
@@ -86,7 +85,7 @@ Clearing browser storage resets these local preferences. It does not change depl
 
 ## Validation and deployment
 
-GitHub Pages deploys the root gateway. The link-health workflow runs on relevant source changes, on its scheduled cadence, and manually.
+GitHub Pages publishes the root gateway through its managed deployment workflow. The link-health workflow runs on relevant source changes, on its scheduled cadence, and manually.
 
 The workflow validates:
 - HTML structure and unique element IDs.
