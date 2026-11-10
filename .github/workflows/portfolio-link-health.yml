@@ -5,6 +5,9 @@ on:
     branches: [main]
     paths:
       - "index.html"
+      - "sw.js"
+      - "manifest.webmanifest"
+      - "icons/**"
       - ".github/workflows/portfolio-link-health.yml"
   schedule:
     - cron: "17 8 * * *"
@@ -67,6 +70,25 @@ jobs:
           PY
           node --check /tmp/portfolio-inline.js
 
+      - name: Validate installable offline shell
+        shell: bash
+        run: |
+          node --check sw.js
+          node - <<'JS'
+          const fs = require("node:fs");
+          const manifest = JSON.parse(fs.readFileSync("manifest.webmanifest", "utf8"));
+          if (manifest.start_url !== "./" || manifest.scope !== "./" || manifest.display !== "standalone") {
+            throw new Error("Manifest must launch the root gateway in standalone mode.");
+          }
+          if (!Array.isArray(manifest.icons) || !manifest.icons.some(icon => icon.src === "./icons/mk-system.svg")) {
+            throw new Error("Manifest is missing the MK.SYSTEMS application icon.");
+          }
+          for (const file of ["sw.js", "icons/mk-system.svg"]) {
+            if (!fs.existsSync(file)) throw new Error("Missing PWA asset: " + file);
+          }
+          console.log("Manifest, service worker, and application icon are present.");
+          JS
+
       - name: Check production applications and repositories
         shell: bash
         run: |
@@ -74,6 +96,9 @@ jobs:
 
           urls=(
             "https://michaelkage.github.io/"
+            "https://michaelkage.github.io/manifest.webmanifest"
+            "https://michaelkage.github.io/sw.js"
+            "https://michaelkage.github.io/icons/mk-system.svg"
             "https://michaelkage.github.io/campus-plug67/"
             "https://michaelkage.github.io/OmniPocket/"
             "https://michaelkage.github.io/wastelens-dashboard-prototype/"
