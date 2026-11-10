@@ -1,0 +1,60 @@
+name: Portfolio link health
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "index.html"
+      - ".github/workflows/portfolio-link-health.yml"
+  schedule:
+    - cron: "17 8 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: portfolio-link-health
+  cancel-in-progress: true
+
+jobs:
+  check-public-routes:
+    name: Check public portfolio routes
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check production applications and repositories
+        shell: bash
+        run: |
+          set -uo pipefail
+
+          urls=(
+            "https://michaelkage.github.io/campus-plug67/"
+            "https://michaelkage.github.io/OmniPocket/"
+            "https://github.com/michaelkage/Life-Itself"
+            "https://github.com/michaelkage/autonomous-media-network"
+            "https://github.com/michaelkage/campus-plug67"
+            "https://github.com/michaelkage/OmniPocket"
+            "https://github.com/michaelkage/unilag-watcher"
+            "https://github.com/michaelkage/Daily-Log"
+          )
+
+          failures=0
+          for url in "${urls[@]}"; do
+            printf 'Checking %s ... ' "$url"
+            if status=$(curl --location --silent --show-error --fail \
+              --retry 2 --retry-delay 2 --max-time 25 \
+              --output /dev/null --write-out '%{http_code}' "$url"); then
+              printf 'HTTP %s\n' "$status"
+            else
+              printf 'FAILED\n'
+              failures=$((failures + 1))
+            fi
+          done
+
+          if [ "$failures" -gt 0 ]; then
+            printf '\n%s route(s) failed health checks.\n' "$failures"
+            exit 1
+          fi
+
+          printf '\nAll portfolio routes are responding.\n'
