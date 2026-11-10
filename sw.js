@@ -1,7 +1,7 @@
 "use strict";
 
 const CACHE_PREFIX = "mk-gateway-shell-";
-const CACHE_NAME = CACHE_PREFIX + "v1";
+const CACHE_NAME = CACHE_PREFIX + "v2";
 const SHELL_URLS = [
   "./",
   "./manifest.webmanifest",
@@ -46,11 +46,11 @@ self.addEventListener("fetch", (event) => {
   if (request.mode === "navigate" && rootDocument) {
     event.respondWith(
       fetch(request).then((response) => {
-        if (response.ok) {
-          const copy = response.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put("./", copy));
-        }
-        return response;
+        if (!response.ok) return response;
+        return caches.open(CACHE_NAME)
+          .then((cache) => cache.put("./", response.clone()))
+          .then(() => response)
+          .catch(() => response);
       }).catch(async () => {
         const cached = await caches.match("./");
         return cached || Response.error();
@@ -61,11 +61,11 @@ self.addEventListener("fetch", (event) => {
 
   event.respondWith(
     caches.match(request).then((cached) => cached || fetch(request).then((response) => {
-      if (response.ok) {
-        const copy = response.clone();
-        caches.open(CACHE_NAME).then((cache) => cache.put(request, copy));
-      }
-      return response;
+      if (!response.ok) return response;
+      return caches.open(CACHE_NAME)
+        .then((cache) => cache.put(request, response.clone()))
+        .then(() => response)
+        .catch(() => response);
     }))
   );
 });
