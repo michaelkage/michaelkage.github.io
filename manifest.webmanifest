@@ -1,0 +1,51 @@
+{
+  "id": "./",
+  "name": "MK.SYSTEMS // Gateway",
+  "short_name": "MK.SYSTEMS",
+  "description": "A central launcher for production applications, repositories, and engineering activity.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#080b12",
+  "theme_color": "#080b12",
+  "categories": [
+    "productivity",
+    "developer",
+    "utilities"
+  ],
+  "icons": [
+    {
+      "src": "./icons/mk-system.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Campus Plug",
+      "short_name": "Campus Plug",
+      "url": "./campus-plug67/",
+      "icons": [
+        {
+          "src": "./icons/mk-system.svg",
+          "sizes": "any",
+          "type": "image/svg+xml"
+        }
+      ]
+    },
+    {
+      "name": "OmniPocket",
+      "short_name": "OmniPocket",
+      "url": "./OmniPocket/",
+      "icons": [
+        {
+          "src": "./icons/mk-system.svg",
+          "sizes": "any",
+          "type": "image/svg+xml"
+        }
+      ]
+    }
+  ]
+}
