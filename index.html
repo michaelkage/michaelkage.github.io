@@ -118,6 +118,7 @@
     .repo-tools { display: flex; align-items: center; gap: 12px; margin: 0 0 12px; }
     .repo-search { width: min(100%, 420px); min-height: 42px; padding: 0 13px; border: 1px solid rgba(125,151,183,.25); border-radius: 8px; color: var(--text); background: rgba(9,15,25,.9); font: inherit; font-size: 11px; }
     .repo-search::placeholder { color: #71819a; }
+    .repo-sort { min-height: 42px; padding: 0 11px; border: 1px solid rgba(125,151,183,.25); border-radius: 8px; color: var(--text); background: rgba(9,15,25,.9); font: inherit; font-size: 10px; }
     .repo-count { margin: 0; color: var(--muted); font-size: 10px; }
     .repo-empty { grid-column: 1 / -1; margin: 0; padding: 18px; border: 1px dashed rgba(125,151,183,.25); border-radius: 10px; color: var(--muted); font-size: 11px; }
     .repo-card[hidden] { display: none; }
@@ -279,6 +280,13 @@
       <div class="repo-tools">
         <label class="sr-only" for="repo-search">Filter public repositories</label>
         <input class="repo-search" id="repo-search" type="search" placeholder="Filter by repository, project, or description…" autocomplete="off" spellcheck="false">
+        <label class="sr-only" for="repo-sort">Sort public repositories</label>
+        <select class="repo-sort" id="repo-sort">
+          <option value="featured">Featured order</option>
+          <option value="updated">Recently updated</option>
+          <option value="stars">Most stars</option>
+          <option value="name">Name A–Z</option>
+        </select>
         <p class="repo-count" id="repo-count" aria-live="polite">14 entries</p>
       </div>
       <nav class="repo-grid" id="repo-grid" aria-label="Additional public repositories">
@@ -464,7 +472,20 @@
       const directoryCards = [...document.querySelectorAll("#repo-grid .repo-card")];
       const repoSearch = document.getElementById("repo-search");
       const repoCount = document.getElementById("repo-count");
+      const repoSort = document.getElementById("repo-sort");
       const repoEmpty = document.getElementById("repo-empty");
+      const originalOrder = new Map(directoryCards.map((card, index) => [card, index]));
+      const sortRepositories = () => {
+        const mode = repoSort.value;
+        const sorted = [...directoryCards].sort((a, b) => {
+          if (mode === "featured") return originalOrder.get(a) - originalOrder.get(b);
+          if (mode === "name") return a.querySelector(".app-name").textContent.localeCompare(b.querySelector(".app-name").textContent);
+          if (mode === "stars") return Number(b.dataset.stars || -1) - Number(a.dataset.stars || -1) || originalOrder.get(a) - originalOrder.get(b);
+          if (mode === "updated") return Number(b.dataset.pushed || 0) - Number(a.dataset.pushed || 0) || originalOrder.get(a) - originalOrder.get(b);
+          return 0;
+        });
+        for (const card of sorted) repoGrid.insertBefore(card, repoEmpty);
+      };
       const filterRepositories = () => {
         const query = repoSearch.value.trim().toLocaleLowerCase();
         let visible = 0;
@@ -477,6 +498,7 @@
         repoEmpty.hidden = visible !== 0;
       };
       repoSearch.addEventListener("input", filterRepositories);
+      repoSort.addEventListener("change", sortRepositories);
       const formatAge = (timestamp) => {
         const elapsed = Math.max(0, Date.now() - new Date(timestamp).getTime());
         const minutes = Math.floor(elapsed / 60000);
@@ -506,9 +528,14 @@
             }
             const stars = new Intl.NumberFormat().format(repository.stargazers_count);
             const forks = new Intl.NumberFormat().format(repository.forks_count);
-            target.textContent = "★ " + stars + " stars  · ⑂ " + forks + " forks  · Updated " + formatAge(repository.pushed_at);
+            card.dataset.stars = String(repository.stargazers_count);
+            card.dataset.pushed = String(Date.parse(repository.pushed_at) || 0);
+            const language = repository.language || "Mixed / unspecified";
+            target.textContent = language + "  · ★ " + stars + "  · ⑂ " + forks + "  · Updated " + formatAge(repository.pushed_at);
             target.dataset.state = "ready";
           }
+          sortRepositories();
+          filterRepositories();
         } catch {
           for (const card of repoCards) {
             const target = card.querySelector("[data-repo-meta]");
