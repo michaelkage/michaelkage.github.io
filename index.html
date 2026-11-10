@@ -1,501 +1,291 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Michael Kage | Tech Portfolio</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#080b12">
+  <meta name="description" content="Michael Kage system gateway. Launch production applications, browse repositories, and inspect development logs.">
+  <meta property="og:title" content="Michael Kage | System Gateway">
+  <meta property="og:description" content="A central gateway to production applications, source repositories, and system logs.">
+  <title>Michael Kage // System Gateway</title>
   <style>
     :root {
-      --obsidian: #0d1117;
-      --neon-blue: #00f2ff;
-      --neon-purple: #7c4dff;
-      --soft-white: rgba(230, 237, 243, 0.7);
+      color-scheme: dark;
+      --bg: #080b12;
+      --panel: #0d1320;
+      --panel-2: #101827;
+      --line: rgba(0, 229, 255, .2);
+      --cyan: #00e5ff;
+      --purple: #9b7bff;
+      --text: #e8f1fb;
+      --muted: #8291a7;
+      --green: #65f3b2;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      font-family: var(--mono);
+      background: var(--bg);
+      color: var(--text);
+      font-synthesis: none;
+      text-rendering: optimizeLegibility;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
     }
 
-    html {
-      scroll-behavior: smooth; /* Smooth scrolling enabled */
-    }
-
-    ::selection {
-      background: var(--neon-blue); /* Custom neon highlight */
-      color: var(--obsidian);
-    }
-
-    /* Scroll Animation Styles */
-    .reveal {
-      opacity: 0;
-      transform: translateY(30px);
-      transition: all 0.8s ease-out;
-    }
-
-    .reveal.active {
-      opacity: 1;
-      transform: translateY(0);
-    }
-
+    *, *::before, *::after { box-sizing: border-box; }
+    html { min-width: 320px; min-height: 100%; background: var(--bg); }
     body {
-      background-color: var(--obsidian);
-      color: #e6edf3;
-      font-family: "JetBrains Mono", "Fira Code", monospace;
-      overflow-x: hidden;
+      min-height: 100vh;
+      margin: 0;
+      background:
+        radial-gradient(ellipse at 12% 0%, rgba(0, 229, 255, .09), transparent 38rem),
+        radial-gradient(ellipse at 95% 90%, rgba(155, 123, 255, .08), transparent 34rem),
+        linear-gradient(rgba(255,255,255,.018) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.018) 1px, transparent 1px),
+        var(--bg);
+      background-size: auto, auto, 36px 36px, 36px 36px, auto;
     }
-
-    .grid-overlay {
-      background-image:
-        linear-gradient(rgba(0, 242, 255, 0.08) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(0, 242, 255, 0.08) 1px, transparent 1px);
-      background-size: 48px 48px;
+    a { color: inherit; }
+    a:focus-visible, button:focus-visible { outline: 2px solid var(--cyan); outline-offset: 4px; }
+    .shell { width: min(100% - 40px, 1040px); margin-inline: auto; padding: 42px 0 30px; }
+    .topbar, .top-meta, .section-head, .node-list, .footer {
+      display: flex; align-items: center; justify-content: space-between; gap: 16px;
     }
-
-    .section-shell {
-      position: relative;
-      overflow: hidden;
+    .brand { display: flex; align-items: center; gap: 12px; min-width: 0; }
+    .brand-mark {
+      display: grid; place-items: center; width: 38px; height: 38px;
+      border: 1px solid rgba(0,229,255,.5); border-radius: 10px;
+      color: var(--cyan); background: rgba(0,229,255,.07);
+      box-shadow: 0 0 24px rgba(0,229,255,.1); font-size: 19px;
     }
-
-    .section-shell::after {
-      content: "";
-      position: absolute;
-      inset: -2px;
-      border-radius: 24px;
-      border: 1px solid rgba(0, 242, 255, 0.25);
-      opacity: 0.6;
-      pointer-events: none;
+    .eyebrow, .section-label, .status, .key, .node-label, .footer { letter-spacing: .12em; text-transform: uppercase; }
+    .eyebrow { margin: 0; color: var(--muted); font-size: 10px; }
+    .brand-name { margin: 3px 0 0; font-size: 13px; font-weight: 700; letter-spacing: .08em; }
+    .status { display: inline-flex; align-items: center; gap: 8px; color: var(--green); font-size: 10px; white-space: nowrap; }
+    .status::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: currentColor; box-shadow: 0 0 12px currentColor; }
+    .hero { padding: 76px 0 38px; }
+    .hero-kicker { color: var(--cyan); font-size: 11px; letter-spacing: .2em; text-transform: uppercase; }
+    h1 { margin: 17px 0 12px; font-size: clamp(34px, 7vw, 62px); line-height: 1.04; letter-spacing: -.065em; }
+    h1 span { color: var(--cyan); text-shadow: 0 0 28px rgba(0,229,255,.2); }
+    .intro { max-width: 620px; margin: 0; color: #a7b5c8; font-size: 14px; line-height: 1.8; }
+    .terminal {
+      overflow: hidden; border: 1px solid var(--line); border-radius: 14px;
+      background: rgba(9, 15, 25, .88); box-shadow: 0 18px 60px rgba(0,0,0,.22);
     }
-
-    .neon-divider {
-      height: 2px;
-      width: 100%;
-      background: linear-gradient(90deg, rgba(0, 242, 255, 0), rgba(0, 242, 255, 0.8), rgba(0, 242, 255, 0));
-      margin: 2.5rem 0;
+    .terminal-bar { display: flex; align-items: center; gap: 7px; padding: 13px 16px; border-bottom: 1px solid rgba(255,255,255,.07); background: rgba(255,255,255,.02); }
+    .dot { width: 7px; height: 7px; border-radius: 50%; background: #344258; }
+    .terminal-title { margin-left: 8px; color: var(--muted); font-size: 10px; letter-spacing: .12em; }
+    .boot-output { min-height: 116px; padding: 17px 18px 18px; color: #a4b4c9; font-size: 11px; line-height: 1.9; }
+    .boot-line { display: block; }
+    .boot-line::before { content: "> "; color: var(--purple); }
+    .boot-ok { color: var(--green); }
+    .boot-cursor { display: inline-block; width: 7px; height: 13px; margin-left: 4px; vertical-align: -2px; background: var(--cyan); animation: blink 1s steps(2, start) infinite; }
+    @keyframes blink { to { visibility: hidden; } }
+    .section { margin-top: 42px; }
+    .section-head { margin-bottom: 15px; }
+    .section-label { margin: 0; color: #c7d3e3; font-size: 11px; font-weight: 700; }
+    .section-hint { color: var(--muted); font-size: 10px; }
+    .app-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+    .app-link {
+      position: relative; display: flex; gap: 15px; align-items: flex-start;
+      min-height: 116px; padding: 20px; text-decoration: none;
+      border: 1px solid rgba(125,151,183,.18); border-radius: 12px;
+      background: linear-gradient(145deg, rgba(17,27,43,.94), rgba(11,17,28,.94));
+      transition: border-color .18s ease, transform .18s ease, background .18s ease;
     }
-
-    .connected-line {
-      height: 1px;
-      width: 100%;
-      background: linear-gradient(90deg, rgba(0, 242, 255, 0), rgba(124, 77, 255, 0.6), rgba(0, 242, 255, 0));
-      opacity: 0.7;
+    .app-link:hover { transform: translateY(-2px); border-color: rgba(0,229,255,.58); background: linear-gradient(145deg, rgba(18,38,53,.98), rgba(13,20,34,.98)); }
+    .app-link:nth-child(even):hover { border-color: rgba(155,123,255,.62); }
+    .key {
+      display: grid; flex: 0 0 34px; place-items: center; height: 34px;
+      border: 1px solid rgba(0,229,255,.35); border-radius: 8px;
+      color: var(--cyan); background: rgba(0,229,255,.07); font-size: 12px;
     }
-
-    .ambient-ring {
-      position: absolute;
-      inset: -40%;
-      border-radius: 999px;
-      background: radial-gradient(circle, rgba(124, 77, 255, 0.18), transparent 60%);
-      filter: blur(12px);
-      pointer-events: none;
+    .app-link:nth-child(even) .key { color: #b8a4ff; border-color: rgba(155,123,255,.4); background: rgba(155,123,255,.08); }
+    .app-copy { min-width: 0; }
+    .app-name { display: block; margin: 1px 0 7px; font-size: 14px; font-weight: 700; }
+    .app-desc { display: block; color: var(--muted); font-size: 11px; line-height: 1.6; }
+    .app-path { display: block; margin-top: 10px; color: #6d819d; font-size: 10px; }
+    .arrow { margin-left: auto; color: #62748e; font-size: 16px; }
+    .nodes { padding: 17px 19px; border: 1px solid rgba(155,123,255,.2); border-radius: 12px; background: rgba(16,20,34,.72); }
+    .node-list { justify-content: flex-start; flex-wrap: wrap; gap: 12px 24px; }
+    .node { color: #aebbd0; font-size: 11px; text-decoration: none; }
+    .node:hover { color: var(--cyan); }
+    .node-label { display: block; margin-bottom: 7px; color: #71819a; font-size: 9px; }
+    .footer { justify-content: space-between; margin-top: 48px; padding-top: 17px; border-top: 1px solid rgba(255,255,255,.07); color: #627087; font-size: 9px; }
+    .footer span:last-child { color: #8291a7; }
+    @media (max-width: 620px) {
+      .shell { width: min(100% - 28px, 1040px); padding-top: 25px; }
+      .hero { padding-top: 58px; }
+      .app-grid { grid-template-columns: 1fr; }
+      .app-link { min-height: 98px; }
+      .section-hint { display: none; }
+      .footer { align-items: flex-start; flex-direction: column; gap: 8px; }
     }
-
-    .glass-card {
-      background: linear-gradient(145deg, rgba(255, 255, 255, 0.09), rgba(255, 255, 255, 0.03));
-      border: 1px solid rgba(0, 242, 255, 0.3);
-      box-shadow: 0 0 35px rgba(0, 242, 255, 0.15);
-    }
-
-    /* Rig Card Hover Glow */
-    .rig-card {
-      transition: all 0.3s ease-in-out;
-    }
-    .rig-card:hover {
-      transform: translateY(-8px);
-      box-shadow: 0 0 30px rgba(0, 242, 255, 0.4);
-      border-color: var(--neon-blue);
-    }
-
-    .pulse-glow {
-      text-shadow: 0 0 12px rgba(0, 242, 255, 0.5);
-      animation: pulse 2.8s ease-in-out infinite;
-    }
-
-    @keyframes pulse {
-      0%, 100% { text-shadow: 0 0 10px rgba(0, 242, 255, 0.4); }
-      50% { text-shadow: 0 0 20px rgba(0, 242, 255, 0.7); }
-    }
-
-    .game-panel {
-      background: radial-gradient(circle at top, rgba(0, 242, 255, 0.15), rgba(13, 17, 23, 0.95));
-      border: 1px solid rgba(0, 242, 255, 0.35);
-      box-shadow: inset 0 0 40px rgba(0, 242, 255, 0.15);
-    }
-
-    canvas#circuitGame {
-      background: rgba(5, 12, 20, 0.9);
-      border: 1px solid rgba(0, 242, 255, 0.4);
-      box-shadow: 0 0 20px rgba(0, 242, 255, 0.2);
-      border-radius: 16px;
-    }
-
-    .metric-pill {
-      border: 1px solid rgba(0, 242, 255, 0.4);
-      background: rgba(0, 242, 255, 0.08);
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+      .app-link:hover { transform: none; }
     }
   </style>
 </head>
-<body class="min-h-screen grid-overlay">
-  <main class="mx-auto flex w-full max-w-6xl flex-col gap-16 px-6 py-12 sm:px-10 lg:px-16">
-    
-    <section class="section-shell reveal rounded-3xl border border-cyan-400/50 bg-white/5 p-8 shadow-[0_0_30px_rgba(0,242,255,0.25)] backdrop-blur-lg sm:p-12">
-      <span class="ambient-ring"></span>
-      <p class="text-xs uppercase tracking-[0.4em] text-cyan-300">Terminal Mode // Online</p>
-      <h1 class="mt-6 text-4xl font-black uppercase leading-tight text-white sm:text-6xl lg:text-7xl">
-        <span class="pulse-glow">Michael Kage</span>
-      </h1>
-      <p class="mt-6 max-w-2xl text-base text-slate-300 sm:text-lg">
-        Building high-performance experiences with a gamer-centric UI mindset. Smooth, synchronized, and always connected.
-      </p>
-      <div class="mt-8 flex flex-wrap gap-4">
-        <span class="rounded-full border border-cyan-400/60 bg-cyan-400/10 px-4 py-2 text-xs uppercase tracking-widest text-cyan-200">Full-Stack Builder</span>
-        <span class="rounded-full border border-cyan-400/60 bg-white/5 px-4 py-2 text-xs uppercase tracking-widest text-white/80">Terminal Aesthetic</span>
-        <span class="rounded-full border border-purple-300/50 bg-purple-500/10 px-4 py-2 text-xs uppercase tracking-widest text-purple-200">Connected Systems</span>
+<body>
+  <main class="shell">
+    <header class="topbar" aria-label="System header">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">⌘</div>
+        <div>
+          <p class="eyebrow">Independent developer // portfolio gateway</p>
+          <p class="brand-name">MK.SYSTEMS</p>
+        </div>
       </div>
-      <div class="neon-divider"></div>
-      <div class="grid gap-4 text-sm text-slate-300 sm:grid-cols-3">
-        <div class="metric-pill rounded-2xl px-4 py-3">Latency Watch: <span class="text-cyan-200">2.1ms</span></div>
-        <div class="metric-pill rounded-2xl px-4 py-3">Thermal Loop: <span class="text-cyan-200">Stable</span></div>
-        <div class="metric-pill rounded-2xl px-4 py-3">Signal Sync: <span class="text-cyan-200">100%</span></div>
+      <span class="status">Gateway online</span>
+    </header>
+
+    <section class="hero" aria-labelledby="page-title">
+      <div class="hero-kicker">Root access // 00</div>
+      <h1 id="page-title">MICHAEL <span>KAGE</span></h1>
+      <p class="intro">A central launch point for production applications, source repositories, and build logs. Select a system below to establish a route.</p>
+    </section>
+
+    <section class="terminal" aria-label="System initialization diagnostics">
+      <div class="terminal-bar" aria-hidden="true">
+        <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+        <span class="terminal-title">BOOT_SEQUENCE.LOG</span>
+      </div>
+      <div class="boot-output" id="boot-output" role="status" aria-live="polite">
+        <span class="boot-line">Initializing gateway core...</span>
+        <span class="boot-line">Loading route table...</span>
+        <span class="boot-line boot-ok">Status: Operational</span>
       </div>
     </section>
 
-    <div class="connected-line"></div>
-
-    <section class="section-shell reveal rounded-3xl border border-cyan-400/50 bg-white/5 p-8 shadow-[0_0_30px_rgba(0,242,255,0.2)] backdrop-blur-lg">
-      <div class="flex flex-col gap-2">
-        <h2 class="text-2xl font-semibold text-white">The Rig</h2>
-        <p class="text-slate-300">Optimized for speed, precision, and sustained performance.</p>
+    <section class="section" aria-labelledby="apps-title">
+      <div class="section-head">
+        <h2 class="section-label" id="apps-title">01 // Application routing</h2>
+        <span class="section-hint">Select a node or press 1–4</span>
       </div>
-      <div class="mt-8 grid gap-6 md:grid-cols-3">
-        <div class="rig-card rounded-2xl border border-cyan-400/50 bg-white/10 p-6 shadow-[0_0_20px_rgba(0,242,255,0.2)] backdrop-blur">
-          <h3 class="text-lg font-semibold text-cyan-200">Processing</h3>
-          <p class="mt-3 text-sm text-slate-300">Ryzen 9 9950X3D delidded direct-die for relentless boost stability.</p>
-        </div>
-        <div class="rig-card rounded-2xl border border-cyan-400/50 bg-white/10 p-6 shadow-[0_0_20px_rgba(0,242,255,0.2)] backdrop-blur">
-          <h3 class="text-lg font-semibold text-cyan-200">Visuals</h3>
-          <p class="mt-3 text-sm text-slate-300">RTX 5090-class GPU on a full-cover block with active backplate cooling.</p>
-        </div>
-        <div class="rig-card rounded-2xl border border-cyan-400/50 bg-white/10 p-6 shadow-[0_0_20px_rgba(0,242,255,0.2)] backdrop-blur">
-          <h3 class="text-lg font-semibold text-cyan-200">Control</h3>
-          <p class="mt-3 text-sm text-slate-300">ROG Crosshair X870E Extreme with NitroPath DRAM and clean power delivery.</p>
-        </div>
-      </div>
-      <div class="neon-divider"></div>
-      <div class="grid gap-6 md:grid-cols-2">
-        <div class="glass-card rounded-2xl p-6">
-          <h3 class="text-lg font-semibold text-cyan-200">Blank-Check Build Philosophy</h3>
-          <p class="mt-3 text-sm text-slate-300">
-            Built for sustained dominance: Ryzen 9 9950X3D direct-die cooling, RTX 5090-class GPU on a full-cover block,
-            PCIe 6.0 enterprise SSD throughput, and dual-loop liquid cooling for absolute thermal authority.
-          </p>
-        </div>
-        <div class="glass-card rounded-2xl p-6">
-          <h3 class="text-lg font-semibold text-cyan-200">Precision Ecosystem</h3>
-          <p class="mt-3 text-sm text-slate-300">
-            ASUS ROG Crosshair X870E Extreme anchors signal integrity, while dual Seasonic TX-1600 PSUs deliver unwavering
-            power. Ultra-wide and 4K displays, studio-grade audio, and VR integration complete the command center.
-          </p>
-        </div>
-      </div>
+      <nav class="app-grid" aria-label="Application launcher">
+        <a class="app-link" href="./campus-plug67/" data-shortcut="1">
+          <span class="key" aria-hidden="true">01</span>
+          <span class="app-copy">
+            <span class="app-name">Campus Plug</span>
+            <span class="app-desc">Peer-to-peer marketplace platform.</span>
+            <span class="app-path">./campus-plug67/</span>
+          </span>
+          <span class="arrow" aria-hidden="true">↗</span>
+        </a>
+        <a class="app-link" href="./OmniPocket/" data-shortcut="2">
+          <span class="key" aria-hidden="true">02</span>
+          <span class="app-copy">
+            <span class="app-name">OmniPocket</span>
+            <span class="app-desc">Local-first multi-currency ledger.</span>
+            <span class="app-path">./OmniPocket/</span>
+          </span>
+          <span class="arrow" aria-hidden="true">↗</span>
+        </a>
+        <a class="app-link" href="https://github.com/michaelkage?tab=repositories" target="_blank" rel="noopener noreferrer" data-shortcut="3">
+          <span class="key" aria-hidden="true">03</span>
+          <span class="app-copy">
+            <span class="app-name">Core Repositories</span>
+            <span class="app-desc">Browse source code and engineering projects.</span>
+            <span class="app-path">github.com/michaelkage</span>
+          </span>
+          <span class="arrow" aria-hidden="true">↗</span>
+        </a>
+        <a class="app-link" href="https://github.com/michaelkage/Daily-Log" target="_blank" rel="noopener noreferrer" data-shortcut="4">
+          <span class="key" aria-hidden="true">04</span>
+          <span class="app-copy">
+            <span class="app-name">Progress Logs</span>
+            <span class="app-desc">Development notes, milestones, and daily entries.</span>
+            <span class="app-path">github.com/michaelkage/Daily-Log</span>
+          </span>
+          <span class="arrow" aria-hidden="true">↗</span>
+        </a>
+      </nav>
     </section>
 
-    <div class="connected-line"></div>
-
-    <section class="section-shell reveal rounded-3xl border border-cyan-400/50 bg-white/5 p-8 shadow-[0_0_30px_rgba(0,242,255,0.25)] backdrop-blur-lg">
-      <div class="flex flex-col gap-2">
-        <h2 class="text-2xl font-semibold text-white">System Harmony</h2>
-        <p class="text-slate-300">Every component feeds the next. No waiting, no throttling, no gaps.</p>
+    <section class="section" aria-labelledby="nodes-title">
+      <div class="section-head">
+        <h2 class="section-label" id="nodes-title">02 // Active network nodes</h2>
+        <span class="section-hint">Public endpoints</span>
       </div>
-      <div class="mt-8 grid gap-6 lg:grid-cols-3">
-        <div class="glass-card rounded-2xl p-6">
-          <h3 class="text-lg font-semibold text-cyan-200">Thermal Authority</h3>
-          <p class="mt-3 text-sm text-slate-300">Dual loops, triple 480mm radiators, and tuned flow rates keep CPU and GPU heat isolated.</p>
-        </div>
-        <div class="glass-card rounded-2xl p-6">
-          <h3 class="text-lg font-semibold text-cyan-200">Data Without Delay</h3>
-          <p class="mt-3 text-sm text-slate-300">Samsung PM1763 PCIe 6.0 storage pipelines assets fast enough to eliminate load times.</p>
-        </div>
-        <div class="glass-card rounded-2xl p-6">
-          <h3 class="text-lg font-semibold text-cyan-200">Power Certainty</h3>
-          <p class="mt-3 text-sm text-slate-300">Dual Seasonic Prime TX-1600 PSUs keep voltage stable under extreme GPU spikes.</p>
-        </div>
-      </div>
-      <p class="mt-6 text-sm text-[var(--soft-white)]">
-        This is not future-proofing. It is future refusal — a system built to stay ahead without breaking stride.
-      </p>
-    </section>
-
-    <div class="connected-line"></div>
-
-    <section class="section-shell reveal rounded-3xl border border-cyan-400/50 bg-white/5 p-8 shadow-[0_0_30px_rgba(0,242,255,0.25)] backdrop-blur-lg">
-      <div class="flex flex-col gap-2">
-        <h2 class="text-2xl font-semibold text-white">Neon Circuit Game</h2>
-        <p class="text-slate-300">Sync the core node through the grid. Collect pulses before the timer fades.</p>
-      </div>
-      <div class="mt-6 grid gap-6 lg:grid-cols-[2fr_1fr]">
-        <div class="game-panel rounded-2xl p-4">
-          <canvas id="circuitGame" width="520" height="280"></canvas>
-        </div>
-        <div class="glass-card rounded-2xl p-6 text-sm text-slate-300">
-          <h3 class="text-lg font-semibold text-cyan-200">How to Play</h3>
-          <ul class="mt-4 space-y-2">
-            <li>⬆️⬇️⬅️➡️ Move the core node.</li>
-            <li>Collect all pulses to refresh the timer.</li>
-            <li>Press <span class="text-cyan-200">R</span> to reset the run.</li>
-          </ul>
-          <div class="mt-6 grid gap-3 text-sm">
-            <div class="metric-pill rounded-2xl px-4 py-2">Score: <span id="scoreDisplay" class="text-cyan-200">0</span></div>
-            <div class="metric-pill rounded-2xl px-4 py-2">Timer: <span id="timerDisplay" class="text-cyan-200">45</span>s</div>
-            <div class="metric-pill rounded-2xl px-4 py-2">Run Status: <span id="statusDisplay" class="text-cyan-200">Active</span></div>
+      <div class="nodes">
+        <div class="node-list">
+          <div>
+            <span class="node-label">GitHub ecosystem</span>
+            <a class="node" href="https://github.com/michaelkage" target="_blank" rel="noopener noreferrer">github.com/michaelkage ↗</a>
+          </div>
+          <div>
+            <span class="node-label">Social signal</span>
+            <a class="node" href="https://www.tiktok.com/@michaelkage" target="_blank" rel="noopener noreferrer">TikTok ↗</a>
+          </div>
+          <div>
+            <span class="node-label">Instagram relay</span>
+            <a class="node" href="https://www.instagram.com/actuallyintowomen/" target="_blank" rel="noopener noreferrer">Instagram ↗</a>
+          </div>
+          <div>
+            <span class="node-label">Email handshake</span>
+            <span class="node" aria-label="Email address not published">Not publicly configured</span>
           </div>
         </div>
       </div>
     </section>
 
-    <div class="connected-line"></div>
-
-    <section class="section-shell reveal rounded-3xl border border-cyan-400/50 bg-white/5 p-8 shadow-[0_0_30px_rgba(0,242,255,0.25)] backdrop-blur-lg">
-      <div class="flex flex-col gap-2">
-        <h2 class="text-2xl font-semibold text-white">Signal Gallery</h2>
-        <p class="text-slate-300">Connected visuals that reflect the build's calm power.</p>
-      </div>
-      <div class="mt-8 grid gap-6 md:grid-cols-3">
-        <figure class="glass-card rounded-2xl p-4">
-          <img class="h-44 w-full rounded-xl object-cover" src="https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=900&q=80" alt="Closeup of circuit board in cool neon light" />
-          <figcaption class="mt-3 text-sm text-slate-300">Circuit precision, low-latency pathways.</figcaption>
-        </figure>
-        <figure class="glass-card rounded-2xl p-4">
-          <img class="h-44 w-full rounded-xl object-cover" src="https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=900&q=80" alt="Workspace with monitors and ambient lighting" />
-          <figcaption class="mt-3 text-sm text-slate-300">Command center immersion for multi-display focus.</figcaption>
-        </figure>
-        <figure class="glass-card rounded-2xl p-4">
-          <img class="h-44 w-full rounded-xl object-cover" src="https://images.unsplash.com/photo-1487058792275-0ad4aaf24ca7?auto=format&fit=crop&w=900&q=80" alt="Dark abstract light streaks representing data flow" />
-          <figcaption class="mt-3 text-sm text-slate-300">Data flow that never stalls, never waits.</figcaption>
-        </figure>
-      </div>
-    </section>
-
-    <div class="connected-line"></div>
-
-    <section class="section-shell reveal rounded-3xl border border-cyan-400/50 bg-white/5 p-8 shadow-[0_0_30px_rgba(0,242,255,0.25)] backdrop-blur-lg">
-      <div class="flex flex-col gap-2">
-        <h2 class="text-2xl font-semibold text-white">Potential Issues &amp; Risks</h2>
-        <p class="text-slate-300">Quick observations to keep the build clean, scalable, and future-proof.</p>
-      </div>
-      <ul class="mt-6 space-y-3 text-sm text-slate-300">
-        <li><span class="text-cyan-200">Maintainability:</span> repeated inline CSS/JS can make updates tedious and error-prone.</li>
-        <li><span class="text-cyan-200">Separation of concerns:</span> mixing presentation and behavior in HTML can get messy as the site grows.</li>
-        <li><span class="text-cyan-200">Limited reuse:</span> duplicated headers/footers mean manual edits for global changes.</li>
-        <li><span class="text-cyan-200">Asset pipeline:</span> no minification, bundling, or image optimization unless done manually.</li>
-        <li><span class="text-cyan-200">Hidden gaps:</span> SEO, accessibility, or performance issues may exist beyond the copy.</li>
-      </ul>
-      <div class="neon-divider"></div>
-      <div class="grid gap-6 lg:grid-cols-2">
-        <div class="glass-card rounded-2xl p-6">
-          <h3 class="text-lg font-semibold text-cyan-200">Practical Recommendations</h3>
-          <ul class="mt-4 space-y-3 text-sm text-slate-300">
-            <li><span class="text-cyan-200">Project metadata:</span> add or improve a README (purpose, local run, deployment) and include a LICENSE.</li>
-            <li><span class="text-cyan-200">Structure:</span> move repeated styles/scripts into dedicated files to stay DRY.</li>
-            <li><span class="text-cyan-200">Templating:</span> consider a lightweight static site generator for reusable layouts.</li>
-            <li><span class="text-cyan-200">Performance:</span> optimize images (WebP/AVIF, srcset), lazy-load, and minify assets.</li>
-          </ul>
-        </div>
-        <div class="glass-card rounded-2xl p-6">
-          <h3 class="text-lg font-semibold text-cyan-200">QA &amp; Automation</h3>
-          <ul class="mt-4 space-y-3 text-sm text-slate-300">
-            <li><span class="text-cyan-200">SEO:</span> add meta description, Open Graph tags, sitemap.xml, and robots.txt.</li>
-            <li><span class="text-cyan-200">Accessibility:</span> run Lighthouse audits and confirm semantic HTML + alt text.</li>
-            <li><span class="text-cyan-200">CI:</span> add GitHub Actions for linting and optional Lighthouse CI.</li>
-            <li><span class="text-cyan-200">Observability:</span> add analytics and error monitoring if tracking is desired.</li>
-          </ul>
-        </div>
-      </div>
-    </section>
-
-    <div class="connected-line"></div>
-
-    <section class="section-shell reveal rounded-3xl border border-cyan-400/50 bg-white/5 p-8 text-center shadow-[0_0_30px_rgba(0,242,255,0.25)] backdrop-blur-lg">
-      <h2 class="text-2xl font-semibold text-white">Socials</h2>
-      <div class="mt-6 flex flex-col items-center justify-center gap-4 sm:flex-row">
-        <a class="w-full rounded-xl border border-cyan-300/70 bg-cyan-400/10 px-6 py-4 text-lg font-semibold text-cyan-200 transition hover:scale-105 sm:w-auto" href="https://www.tiktok.com/@michaelkage" target="_blank">TikTok</a>
-        <a class="w-full rounded-xl border border-cyan-300/70 bg-white/10 px-6 py-4 text-lg font-semibold text-white transition hover:scale-105 sm:w-auto" href="https://www.instagram.com/actuallyintowomen/" target="_blank">Instagram</a>
-      </div>
-      <p class="mt-6 text-xs uppercase tracking-[0.4em] text-slate-400">Everything connected. Everything smooth.</p>
-    </section>
-
+    <footer class="footer">
+      <span>MK.SYSTEMS // ROOT GATEWAY</span>
+      <span>Vanilla HTML · CSS · JS // Zero runtime dependencies</span>
+      <span>© <span id="year">2026</span> Michael Kage</span>
+    </footer>
   </main>
 
   <script>
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('active');
-        }
-      });
-    }, { threshold: 0.1 });
+    (() => {
+      "use strict";
 
-    document.querySelectorAll('.reveal').forEach(section => {
-      observer.observe(section);
-    });
+      const output = document.getElementById("boot-output");
+      const lines = [
+        ["Initializing gateway core modules...", false],
+        ["Loading static application route table...", false],
+        ["Checking child application boundaries...", false],
+        ["Supabase handshake: not queried by this static gateway.", false],
+        ["All local routing checks passed.", true],
+        ["Status: Operational", true]
+      ];
+      const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      document.getElementById("year").textContent = String(new Date().getFullYear());
 
-    const canvas = document.getElementById('circuitGame');
-    const ctx = canvas.getContext('2d');
-    const gridSize = 20;
-    const maxCols = Math.floor(canvas.width / gridSize);
-    const maxRows = Math.floor(canvas.height / gridSize);
-    let score = 0;
-    let timer = 45;
-    let status = 'Active';
-    let player = { x: 4, y: 4 };
-    let pulses = [];
-    let gameInterval;
-    let timerInterval;
-
-    const scoreDisplay = document.getElementById('scoreDisplay');
-    const timerDisplay = document.getElementById('timerDisplay');
-    const statusDisplay = document.getElementById('statusDisplay');
-
-    const spawnPulses = () => {
-      pulses = [];
-      while (pulses.length < 6) {
-        const pulse = {
-          x: Math.floor(Math.random() * maxCols),
-          y: Math.floor(Math.random() * maxRows)
+      if (reducedMotion) {
+        output.replaceChildren(...lines.map(([message, ok]) => {
+          const line = document.createElement("span");
+          line.className = ok ? "boot-line boot-ok" : "boot-line";
+          line.textContent = message;
+          return line;
+        }));
+      } else {
+        output.replaceChildren();
+        let index = 0;
+        const printNext = () => {
+          if (index >= lines.length) {
+            const cursor = document.createElement("span");
+            cursor.className = "boot-cursor";
+            cursor.setAttribute("aria-hidden", "true");
+            output.append(cursor);
+            return;
+          }
+          const [message, ok] = lines[index++];
+          const line = document.createElement("span");
+          line.className = ok ? "boot-line boot-ok" : "boot-line";
+          line.textContent = message;
+          output.append(line);
+          window.setTimeout(printNext, 170);
         };
-        if ((pulse.x !== player.x || pulse.y !== player.y)
-          && !pulses.find(existing => existing.x === pulse.x && existing.y === pulse.y)) {
-          pulses.push(pulse);
-        }
+        printNext();
       }
-    };
 
-    const drawGrid = () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.strokeStyle = 'rgba(0, 242, 255, 0.15)';
-      for (let x = 0; x <= maxCols; x++) {
-        ctx.beginPath();
-        ctx.moveTo(x * gridSize, 0);
-        ctx.lineTo(x * gridSize, canvas.height);
-        ctx.stroke();
-      }
-      for (let y = 0; y <= maxRows; y++) {
-        ctx.beginPath();
-        ctx.moveTo(0, y * gridSize);
-        ctx.lineTo(canvas.width, y * gridSize);
-        ctx.stroke();
-      }
-    };
-
-    const drawPlayer = () => {
-      ctx.fillStyle = 'rgba(0, 242, 255, 0.9)';
-      ctx.beginPath();
-      ctx.arc(
-        player.x * gridSize + gridSize / 2,
-        player.y * gridSize + gridSize / 2,
-        gridSize / 2.4,
-        0,
-        Math.PI * 2
-      );
-      ctx.fill();
-    };
-
-    const drawPulses = () => {
-      pulses.forEach(pulse => {
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
-        ctx.beginPath();
-        ctx.arc(
-          pulse.x * gridSize + gridSize / 2,
-          pulse.y * gridSize + gridSize / 2,
-          gridSize / 3,
-          0,
-          Math.PI * 2
-        );
-        ctx.fill();
+      document.addEventListener("keydown", (event) => {
+        if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
+        if (event.target instanceof HTMLElement && /^(INPUT|TEXTAREA|SELECT)$/.test(event.target.tagName)) return;
+        const link = document.querySelector('[data-shortcut="' + event.key + '"]');
+        if (link && !event.repeat) window.location.href = link.href;
       });
-    };
-
-    const drawGame = () => {
-      drawGrid();
-      drawPulses();
-      drawPlayer();
-    };
-
-    const updateScoreboard = () => {
-      scoreDisplay.textContent = score;
-      timerDisplay.textContent = timer;
-      statusDisplay.textContent = status;
-    };
-
-    const checkPulsePickup = () => {
-      const pulseIndex = pulses.findIndex(pulse => pulse.x === player.x && pulse.y === player.y);
-      if (pulseIndex !== -1) {
-        pulses.splice(pulseIndex, 1);
-        score += 10;
-        if (!pulses.length) {
-          timer = Math.min(timer + 15, 60);
-          spawnPulses();
-        }
-      }
-    };
-
-    const resetGame = () => {
-      score = 0;
-      timer = 45;
-      status = 'Active';
-      player = { x: 4, y: 4 };
-      spawnPulses();
-      updateScoreboard();
-      drawGame();
-    };
-
-    const endGame = () => {
-      status = 'Sync Lost';
-      updateScoreboard();
-      clearInterval(timerInterval);
-    };
-
-    const startGame = () => {
-      spawnPulses();
-      updateScoreboard();
-      drawGame();
-      clearInterval(timerInterval);
-      timerInterval = setInterval(() => {
-        if (timer > 0) {
-          timer -= 1;
-          updateScoreboard();
-        } else {
-          endGame();
-        }
-      }, 1000);
-    };
-
-    document.addEventListener('keydown', (event) => {
-      if (status !== 'Active' && event.key.toLowerCase() !== 'r') {
-        return;
-      }
-      switch (event.key) {
-        case 'ArrowUp':
-          player.y = Math.max(0, player.y - 1);
-          break;
-        case 'ArrowDown':
-          player.y = Math.min(maxRows - 1, player.y + 1);
-          break;
-        case 'ArrowLeft':
-          player.x = Math.max(0, player.x - 1);
-          break;
-        case 'ArrowRight':
-          player.x = Math.min(maxCols - 1, player.x + 1);
-          break;
-        case 'r':
-        case 'R':
-          resetGame();
-          return;
-        default:
-          return;
-      }
-      checkPulsePickup();
-      updateScoreboard();
-      drawGame();
-    });
-
-    startGame();
+    })();
   </script>
 </body>
 </html>
