@@ -115,6 +115,22 @@
     .monitor-state[data-state="error"] { color:#ff9b9b; }
     .monitor-state[data-state="error"]::before { background:#ff7777; }
     .monitor-detail { display:block; margin-top:7px; color:#71819a; font-size:9px; line-height:1.5; overflow-wrap:anywhere; }
+
+    .pinned-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; }
+    .pinned-card { display:flex; align-items:flex-start; justify-content:space-between; gap:10px; min-width:0; padding:14px; border:1px solid rgba(0,229,255,.22); border-radius:10px; background:linear-gradient(145deg,rgba(13,27,40,.92),rgba(11,17,28,.92)); }
+    .pinned-copy { min-width:0; color:var(--text); text-decoration:none; }
+    .pinned-copy:hover .pinned-name { color:var(--cyan); }
+    .pinned-name { display:block; font-size:11px; font-weight:700; line-height:1.5; }
+    .pinned-detail { display:block; margin-top:5px; color:var(--muted); font-size:9px; line-height:1.5; }
+    .pin-remove,.palette-pin { flex:0 0 auto; min-height:29px; padding:0 8px; border:1px solid rgba(155,123,255,.3); border-radius:6px; color:#c4b4ff; background:rgba(155,123,255,.07); font:inherit; font-size:9px; cursor:pointer; }
+    .pin-remove:hover,.palette-pin:hover { border-color:rgba(155,123,255,.7); background:rgba(155,123,255,.14); }
+    .palette-row { display:flex; align-items:center; gap:8px; padding:3px; border-radius:8px; }
+    .palette-result { flex:1; min-width:0; }
+    .palette-result[aria-current="true"] { background:rgba(0,229,255,.1); outline:1px solid rgba(0,229,255,.22); }
+    .palette-result:hover { background:rgba(0,229,255,.08); }
+    .palette-pin[aria-pressed="true"] { color:var(--green); border-color:rgba(101,243,178,.35); background:rgba(101,243,178,.07); }
+    @media (max-width:620px) { .pinned-grid { grid-template-columns:1fr; } }
+
     .palette[hidden] { display:none; }
     .palette { position:fixed; inset:0; z-index:900; display:grid; align-items:start; justify-items:center; padding: min(16vh,120px) 18px 24px; background:rgba(2,5,10,.78); backdrop-filter:blur(10px); }
     .palette-panel { width:min(100%,620px); overflow:hidden; border:1px solid rgba(0,229,255,.35); border-radius:13px; background:#0b1220; box-shadow:0 25px 90px rgba(0,0,0,.6); }
@@ -338,6 +354,17 @@
       </nav>
     </section>
 
+
+    <section class="section" id="pinned-section" aria-labelledby="pinned-title">
+      <div class="section-head">
+        <h2 class="section-label" id="pinned-title">02 // Pinned systems</h2>
+        <span class="section-hint" id="pinned-count">0 favourites · stored on this device</span>
+      </div>
+      <div class="pinned-grid" id="pinned-grid">
+        <p class="repo-empty" id="pinned-empty">No pinned systems yet. Open the command palette with Ctrl + K and pin your regular destinations.</p>
+      </div>
+    </section>
+
     <section class="section" aria-labelledby="repos-title">
       <div class="section-head">
         <h2 class="section-label" id="repos-title">04 // Public repository directory</h2>
@@ -492,7 +519,7 @@
     <div class="palette-panel" role="dialog" aria-modal="true" aria-labelledby="palette-title">
       <label class="sr-only" id="palette-title" for="palette-input">Search applications and repositories</label>
       <input class="palette-input" id="palette-input" type="search" placeholder="Search apps and repositories…" autocomplete="off" spellcheck="false">
-      <div class="palette-results" id="palette-results" role="listbox" aria-label="Launch results"></div>
+      <div class="palette-results" id="palette-results" role="group" aria-label="Launch results"></div>
       <div class="palette-hint"><span>↑ ↓ Navigate · Enter Open</span><span>ESC Close</span></div>
     </div>
   </div>
@@ -594,6 +621,53 @@
       repoSearch.addEventListener("input", filterRepositories);
       repoSort.addEventListener("change", sortRepositories);
 
+
+      // Pinned destinations are stored locally and always reference existing launcher links.
+      const pinnedGrid = document.getElementById("pinned-grid");
+      const pinnedEmpty = document.getElementById("pinned-empty");
+      const pinnedCount = document.getElementById("pinned-count");
+      const PIN_STORAGE_KEY = "mk.system.pinned.v1";
+      let pinnedHrefs = new Set();
+      try {
+        const storedPins = JSON.parse(localStorage.getItem(PIN_STORAGE_KEY) || "[]");
+        if (Array.isArray(storedPins)) pinnedHrefs = new Set(storedPins.filter((href) => typeof href === "string"));
+      } catch (_) {}
+      const persistPins = () => {
+        try { localStorage.setItem(PIN_STORAGE_KEY, JSON.stringify([...pinnedHrefs])); }
+        catch (_) { pinnedCount.textContent = "Storage unavailable · pins last until this page closes"; }
+      };
+      const renderPinned = () => {
+        pinnedGrid.replaceChildren();
+        const validItems = paletteItems.filter((item) => pinnedHrefs.has(item.href));
+        pinnedHrefs = new Set(validItems.map((item) => item.href));
+        pinnedEmpty.hidden = validItems.length > 0;
+        pinnedGrid.append(pinnedEmpty);
+        for (const item of validItems) {
+          const card = document.createElement("div");
+          card.className = "pinned-card";
+          const link = document.createElement("a");
+          link.className = "pinned-copy";
+          link.href = item.href;
+          if (item.external) { link.target = "_blank"; link.rel = "noopener noreferrer"; }
+          const name = document.createElement("span");
+          name.className = "pinned-name";
+          name.textContent = item.name;
+          const detail = document.createElement("span");
+          detail.className = "pinned-detail";
+          detail.textContent = item.detail;
+          link.append(name, detail);
+          const remove = document.createElement("button");
+          remove.type = "button";
+          remove.className = "pin-remove";
+          remove.textContent = "Unpin";
+          remove.setAttribute("aria-label", "Unpin " + item.name);
+          remove.addEventListener("click", () => togglePin(item));
+          card.append(link, remove);
+          pinnedGrid.append(card);
+        }
+        pinnedCount.textContent = validItems.length + " favourite" + (validItems.length === 1 ? "" : "s") + " · stored on this device";
+      };
+
       // Command palette: index existing links, so destinations never drift from the launcher.
       const palette = document.getElementById("command-palette");
       const paletteInput = document.getElementById("palette-input");
@@ -609,6 +683,14 @@
           external: link.target === "_blank",
           element: link
         }));
+        renderPinned();
+      };
+      const togglePin = (item) => {
+        if (pinnedHrefs.has(item.href)) pinnedHrefs.delete(item.href);
+        else pinnedHrefs.add(item.href);
+        persistPins();
+        renderPinned();
+        if (!palette.hidden) renderPalette();
       };
       const renderPalette = () => {
         const query = paletteInput.value.trim().toLocaleLowerCase();
@@ -624,20 +706,30 @@
         }
         paletteActive = Math.min(paletteActive, matches.length - 1);
         matches.forEach((item, index) => {
-          const button = document.createElement("button");
-          button.type = "button";
-          button.className = "palette-result";
-          button.setAttribute("role", "option");
-          button.setAttribute("aria-selected", String(index === paletteActive));
+          const row = document.createElement("div");
+          row.className = "palette-row";
+          const launch = document.createElement("button");
+          launch.type = "button";
+          launch.className = "palette-result";
+          launch.setAttribute("aria-current", String(index === paletteActive));
           const name = document.createElement("span");
           name.textContent = item.name;
           const detail = document.createElement("small");
           detail.textContent = item.external ? "EXTERNAL REPOSITORY" : "LOCAL APPLICATION";
-          button.append(name, detail);
-          button.addEventListener("click", () => { window.location.href = item.href; });
-          paletteResults.append(button);
+          launch.append(name, detail);
+          launch.addEventListener("click", () => { window.location.href = item.href; });
+          const pin = document.createElement("button");
+          pin.type = "button";
+          pin.className = "palette-pin";
+          const isPinned = pinnedHrefs.has(item.href);
+          pin.textContent = isPinned ? "★ Pinned" : "☆ Pin";
+          pin.setAttribute("aria-pressed", String(isPinned));
+          pin.setAttribute("aria-label", (isPinned ? "Unpin " : "Pin ") + item.name);
+          pin.addEventListener("click", () => togglePin(item));
+          row.append(launch, pin);
+          paletteResults.append(row);
         });
-        paletteResults.querySelector('[aria-selected="true"]')?.scrollIntoView({ block: "nearest" });
+        paletteResults.querySelector('[aria-current="true"]')?.scrollIntoView({ block: "nearest" });
       };
       const openPalette = () => {
         collectPaletteItems();
@@ -660,7 +752,7 @@
           event.preventDefault();
           if (!options.length) return;
           paletteActive = (paletteActive + (event.key === "ArrowDown" ? 1 : -1) + options.length) % options.length;
-          options.forEach((option, index) => option.setAttribute("aria-selected", String(index === paletteActive)));
+          options.forEach((option, index) => option.setAttribute("aria-current", String(index === paletteActive)));
           options[paletteActive].scrollIntoView({ block: "nearest" });
         } else if (event.key === "Enter" && options.length) {
           event.preventDefault();
@@ -678,6 +770,7 @@
           closePalette();
         }
       });
+      collectPaletteItems();
 
       const fetchWithTimeout = async (url, timeoutMs = 8000) => {
         const controller = new AbortController();
