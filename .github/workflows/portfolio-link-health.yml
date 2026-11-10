@@ -12,6 +12,10 @@ on:
   schedule:
     - cron: "17 8 * * *"
   workflow_dispatch:
+  workflow_run:
+    workflows: ["pages build and deployment"]
+    types: [completed]
+    branches: [main]
 
 permissions:
   contents: read
@@ -90,6 +94,7 @@ jobs:
           JS
 
       - name: Check production applications and repositories
+        if: ${{ github.event_name != 'push' && (github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success') }}
         shell: bash
         run: |
           set -uo pipefail
