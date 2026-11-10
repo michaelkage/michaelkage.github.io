@@ -1312,12 +1312,12 @@
       noticeToggle.addEventListener("click",()=>setTrayPanel(noticePanel.hidden?"notifications":null));
       quickToggle.addEventListener("click",()=>setTrayPanel(quickPanel.hidden?"quick":null));
       document.getElementById("tray-clear-notifications").addEventListener("click",()=>{notifications=[];persistNotifications();renderNotifications();});
-      document.getElementById("tray-open-settings").addEventListener("click",()=>{setTrayPanel(null);openSettings();});
+      document.getElementById("tray-open-settings").addEventListener("click",()=>{setTrayPanel(null);openSettings();settingsReturnFocus=quickToggle;});
       const quickCompact=document.getElementById("quick-compact"),quickMotion=document.getElementById("quick-motion");
       const syncQuick=()=>{quickCompact.setAttribute("aria-pressed",String(systemSettings.compact));quickMotion.setAttribute("aria-pressed",String(systemSettings.motion==="reduced"));document.getElementById("quick-status").textContent=settingsStorageAvailable?"Preferences saved on this device.":"Storage unavailable. Visit-only changes.";};
       quickCompact.addEventListener("click",()=>{systemSettings.compact=!systemSettings.compact;compactSetting.checked=systemSettings.compact;shell.classList.toggle("is-compact",systemSettings.compact);persistSettings();syncQuick();});
       quickMotion.addEventListener("click",()=>{systemSettings.motion=systemSettings.motion==="reduced"?"system":"reduced";motionSetting.value=systemSettings.motion;document.documentElement.classList.toggle("force-reduced-motion",systemSettings.motion==="reduced");persistSettings();syncQuick();});
-      document.getElementById("tray-health").addEventListener("click",()=>{setTrayPanel("notifications");document.getElementById("monitor-checked")?.scrollIntoView({behavior:reducedMotion?"auto":"smooth",block:"center"});});
+      document.getElementById("tray-health").addEventListener("click",()=>setTrayPanel("notifications"));
       document.addEventListener("pointerdown",e=>{if(!e.target.closest(".system-tray")&&!e.target.closest(".tray-panel"))setTrayPanel(null);});
       document.addEventListener("keydown",e=>{if(e.key==="Escape"&&(!noticePanel.hidden||!quickPanel.hidden))setTrayPanel(null);});
       renderNotifications();syncQuick();
