@@ -460,19 +460,20 @@
 
       // Fetch the public repository inventory once, then hydrate every card locally.
       // One request avoids burning the visitor's unauthenticated GitHub API rate limit.
-      const repoCards = [...document.querySelectorAll("#repo-grid .repo-card")];
+      const repoCards = [...document.querySelectorAll("[data-repo][data-repo-meta]")];
+      const directoryCards = [...document.querySelectorAll("#repo-grid .repo-card")];
       const repoSearch = document.getElementById("repo-search");
       const repoCount = document.getElementById("repo-count");
       const repoEmpty = document.getElementById("repo-empty");
       const filterRepositories = () => {
         const query = repoSearch.value.trim().toLocaleLowerCase();
         let visible = 0;
-        for (const card of repoCards) {
+        for (const card of directoryCards) {
           const matches = card.textContent.toLocaleLowerCase().includes(query);
           card.hidden = !matches;
           if (matches) visible++;
         }
-        repoCount.textContent = visible + " of " + repoCards.length + " entries";
+        repoCount.textContent = visible + " of " + directoryCards.length + " entries";
         repoEmpty.hidden = visible !== 0;
       };
       repoSearch.addEventListener("input", filterRepositories);
