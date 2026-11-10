@@ -1009,8 +1009,15 @@
         focusedWindow = id;
         record.element.style.zIndex = String(++windowLayer);
         for (const [windowId, entry] of openWindows) {
-          entry.task.setAttribute("aria-pressed", String(windowId === id && !entry.element.hidden));
+          if (entry.task) entry.task.setAttribute("aria-pressed", String(windowId === id && !entry.element.hidden));
         }
+      };
+      const focusTopVisibleWindow = () => {
+        const visible = [...openWindows.entries()]
+          .filter(([, entry]) => !entry.element.hidden)
+          .sort((a, b) => Number(a[1].element.style.zIndex || 0) - Number(b[1].element.style.zIndex || 0));
+        if (visible.length) focusWindow(visible[visible.length - 1][0]);
+        else focusedWindow = null;
       };
       const updateDock = () => {
         dockRunning.replaceChildren();
@@ -1025,7 +1032,7 @@
           task.addEventListener("click", () => {
             if (!record.element.hidden && focusedWindow === id) {
               record.element.hidden = true;
-              focusedWindow = null;
+              focusTopVisibleWindow();
               task.setAttribute("aria-pressed", "false");
             } else {
               record.element.hidden = false;
@@ -1046,8 +1053,7 @@
         record.task?.remove();
         openWindows.delete(id);
         if (focusedWindow === id) focusedWindow = null;
-        const remaining = [...openWindows.entries()].filter(([, entry]) => !entry.element.hidden);
-        if (remaining.length) focusWindow(remaining[remaining.length - 1][0]);
+        focusTopVisibleWindow();
         updateDock();
       };
       const toggleMaximize = (record) => {
@@ -1180,7 +1186,7 @@
         element.addEventListener("pointerdown", () => focusWindow(app.id));
         minimize.addEventListener("click", () => {
           element.hidden = true;
-          if (focusedWindow === app.id) focusedWindow = null;
+          if (focusedWindow === app.id) focusTopVisibleWindow();
           updateDock();
         });
         maximize.addEventListener("click", () => toggleMaximize(record));
