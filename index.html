@@ -140,8 +140,10 @@
     .activity-list { display: grid; gap: 13px; margin: 0; padding: 0; list-style: none; }
     .activity-item { display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 12px; align-items: start; padding-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,.06); }
     .activity-item:last-child { padding-bottom: 0; border-bottom: 0; }
-    .activity-title { display: block; color: #dce8f7; font-size: 11px; line-height: 1.6; overflow-wrap: anywhere; }
-    .activity-repo { display: block; margin-top: 3px; color: var(--cyan); font-size: 9px; }
+    .activity-title { display: block; color: #dce8f7; font-size: 11px; line-height: 1.6; overflow-wrap: anywhere; text-decoration: none; }
+    .activity-title:hover { color: var(--cyan); }
+    .activity-repo { display: block; margin-top: 3px; color: var(--cyan); font-size: 9px; text-decoration: none; }
+    .activity-repo:hover { text-decoration: underline; }
     .activity-time { color: #71819a; font-size: 9px; white-space: nowrap; }
     .activity-empty { margin: 0; color: var(--muted); font-size: 11px; line-height: 1.7; }
     .arrow { margin-left: auto; color: #62748e; font-size: 16px; }
@@ -582,60 +584,121 @@
       const activityUpdated = document.getElementById("activity-updated");
       const describeEvent = (event) => {
         const payload = event.payload || {};
-        if (event.type === "PushEvent") {
-          const commits = payload.commits || [];
-          const latest = commits.length ? commits[commits.length - 1] : null;
-          return latest ? latest.message : ((payload.size || 0) + " commit(s) pushed");
+        const issue = payload.issue || payload.pull_request || {};
+        const number = issue.number || payload.number;
+        const title = (issue.title || "").replace(/\\s+/g, " ").trim();
+        const suffix = number ? " #" + number : "";
+        const titleSuffix = title ? ": " + title : "";
+
+        switch (event.type) {
+          case "PushEvent": {
+            const commits = Array.isArray(payload.commits) ? payload.commits : [];
+            const latest = commits.length ? commits[commits.length - 1] : null;
+            const message = latest && latest.message ? latest.message.split("\\n")[0].trim() : "";
+            return message || ((payload.size || 0) + " commit(s) pushed");
+          }
+          case "PullRequestEvent":
+            return (payload.action || "Updated") + " pull request" + suffix + titleSuffix;
+          case "PullRequestReviewEvent":
+            return "Reviewed pull request" + suffix + titleSuffix;
+          case "IssuesEvent":
+            return (payload.action || "Updated") + " issue" + suffix + titleSuffix;
+          case "IssueCommentEvent":
+            return "Commented on issue" + suffix + titleSuffix;
+          case "ReleaseEvent":
+            return "Published release " + ((payload.release && (payload.release.name || payload.release.tag_name)) || "");
+          case "CreateEvent":
+            return "Created " + (payload.ref_type || "repository resource") + (payload.ref ? " " + payload.ref : "");
+          case "ForkEvent":
+            return "Forked repository";
+          case "DeleteEvent":
+            return "Deleted " + (payload.ref_type || "repository resource") + (payload.ref ? " " + payload.ref : "");
+          case "PublicEvent":
+            return "Made repository public";
+          default:
+            return null;
         }
-        if (event.type === "PullRequestEvent") return (payload.action || "Updated") + " pull request";
-        if (event.type === "IssuesEvent") return (payload.action || "Updated") + " issue";
-        if (event.type === "CreateEvent") return "Created " + (payload.ref_type || "repository resource");
-        if (event.type === "ReleaseEvent") return "Published a release";
-        return "Updated repository";
       };
 
       const loadRecentActivity = async () => {
+        activityList.setAttribute("aria-busy", "true");
         try {
-          const response = await fetchWithTimeout("https://api.github.com/users/michaelkage/events/public?per_page=8");
+          // Fetch a wider event window before filtering. The previous per_page=8
+          // request often contained only WatchEvent/ForkEvent noise and hid
+          // useful activity that appeared immediately after those events.
+          const response = await fetchWithTimeout("https://api.github.com/users/michaelkage/events/public?per_page=100");
           if (!response.ok) throw new Error("GitHub events API " + response.status);
           const events = await response.json();
-          const relevant = events.filter((event) => ["PushEvent", "PullRequestEvent", "IssuesEvent", "CreateEvent", "ReleaseEvent"].includes(event.type)).slice(0, 5);
+          if (!Array.isArray(events)) throw new Error("Unexpected GitHub events response");
+          const relevant = events
+            .map((event) => ({ event, description: describeEvent(event) }))
+            .filter((entry) => entry.description)
+            .sort((a, b) => Date.parse(b.event.created_at) - Date.parse(a.event.created_at))
+            .slice(0, 5);
+
           activityList.replaceChildren();
           if (!relevant.length) {
             const empty = document.createElement("li");
             empty.className = "activity-empty";
-            empty.textContent = "No recent public events are available in GitHub event history.";
+            empty.textContent = "No supported public activity was found in the latest 100 GitHub events. GitHub only exposes a limited recent event history.";
             activityList.append(empty);
+            activityUpdated.textContent = "Checked just now · no matching events";
           } else {
-            for (const event of relevant) {
+            for (const entry of relevant) {
+              const event = entry.event;
               const item = document.createElement("li");
               item.className = "activity-item";
+
               const copy = document.createElement("span");
-              const title = document.createElement("span");
+              const title = document.createElement("a");
               title.className = "activity-title";
-              title.textContent = describeEvent(event);
-              const repo = document.createElement("span");
+              title.textContent = entry.description;
+              const repoName = event.repo && event.repo.name ? event.repo.name : "";
+              const repoParts = repoName.split("/");
+              if (repoParts.length === 2 && repoParts.every(Boolean)) {
+                title.href = "https://github.com/" + repoParts.map(encodeURIComponent).join("/");
+                title.target = "_blank";
+                title.rel = "noopener noreferrer";
+              } else {
+                title.removeAttribute("href");
+              }
+
+              const repo = document.createElement("a");
               repo.className = "activity-repo";
-              repo.textContent = event.repo ? event.repo.name : "GitHub";
+              repo.textContent = repoName || "GitHub";
+              if (repoName) {
+                repo.href = "https://github.com/" + repoParts.map(encodeURIComponent).join("/");
+                repo.target = "_blank";
+                repo.rel = "noopener noreferrer";
+              }
               copy.append(title, repo);
+
               const time = document.createElement("time");
               time.className = "activity-time";
-              time.dateTime = event.created_at;
-              time.textContent = formatAge(event.created_at);
+              if (event.created_at && !Number.isNaN(Date.parse(event.created_at))) {
+                time.dateTime = event.created_at;
+                time.textContent = formatAge(event.created_at);
+              } else {
+                time.textContent = "Recently";
+              }
               item.append(copy, time);
               activityList.append(item);
             }
+            activityUpdated.textContent = "Showing " + relevant.length + " recent events · checked just now";
           }
-          activityUpdated.textContent = "Updated just now";
         } catch (error) {
           activityList.replaceChildren();
           const empty = document.createElement("li");
           empty.className = "activity-empty";
           empty.textContent = error && error.name === "AbortError"
             ? "GitHub activity request timed out after 8 seconds. Project links and maintained stage information remain available above."
-            : "Public activity feed unavailable. Project links and maintained stage information remain available above.";
+            : error && /403|429/.test(error.message)
+              ? "GitHub activity is temporarily rate-limited. Try again after the API limit resets."
+              : "Public activity feed unavailable. Project links and maintained stage information remain available above.";
           activityList.append(empty);
           activityUpdated.textContent = "Feed unavailable";
+        } finally {
+          activityList.removeAttribute("aria-busy");
         }
       };
       loadRecentActivity();
