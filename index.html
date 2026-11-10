@@ -87,6 +87,20 @@
     .boot-ok { color: var(--green); }
     .boot-cursor { display: inline-block; width: 7px; height: 13px; margin-left: 4px; vertical-align: -2px; background: var(--cyan); animation: blink 1s steps(2, start) infinite; }
     @keyframes blink { to { visibility: hidden; } }
+
+    .boot-screen { position: fixed; inset: 0; z-index: 1000; display: grid; place-items: center; padding: 24px; background: radial-gradient(ellipse at 50% 38%, rgba(0,229,255,.09), transparent 34rem), #080b12; opacity: 1; visibility: visible; transition: opacity .55s ease, visibility .55s ease; }
+    .boot-screen.is-exiting { opacity: 0; visibility: hidden; pointer-events: none; }
+    .boot-screen-inner { width: min(100%, 620px); }
+    .boot-brand { display: flex; align-items: center; gap: 11px; margin-bottom: 25px; color: #dceafa; font-size: 11px; letter-spacing: .15em; }
+    .boot-mark { display: grid; place-items: center; width: 34px; height: 34px; border: 1px solid rgba(0,229,255,.55); border-radius: 9px; color: var(--cyan); background: rgba(0,229,255,.08); font-size: 12px; font-weight: 700; }
+    .boot-version { margin-left: auto; color: #65758d; font-size: 9px; }
+    .boot-progress { height: 2px; margin-bottom: 15px; overflow: hidden; background: rgba(255,255,255,.08); }
+    .boot-progress-bar { display: block; width: 0; height: 100%; background: var(--cyan); box-shadow: 0 0 12px var(--cyan); transition: width .2s ease; }
+    .boot-terminal { border-color: rgba(0,229,255,.24); box-shadow: 0 22px 80px rgba(0,0,0,.42); }
+    .boot-screen .boot-output { min-height: 170px; padding: 20px 22px; }
+    .boot-caption { margin: 13px 0 0; color: #64758d; font-size: 9px; letter-spacing: .16em; text-align: right; }
+    @media (max-width: 480px) { .boot-screen { padding: 18px; } .boot-screen .boot-output { min-height: 190px; padding: 16px; } .boot-brand { font-size: 10px; } }
+
     .section { margin-top: 42px; }
     .section-head { margin-bottom: 15px; }
     .section-label { margin: 0; color: #c7d3e3; font-size: 11px; font-weight: 700; }
@@ -118,17 +132,6 @@
     .stage-note { display: block; margin-top: 6px; color: #9aaac0; font-size: 10px; line-height: 1.55; }
     .stage-source { display: block; margin-top: 5px; color: #71819a; font-size: 8px; letter-spacing: .06em; text-transform: uppercase; }
 
-    .profile-panel { padding: 21px 22px; border: 1px solid rgba(0,229,255,.18); border-radius: 12px; background: linear-gradient(145deg, rgba(13,23,37,.9), rgba(10,15,26,.86)); }
-    .profile-lead { max-width: 760px; margin: 0; color: #e1edf9; font-size: 15px; line-height: 1.7; }
-    .profile-copy { max-width: 760px; margin: 9px 0 18px; color: var(--muted); font-size: 11px; line-height: 1.8; }
-    .skill-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 13px 18px; }
-    .skill-group { min-width: 0; padding-top: 11px; border-top: 1px solid rgba(255,255,255,.07); }
-    .skill-heading { display: block; margin-bottom: 6px; color: var(--cyan); font-size: 9px; letter-spacing: .12em; }
-    .skill-items { display: block; color: #aebbd0; font-size: 10px; line-height: 1.7; }
-    .profile-footnote { margin: 16px 0 0; color: #71819a; font-size: 9px; line-height: 1.6; }
-    .repo-category { display: inline-block; margin-top: 8px; padding: 3px 6px; border: 1px solid rgba(0,229,255,.2); border-radius: 4px; color: #83ddeb; background: rgba(0,229,255,.045); font-size: 8px; letter-spacing: .07em; text-transform: uppercase; }
-    .repo-category[data-category="ai"] { color: #b8a4ff; border-color: rgba(155,123,255,.28); background: rgba(155,123,255,.06); }
-    .repo-category[data-category="systems"] { color: #9ee6bb; border-color: rgba(101,243,178,.22); background: rgba(101,243,178,.045); }
 
     .repo-tools { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin: 0 0 12px; }
     .repo-search { flex: 1 1 240px; }
@@ -176,7 +179,6 @@
       .shell { width: min(100% - 28px, 1040px); padding-top: 25px; }
       .hero { padding-top: 58px; }
       .app-grid { grid-template-columns: 1fr; }
-      .skill-grid { grid-template-columns: 1fr; }
       .repo-grid { grid-template-columns: 1fr; }
       .activity-controls { gap: 8px; }
       .activity-controls .section-hint { display: block; }
@@ -191,6 +193,18 @@
   </style>
 </head>
 <body>
+  <div class="boot-screen" id="boot-screen" aria-label="System boot sequence" aria-live="polite">
+    <div class="boot-screen-inner">
+      <div class="boot-brand"><span class="boot-mark">MK</span><span>MK.SYSTEMS</span><span class="boot-version">GATEWAY / 01</span></div>
+      <div class="boot-progress"><span class="boot-progress-bar" id="boot-progress-bar"></span></div>
+      <div class="terminal boot-terminal">
+        <div class="terminal-bar" aria-hidden="true"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="terminal-title">BOOT_SEQUENCE.LOG</span></div>
+        <div class="boot-output" id="boot-output" role="status"></div>
+      </div>
+      <p class="boot-caption" id="boot-caption">INITIALIZING SYSTEM ENVIRONMENT</p>
+    </div>
+  </div>
+
   <a class="skip-link" href="#apps-title">Skip to portfolio content</a>
   <main class="shell">
     <header class="topbar" aria-label="System header">
@@ -211,48 +225,6 @@
     </section>
 
 
-    <section class="section" aria-labelledby="profile-title">
-      <div class="section-head">
-        <h2 class="section-label" id="profile-title">00 // Engineering profile</h2>
-        <span class="section-hint">What I build · How I build it</span>
-      </div>
-      <div class="profile-panel">
-        <p class="profile-lead">Systems architect and independent software engineer building dependable products across application, infrastructure, and automation layers.</p>
-        <p class="profile-copy">The common thread is deliberate engineering: explicit state, trustworthy data, resilient failure handling, and systems that make their behavior inspectable.</p>
-        <div class="skill-grid">
-          <div class="skill-group">
-            <span class="skill-heading">SYSTEMS & BACKEND</span>
-            <span class="skill-items">C++20 · Python · Node.js · TypeScript · CMake</span>
-          </div>
-          <div class="skill-group">
-            <span class="skill-heading">APPLICATIONS</span>
-            <span class="skill-items">React · Vite · Tailwind CSS · PWA · Android</span>
-          </div>
-          <div class="skill-group">
-            <span class="skill-heading">DATA & SECURITY</span>
-            <span class="skill-items">PostgreSQL · Supabase · WebAuthn · Passkeys · Data provenance</span>
-          </div>
-          <div class="skill-group">
-            <span class="skill-heading">AUTOMATION & OPERATIONS</span>
-            <span class="skill-items">GitHub Actions · CI/CD · REST APIs · Edge Functions · Observability</span>
-          </div>
-        </div>
-        <p class="profile-footnote">Technology overview reflects the featured project stack, not a claim that every tool appears in every project.</p>
-      </div>
-    </section>
-
-    <section class="terminal" aria-label="System initialization diagnostics">
-      <div class="terminal-bar" aria-hidden="true">
-        <span class="dot"></span><span class="dot"></span><span class="dot"></span>
-        <span class="terminal-title">BOOT_SEQUENCE.LOG</span>
-      </div>
-      <div class="boot-output" id="boot-output" role="status" aria-live="polite">
-        <span class="boot-line">Initializing gateway core...</span>
-        <span class="boot-line">Loading route table...</span>
-        <span class="boot-line boot-ok">Status: Operational</span>
-      </div>
-    </section>
-
     <section class="section" aria-labelledby="apps-title">
       <div class="section-head">
         <h2 class="section-label" id="apps-title">01 // Application routing</h2>
@@ -263,7 +235,6 @@
           <span class="key" aria-hidden="true">01</span>
           <span class="app-copy">
             <span class="app-name">Campus Plug</span>
-          <span class="repo-category" data-category="apps">Applications</span>
             <span class="app-desc">University P2P marketplace with escrow workflows.</span>
             <span class="app-path">./campus-plug67/</span>
             <span class="stage-label">ACTIVE DEVELOPMENT</span>
@@ -349,15 +320,7 @@
       <div class="repo-tools">
         <label class="sr-only" for="repo-search">Filter public repositories</label>
         <input class="repo-search" id="repo-search" type="search" placeholder="Filter by repository, project, or description…" autocomplete="off" spellcheck="false">
-        <label class="sr-only" for="repo-category">Filter by project category</label>
-        <select class="repo-sort" id="repo-category">
-          <option value="all">All categories</option>
-          <option value="apps">Applications</option>
-          <option value="ai">AI &amp; automation</option>
-          <option value="systems">Systems &amp; infrastructure</option>
-          <option value="tools">Tools &amp; resources</option>
-        </select>
-        <label class="sr-only" for="repo-sort">Sort public repositories</label>
+<label class="sr-only" for="repo-sort">Sort public repositories</label>
         <select class="repo-sort" id="repo-sort">
           <option value="featured">Featured order</option>
           <option value="updated">Recently updated</option>
@@ -367,99 +330,86 @@
         <p class="repo-count" id="repo-count" aria-live="polite">14 entries</p>
       </div>
       <nav class="repo-grid" id="repo-grid" aria-label="Additional public repositories">
-        <a class="repo-card" href="https://github.com/michaelkage/michaelkage" target="_blank" rel="noopener noreferrer" data-repo="michaelkage/michaelkage" data-category="tools">
+        <a class="repo-card" href="https://github.com/michaelkage/michaelkage" target="_blank" rel="noopener noreferrer" data-repo="michaelkage/michaelkage">
           <span class="app-name">Developer Profile</span>
-          <span class="repo-category" data-category="tools">Tools & resources</span>
           <span class="app-desc">Profile README, engineering focus, featured systems, and build principles.</span>
           <span class="stage-label">PROFILE README</span>
           <span class="app-meta" data-repo-meta aria-live="polite">GitHub activity · Loading…</span>
         </a>
-        <a class="repo-card" href="https://github.com/michaelkage/JaFaFaWeb" target="_blank" rel="noopener noreferrer" data-repo="michaelkage/JaFaFaWeb" data-category="systems">
+        <a class="repo-card" href="https://github.com/michaelkage/JaFaFaWeb" target="_blank" rel="noopener noreferrer" data-repo="michaelkage/JaFaFaWeb">
           <span class="app-name">JaFaFaWeb</span>
-          <span class="repo-category" data-category="systems">Systems & infrastructure</span>
           <span class="app-desc">Vehicle telemetry and fleet-monitoring admin command center plus customer portal.</span>
           <span class="stage-label">FRONTEND PROTOTYPE</span>
           <span class="app-meta" data-repo-meta aria-live="polite">GitHub activity · Loading…</span>
         </a>
-        <a class="repo-card" href="https://github.com/michaelkage/RecordsDataBase" target="_blank" rel="noopener noreferrer" data-repo="michaelkage/RecordsDataBase" data-category="apps">
+        <a class="repo-card" href="https://github.com/michaelkage/RecordsDataBase" target="_blank" rel="noopener noreferrer" data-repo="michaelkage/RecordsDataBase">
           <span class="app-name">RecordsDataBase</span>
-          <span class="repo-category" data-category="apps">Applications</span>
           <span class="app-desc">Student and institutional records with separate admin and student portals.</span>
           <span class="stage-label">FRONTEND PORTAL</span>
           <span class="app-meta" data-repo-meta aria-live="polite">GitHub activity · Loading…</span>
         </a>
-        <div class="repo-card" data-category="apps" aria-label="Student database repository currently inaccessible">
+        <div class="repo-card" aria-label="Student database repository currently inaccessible">
           <span class="app-name">Student_Database_with_Siliblings</span>
           <span class="app-desc">Listed in the connected GitHub inventory, but its public repository page currently returns HTTP 404.</span>
           <span class="stage-label">PUBLIC URL UNAVAILABLE</span>
           <span class="app-meta" data-state="error">Not linked until GitHub exposes a working public URL</span>
         </div>
-        <a class="repo-card" href="https://github.com/michaelkage/MinecraftServer" target="_blank" rel="noopener noreferrer" data-repo="michaelkage/MinecraftServer" data-category="systems">
+        <a class="repo-card" href="https://github.com/michaelkage/MinecraftServer" target="_blank" rel="noopener noreferrer" data-repo="michaelkage/MinecraftServer">
           <span class="app-name">MinecraftServer</span>
-          <span class="repo-category" data-category="systems">Systems & infrastructure</span>
           <span class="app-desc">Minecraft server project repository.</span>
           <span class="stage-label">REPOSITORY</span>
           <span class="app-meta" data-repo-meta aria-live="polite">GitHub activity · Loading…</span>
         </a>
-        <a class="repo-card" href="https://github.com/michaelkage/LaundrySolution" target="_blank" rel="noopener noreferrer" data-repo="michaelkage/LaundrySolution" data-category="apps">
+        <a class="repo-card" href="https://github.com/michaelkage/LaundrySolution" target="_blank" rel="noopener noreferrer" data-repo="michaelkage/LaundrySolution">
           <span class="app-name">LaundrySolution</span>
-          <span class="repo-category" data-category="apps">Applications</span>
           <span class="app-desc">Laundry solution project repository.</span>
           <span class="stage-label">REPOSITORY</span>
           <span class="app-meta" data-repo-meta aria-live="polite">GitHub activity · Loading…</span>
         </a>
-        <a class="repo-card" href="https://github.com/michaelkage/wastelens-dashboard-prototype" target="_blank" rel="noopener noreferrer" data-repo="michaelkage/wastelens-dashboard-prototype" data-category="apps">
+        <a class="repo-card" href="https://github.com/michaelkage/wastelens-dashboard-prototype" target="_blank" rel="noopener noreferrer" data-repo="michaelkage/wastelens-dashboard-prototype">
           <span class="app-name">wastelens-dashboard-prototype</span>
-          <span class="repo-category" data-category="apps">Applications</span>
           <span class="app-desc">WasteLens operations dashboard with simulated telemetry, hotspot analysis, reporting, and demo inference.</span>
           <span class="stage-label">STATIC DEMO DEPLOYMENT</span>
           <span class="app-meta" data-repo-meta aria-live="polite">GitHub activity · Loading…</span>
         </a>
-        <a class="repo-card" href="https://github.com/michaelkage/Terranova" target="_blank" rel="noopener noreferrer" data-repo="michaelkage/Terranova" data-category="apps">
+        <a class="repo-card" href="https://github.com/michaelkage/Terranova" target="_blank" rel="noopener noreferrer" data-repo="michaelkage/Terranova">
           <span class="app-name">Terranova</span>
-          <span class="repo-category" data-category="apps">Applications</span>
           <span class="app-desc">Environmental innovation project landing page and WasteLens overview.</span>
           <span class="stage-label">PROJECT LANDING PAGE</span>
           <span class="app-meta" data-repo-meta aria-live="polite">GitHub activity · Loading…</span>
         </a>
-        <a class="repo-card" href="https://github.com/michaelkage/OmniRoute" target="_blank" rel="noopener noreferrer" data-repo="michaelkage/OmniRoute" data-category="ai">
+        <a class="repo-card" href="https://github.com/michaelkage/OmniRoute" target="_blank" rel="noopener noreferrer" data-repo="michaelkage/OmniRoute">
           <span class="app-name">OmniRoute</span>
-          <span class="repo-category" data-category="ai">AI & automation</span>
           <span class="app-desc">Provider-agnostic AI gateway with model routing, free-tier catalog, and fallback strategies.</span>
           <span class="stage-label">AI GATEWAY</span>
           <span class="app-meta" data-repo-meta aria-live="polite">GitHub activity · Loading…</span>
         </a>
-        <a class="repo-card" href="https://github.com/michaelkage/Ai-Gateway" target="_blank" rel="noopener noreferrer" data-repo="michaelkage/Ai-Gateway" data-category="ai">
+        <a class="repo-card" href="https://github.com/michaelkage/Ai-Gateway" target="_blank" rel="noopener noreferrer" data-repo="michaelkage/Ai-Gateway">
           <span class="app-name">Ai-Gateway</span>
-          <span class="repo-category" data-category="ai">AI & automation</span>
           <span class="app-desc">OpenAI-compatible edge AI gateway with provider routing and streaming.</span>
           <span class="stage-label">EDGE API GATEWAY</span>
           <span class="app-meta" data-repo-meta aria-live="polite">GitHub activity · Loading…</span>
         </a>
-        <a class="repo-card" href="https://github.com/michaelkage/Axiom" target="_blank" rel="noopener noreferrer" data-repo="michaelkage/Axiom" data-category="tools">
+        <a class="repo-card" href="https://github.com/michaelkage/Axiom" target="_blank" rel="noopener noreferrer" data-repo="michaelkage/Axiom">
           <span class="app-name">Axiom</span>
-          <span class="repo-category" data-category="tools">Tools & resources</span>
           <span class="app-desc">Standalone AI-first desktop workspace for planning, changing, and verifying software projects.</span>
           <span class="stage-label">DESKTOP APP</span>
           <span class="app-meta" data-repo-meta aria-live="polite">GitHub activity · Loading…</span>
         </a>
-        <a class="repo-card" href="https://github.com/michaelkage/OmniLauncher" target="_blank" rel="noopener noreferrer" data-repo="michaelkage/OmniLauncher" data-category="apps">
+        <a class="repo-card" href="https://github.com/michaelkage/OmniLauncher" target="_blank" rel="noopener noreferrer" data-repo="michaelkage/OmniLauncher">
           <span class="app-name">OmniLauncher</span>
-          <span class="repo-category" data-category="apps">Applications</span>
           <span class="app-desc">Modular Android launcher engine for switching home-screen layouts.</span>
           <span class="stage-label">ANDROID LAUNCHER ENGINE</span>
           <span class="app-meta" data-repo-meta aria-live="polite">GitHub activity · Loading…</span>
         </a>
-        <a class="repo-card" href="https://github.com/michaelkage/Vanguard" target="_blank" rel="noopener noreferrer" data-repo="michaelkage/Vanguard" data-category="systems">
+        <a class="repo-card" href="https://github.com/michaelkage/Vanguard" target="_blank" rel="noopener noreferrer" data-repo="michaelkage/Vanguard">
           <span class="app-name">Vanguard</span>
-          <span class="repo-category" data-category="systems">Systems & infrastructure</span>
           <span class="app-desc">Local-first campus mesh identity and communication protocol with Android storage foundation.</span>
           <span class="stage-label">PROTOCOL CORE</span>
           <span class="app-meta" data-repo-meta aria-live="polite">GitHub activity · Loading…</span>
         </a>
-        <a class="repo-card" href="https://github.com/michaelkage/The-Vault" target="_blank" rel="noopener noreferrer" data-repo="michaelkage/The-Vault" data-category="tools">
+        <a class="repo-card" href="https://github.com/michaelkage/The-Vault" target="_blank" rel="noopener noreferrer" data-repo="michaelkage/The-Vault">
           <span class="app-name">The-Vault</span>
-          <span class="repo-category" data-category="tools">Tools & resources</span>
           <span class="app-desc">Second-brain collection of developer, AI, hardware, and workflow resources.</span>
           <span class="stage-label">RESOURCE COLLECTION</span>
           <span class="app-meta" data-repo-meta aria-live="polite">GitHub activity · Loading…</span>
@@ -510,41 +460,45 @@
       "use strict";
 
       const output = document.getElementById("boot-output");
+      const bootScreen = document.getElementById("boot-screen");
+      const bootProgress = document.getElementById("boot-progress-bar");
+      const bootCaption = document.getElementById("boot-caption");
       const lines = [
         ["Initializing gateway core modules...", false],
-        ["Loading six application routes and public repository directory...", false],
-        ["Checking child application boundaries...", false],
-        ["Supabase handshake: not queried by this static gateway.", false],
-        ["Six application shortcuts and twenty public project repositories indexed; one URL unavailable.", true],
+        ["Loading application route table...", false],
+        ["Checking production route boundaries...", false],
+        ["Connecting public repository index...", false],
+        ["System diagnostics complete.", true],
         ["Status: Operational", true]
       ];
       const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
       document.getElementById("year").textContent = String(new Date().getFullYear());
 
-      if (reducedMotion) {
-        output.replaceChildren(...lines.map(([message, ok]) => {
-          const line = document.createElement("span");
-          line.className = ok ? "boot-line boot-ok" : "boot-line";
-          line.textContent = message;
-          return line;
-        }));
+      let hasBooted = false;
+      try { hasBooted = localStorage.getItem("mk.system.booted.v1") === "1"; } catch (_) {}
+      if (hasBooted) {
+        bootScreen.remove();
       } else {
-        output.replaceChildren();
         let index = 0;
+        const finishBoot = () => {
+          bootProgress.style.width = "100%";
+          bootCaption.textContent = "SYSTEM READY · ENTERING GATEWAY";
+          try { localStorage.setItem("mk.system.booted.v1", "1"); } catch (_) {}
+          window.setTimeout(() => {
+            bootScreen.classList.add("is-exiting");
+            window.setTimeout(() => bootScreen.remove(), reducedMotion ? 0 : 580);
+          }, reducedMotion ? 0 : 280);
+        };
         const printNext = () => {
-          if (index >= lines.length) {
-            const cursor = document.createElement("span");
-            cursor.className = "boot-cursor";
-            cursor.setAttribute("aria-hidden", "true");
-            output.append(cursor);
-            return;
-          }
+          if (index >= lines.length) { finishBoot(); return; }
           const [message, ok] = lines[index++];
           const line = document.createElement("span");
           line.className = ok ? "boot-line boot-ok" : "boot-line";
           line.textContent = message;
           output.append(line);
-          window.setTimeout(printNext, 170);
+          bootProgress.style.width = Math.round((index / lines.length) * 100) + "%";
+          if (reducedMotion) printNext();
+          else window.setTimeout(printNext, 240);
         };
         printNext();
       }
@@ -564,7 +518,6 @@
       const repoSearch = document.getElementById("repo-search");
       const repoCount = document.getElementById("repo-count");
       const repoSort = document.getElementById("repo-sort");
-      const repoCategory = document.getElementById("repo-category");
       const repoEmpty = document.getElementById("repo-empty");
       const originalOrder = new Map(directoryCards.map((card, index) => [card, index]));
       const sortRepositories = () => {
@@ -580,12 +533,10 @@
       };
       const filterRepositories = () => {
         const query = repoSearch.value.trim().toLocaleLowerCase();
-        const category = repoCategory.value;
         let visible = 0;
         for (const card of directoryCards) {
           const matchesQuery = card.textContent.toLocaleLowerCase().includes(query);
-          const matchesCategory = category === "all" || card.dataset.category === category;
-          const matches = matchesQuery && matchesCategory;
+          const matches = matchesQuery;
           card.hidden = !matches;
           if (matches) visible++;
         }
@@ -594,7 +545,6 @@
       };
       repoSearch.addEventListener("input", filterRepositories);
       repoSort.addEventListener("change", sortRepositories);
-      repoCategory.addEventListener("change", filterRepositories);
       const fetchWithTimeout = async (url, timeoutMs = 8000) => {
         const controller = new AbortController();
         const timeout = window.setTimeout(() => controller.abort(), timeoutMs);
