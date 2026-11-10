@@ -56,7 +56,7 @@ jobs:
           parser.close()
           if parser.stack:
               raise SystemExit(f"Unclosed HTML tags: {parser.stack}")
-          scripts = re.findall(r"<script\\b[^>]*>([\\s\\S]*?)</script>", html, re.I)
+          scripts = re.findall(r"<script\b[^>]*>([\s\S]*?)</script>", html, re.I)
           if len(scripts) != 1:
               raise SystemExit(f"Expected one inline script, found {len(scripts)}")
           Path("/tmp/portfolio-inline.js").write_text(scripts[0], encoding="utf-8")
