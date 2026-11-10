@@ -210,7 +210,7 @@
     }
 
 
-    .system-tray{display:flex;align-items:center;gap:6px;margin-left:auto}.tray-button{height:30px;min-width:30px;padding:0 7px;border:1px solid rgba(125,151,183,.22);border-radius:7px;color:#aebbd0;background:rgba(255,255,255,.035);font:inherit;font-size:9px;cursor:pointer}.tray-button[aria-expanded="true"]{border-color:var(--cyan);color:var(--cyan)}.tray-count{display:inline-grid;min-width:15px;height:15px;place-items:center;border-radius:8px;color:#081019;background:var(--cyan);font-size:8px}.tray-count[hidden]{display:none}.tray-status-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--green)}.tray-status-dot[data-state="error"]{background:#ff7777}
+    .system-tray{display:flex;align-items:center;gap:6px;margin-left:auto}.tray-button{height:30px;min-width:30px;padding:0 7px;border:1px solid rgba(125,151,183,.22);border-radius:7px;color:#aebbd0;background:rgba(255,255,255,.035);font:inherit;font-size:9px;cursor:pointer}.tray-button[aria-expanded="true"]{border-color:var(--cyan);color:var(--cyan)}.tray-count{display:inline-grid;min-width:15px;height:15px;place-items:center;border-radius:8px;color:#081019;background:var(--cyan);font-size:8px}.tray-count[hidden]{display:none}.tray-status-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:#c6a45b}.tray-status-dot[data-state="online"]{background:var(--green)}.tray-status-dot[data-state="error"]{background:#ff7777}
     .tray-panel{position:absolute;right:8px;bottom:60px;z-index:30;width:min(360px,calc(100vw - 20px));max-height:65vh;overflow:auto;padding:14px;border:1px solid rgba(0,229,255,.28);border-radius:12px;background:rgba(8,15,27,.97);box-shadow:0 22px 70px rgba(0,0,0,.58)}.tray-panel[hidden]{display:none}.tray-panel-head{display:flex;justify-content:space-between;gap:10px;margin-bottom:12px}.tray-panel-head strong{font-size:10px;letter-spacing:.1em;text-transform:uppercase}.tray-panel-head button,.tray-notice button{padding:5px 8px;border:1px solid rgba(125,151,183,.22);border-radius:6px;color:#9eacc0;background:transparent;font:inherit;font-size:8px;cursor:pointer}.tray-notice{display:grid;grid-template-columns:1fr auto;gap:8px;padding:10px 0;border-top:1px solid rgba(255,255,255,.07)}.tray-notice strong{font-size:9px}.tray-notice p{margin:4px 0;color:#8291a7;font-size:8px;line-height:1.6;overflow-wrap:anywhere}.tray-notice time{color:#65758d;font-size:7px}.tray-empty{padding:14px 4px;color:#8291a7;font-size:9px}.quick-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.quick-tile{min-height:64px;padding:10px;border:1px solid rgba(125,151,183,.2);border-radius:8px;color:#dce8f7;background:rgba(255,255,255,.035);text-align:left;font:inherit;cursor:pointer}.quick-tile[aria-pressed="true"]{border-color:var(--cyan);background:rgba(0,229,255,.08)}.quick-tile strong,.quick-tile small{display:block}.quick-tile strong{font-size:9px}.quick-tile small{margin-top:6px;color:#8291a7;font-size:8px}.tray-panel-status{margin:10px 0 0;color:#8291a7;font-size:8px}@media(max-width:620px){.tray-panel{right:5px;bottom:55px}}
     .palette[hidden] { display:none; }
     .palette { position:fixed; inset:0; z-index:900; display:grid; align-items:start; justify-items:center; padding: min(16vh,120px) 18px 24px; background:rgba(2,5,10,.78); backdrop-filter:blur(10px); }
@@ -652,7 +652,7 @@
       <div class="dock-running" id="dock-running" aria-label="Open windows"></div>
       <span class="dock-indicator" id="dock-indicator">0 WINDOWS</span>
       <div class="system-tray" aria-label="System tray">
-        <button class="tray-button" id="tray-health" type="button" aria-label="System health"><span class="tray-status-dot" id="tray-health-dot"></span></button>
+        <button class="tray-button" id="tray-health" type="button" aria-label="System health"><span class="tray-status-dot" id="tray-health-dot" data-state="checking"></span></button>
         <button class="tray-button" id="tray-notifications-toggle" type="button" aria-expanded="false" aria-controls="tray-notifications" aria-label="Open notifications">◉<span class="tray-count" id="tray-unread" hidden>0</span></button>
         <button class="tray-button" id="tray-quick-toggle" type="button" aria-expanded="false" aria-controls="tray-quick" aria-label="Open quick settings">☷</button>
       </div>
@@ -1294,7 +1294,7 @@
       const quickPanel=document.getElementById("tray-quick"),quickToggle=document.getElementById("tray-quick-toggle");
       const unreadBadge=document.getElementById("tray-unread"),healthDot=document.getElementById("tray-health-dot");
       let notifications=[];
-      try{const saved=JSON.parse(localStorage.getItem(NOTICE_KEY)||"[]");if(Array.isArray(saved))notifications=saved.filter(n=>n&&typeof n.id==="string"&&typeof n.title==="string"&&typeof n.message==="string"&&Number.isFinite(n.createdAt)).slice(0,20);}catch(_){}
+      try{const saved=JSON.parse(localStorage.getItem(NOTICE_KEY)||"[]");if(Array.isArray(saved))notifications=saved.filter(n=>n&&typeof n.id==="string"&&n.id.length<=100&&typeof n.title==="string"&&n.title.length<=120&&typeof n.message==="string"&&n.message.length<=500&&Number.isSafeInteger(n.createdAt)&&n.createdAt>0&&n.createdAt<=Date.now()+86400000).slice(0,20).map(n=>({...n,read:n.read===true}));}catch(_){}
       const persistNotifications=()=>{try{localStorage.setItem(NOTICE_KEY,JSON.stringify(notifications));}catch(_){}};
       const renderNotifications=()=>{
         noticeList.replaceChildren();const unread=notifications.filter(n=>!n.read).length;
@@ -1312,7 +1312,7 @@
       noticeToggle.addEventListener("click",()=>setTrayPanel(noticePanel.hidden?"notifications":null));
       quickToggle.addEventListener("click",()=>setTrayPanel(quickPanel.hidden?"quick":null));
       document.getElementById("tray-clear-notifications").addEventListener("click",()=>{notifications=[];persistNotifications();renderNotifications();});
-      document.getElementById("tray-open-settings").addEventListener("click",()=>{setTrayPanel(null);openSettings();settingsReturnFocus=quickToggle;});
+      document.getElementById("tray-open-settings").addEventListener("click",()=>{setTrayPanel(null);closeDesktop();openSettings();});
       const quickCompact=document.getElementById("quick-compact"),quickMotion=document.getElementById("quick-motion");
       const syncQuick=()=>{quickCompact.setAttribute("aria-pressed",String(systemSettings.compact));quickMotion.setAttribute("aria-pressed",String(systemSettings.motion==="reduced"));document.getElementById("quick-status").textContent=settingsStorageAvailable?"Preferences saved on this device.":"Storage unavailable. Visit-only changes.";};
       quickCompact.addEventListener("click",()=>{systemSettings.compact=!systemSettings.compact;compactSetting.checked=systemSettings.compact;shell.classList.toggle("is-compact",systemSettings.compact);persistSettings();syncQuick();});
@@ -1341,7 +1341,7 @@
         const target=document.getElementById("monitor-"+name),description=document.getElementById("monitor-"+name+"-detail"),previous=monitorStates.get(name);
         monitorStates.set(name,state);target.dataset.state=state;target.textContent=state==="online"?"Operational":state==="error"?"Unavailable":"Checking…";description.textContent=detail;
         document.getElementById("monitor-checked").textContent="Last checked "+new Date().toLocaleTimeString();
-        healthDot.dataset.state=[...monitorStates.values()].includes("error")?"error":"online";
+        const states=[...monitorStates.values()];healthDot.dataset.state=states.includes("error")?"error":states.length===3&&states.every(value=>value==="online")?"online":"checking";
         const labels={api:"GitHub repository API",activity:"GitHub activity feed",routes:"Production routes"};
         if(state==="error"&&previous!=="error")pushNotification((labels[name]||"System service")+" unavailable",detail);
         else if(state==="online"&&previous==="error")pushNotification((labels[name]||"System service")+" recovered","The latest health check completed successfully.");
