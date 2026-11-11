@@ -1413,7 +1413,7 @@
         footer.append(route, status, openLink);
         element.append(titlebar, content, footer);
         desktopWindows.append(element);
-        const record = { app, element, content, route, status, task:null, previousBounds:null, frame:null, loadTimer:null, faulted:false, state:"created", resumePanel:null };
+        const record = { app, element, content, route, status, task:null, previousBounds:null, frame:null, frameLoaded:false, loadTimer:null, faulted:false, state:"created", resumePanel:null };
         openWindows.set(app.id, record);
         const stage = document.getElementById("desktop-stage");
         const saved = options.saved || savedSession?.windows?.find(item => item.appId === app.id) || savedWindowState[app.id] ||
