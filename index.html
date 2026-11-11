@@ -2215,8 +2215,16 @@
           case "PushEvent": {
             const commits = Array.isArray(payload.commits) ? payload.commits : [];
             const latest = commits.length ? commits[commits.length - 1] : null;
-            const message = latest && latest.message ? latest.message.split("\n")[0].trim() : "";
-            return message || ((payload.size || 0) + " commit(s) pushed");
+            const message = latest && typeof latest.message === "string" ? latest.message.split("\n")[0].trim() : "";
+            if (message) return message;
+
+            const count = [payload.distinct_size, payload.size]
+              .find((value) => Number.isInteger(value) && value > 0);
+            const branch = typeof payload.ref === "string"
+              ? payload.ref.replace(/^refs\/heads\//, "").trim()
+              : "";
+            if (count) return "Pushed " + count + " commit" + (count === 1 ? "" : "s") + (branch ? " to " + branch : "");
+            return branch ? "Updated branch " + branch : "Pushed changes";
           }
           case "PullRequestEvent":
             return (payload.action || "Updated") + " pull request" + suffix + titleSuffix;
@@ -2254,10 +2262,38 @@
           const { response, data: events } = await fetchJsonWithTimeout("https://api.github.com/users/michaelkage/events/public?per_page=100");
           if (!Array.isArray(events)) throw new Error("Unexpected GitHub events response");
           setMonitor("activity", "online", events.length + " recent public events returned · HTTP " + response.status);
-          const relevant = events
+          const ordered = events
             .map((event) => ({ event, description: describeEvent(event) }))
             .filter((entry) => entry.description)
-            .sort((a, b) => Date.parse(b.event.created_at) - Date.parse(a.event.created_at))
+            .sort((a, b) => Date.parse(b.event.created_at) - Date.parse(a.event.created_at));
+
+          // GitHub can emit several metadata-only push events for the same
+          // repository and branch. Collapse those within a 30-minute window
+          // so repeated branch updates do not monopolize the five visible rows.
+          const grouped = new Map();
+          for (const entry of ordered) {
+            const timestamp = Date.parse(entry.event.created_at);
+            const repo = entry.event.repo && entry.event.repo.name ? entry.event.repo.name : "";
+            const isMetadataPush = entry.event.type === "PushEvent" &&
+              (!Array.isArray(entry.event.payload && entry.event.payload.commits) ||
+               !entry.event.payload.commits.some((commit) => commit && typeof commit.message === "string" && commit.message.trim()));
+            const bucket = Number.isFinite(timestamp) ? Math.floor(timestamp / 1800000) : "unknown";
+            const key = isMetadataPush ? [repo, entry.description, bucket].join("|") : null;
+            if (key && grouped.has(key)) {
+              grouped.get(key).count += 1;
+            } else {
+              const item = { ...entry, count: 1 };
+              if (key) grouped.set(key, item);
+              if (!key) grouped.set(Symbol(), item);
+            }
+          }
+          const relevant = [...grouped.values()]
+            .map((entry) => ({
+              ...entry,
+              description: entry.count > 1
+                ? entry.description + " · " + entry.count + " pushes"
+                : entry.description
+            }))
             .slice(0, 5);
 
           activityList.replaceChildren();
