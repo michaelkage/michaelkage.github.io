@@ -134,7 +134,7 @@ jobs:
           const cases = [
             [{ type: "PushEvent", payload: { size: 0, distinct_size: 0, ref: "refs/heads/main" } }, "Updated branch main"],
             [{ type: "PushEvent", payload: { size: 2, ref: "refs/heads/fix/api" } }, "Pushed 2 commits to fix/api"],
-            [{ type: "PushEvent", payload: { commits: [{ message: "Fix telemetry\\n\\nDetails" }] } }, "Fix telemetry"]
+            [{ type: "PushEvent", payload: { commits: [{ message: "Fix telemetry\n\nDetails" }] } }, "Fix telemetry"]
           ];
           for (const [event, expected] of cases) {
             const actual = vm.runInNewContext(formatter + "; describeEvent(" + JSON.stringify(event) + ")");
