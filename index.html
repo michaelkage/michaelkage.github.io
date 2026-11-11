@@ -702,6 +702,12 @@
       *,*::before,*::after { scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important; }
     }
 
+      .monitor-actions { display:flex;align-items:center;justify-content:flex-end;gap:12px; }
+    .monitor-actions .utility-button:disabled { opacity:.55;cursor:wait; }
+    @media (max-width:620px) {
+      .monitor-actions { align-items:flex-end;gap:8px; }
+      .monitor-actions .utility-button { min-height:30px;padding:0 8px;font-size:7px; }
+    }
   </style>
 </head>
 <body>
@@ -945,7 +951,10 @@
     <section class="section" aria-labelledby="monitor-title">
       <div class="section-head">
         <h2 class="section-label" id="monitor-title">04 / System status</h2>
-        <span class="section-hint" id="monitor-checked">Waiting for diagnostics</span>
+        <div class="monitor-actions">
+          <span class="section-hint" id="monitor-checked">Waiting for diagnostics</span>
+          <button class="utility-button" id="telemetry-refresh" type="button">Refresh telemetry</button>
+        </div>
       </div>
       <div class="monitor-grid" aria-live="polite">
         <div class="monitor-card"><span class="monitor-name">GitHub repository API</span><span class="monitor-state" id="monitor-api" data-state="checking">Checking…</span><span class="monitor-detail" id="monitor-api-detail">Public repository inventory</span></div>
@@ -2127,7 +2136,10 @@
         return Math.floor(days / 30) + "mo ago";
       };
 
+      const telemetryRefresh = document.getElementById("telemetry-refresh");
       const loadRepositoryTelemetry = async () => {
+        telemetryRefresh.disabled = true;
+        telemetryRefresh.textContent = "Refreshing…";
         try {
           const response = await fetchWithTimeout("https://api.github.com/users/michaelkage/repos?per_page=100&type=public");
           if (!response.ok) throw new Error("GitHub repositories API " + response.status);
@@ -2164,9 +2176,13 @@
             target.textContent = reason + " · retry on page refresh";
             target.dataset.state = "error";
           }
+        } finally {
+          telemetryRefresh.disabled = false;
+          telemetryRefresh.textContent = "Refresh telemetry";
         }
       };
 
+      telemetryRefresh.addEventListener("click", loadRepositoryTelemetry);
       loadRepositoryTelemetry();
 
       const activityList = document.getElementById("activity-list");
