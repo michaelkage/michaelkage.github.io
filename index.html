@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#080b12">
-  <meta name="description" content="Michael Kage system gateway. Launch production applications, explore 20 public project repositories, and inspect recent engineering activity.">
+  <meta name="theme-color" content="#eeeae1">
+  <meta name="description" content="A working index of Michael Kage's applications, experiments, repositories, and engineering activity.">
   <meta name="robots" content="index, follow">
   <link rel="canonical" href="https://michaelkage.github.io/">
   <link rel="manifest" href="./manifest.webmanifest">
@@ -328,6 +328,376 @@
       *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
       .app-link:hover { transform: none; }
     }
+  
+    /* =========================================================
+       MK.SYSTEMS / EDITORIAL SWISS DESIGN SYSTEM
+       Visual layer only. Existing interaction contracts retained.
+       ========================================================= */
+    @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&display=swap');
+
+    :root {
+      color-scheme: light;
+      --bg: #eeeae1;
+      --panel: #f5f2eb;
+      --panel-2: #e5e0d6;
+      --line: #b9b3a8;
+      --cyan: #d83a25;
+      --purple: #d83a25;
+      --text: #171715;
+      --muted: #6d6a63;
+      --green: #286348;
+      --mono: 'IBM Plex Mono', 'Courier New', monospace;
+      --display: 'Newsreader', 'Iowan Old Style', 'Baskerville', Georgia, serif;
+      font-family: var(--mono);
+      background: var(--bg);
+      color: var(--text);
+      font-synthesis: none;
+      text-rendering: optimizeLegibility;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    html, body { background:var(--bg); color:var(--text); }
+    body {
+      background-image:linear-gradient(to bottom,rgba(23,23,21,.035) 1px,transparent 1px);
+      background-size:100% 32px;
+      background-attachment:fixed;
+    }
+    ::selection { color:#fff; background:var(--cyan); }
+    a { color:inherit; }
+    a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible {
+      outline:2px solid var(--cyan); outline-offset:3px;
+    }
+    .shell { width:min(100% - 64px,1440px); padding:28px 0 44px; }
+    .topbar { min-height:58px; padding:0 0 15px; border-bottom:1px solid var(--text); }
+    .brand { gap:13px; }
+    .brand-mark {
+      width:38px;height:38px;border:1px solid var(--text);border-radius:0;
+      color:var(--bg);background:var(--text);box-shadow:none;font-size:13px;
+      font-family:var(--mono);font-weight:600;
+    }
+    .eyebrow,.section-label,.status,.key,.node-label,.footer,.hero-kicker {
+      font-family:var(--mono);letter-spacing:.1em;text-transform:uppercase;
+    }
+    .eyebrow { color:var(--muted);font-size:9px; }
+    .brand-name { margin-top:4px;font-size:12px;letter-spacing:.13em; }
+    .status { gap:7px;color:var(--green);font-size:9px; }
+    .status::before { width:6px;height:6px;border-radius:0;box-shadow:none; }
+    .top-actions { gap:0; }
+    .utility-button {
+      min-height:34px;padding:0 12px;border:0;border-left:1px solid var(--line);
+      border-radius:0;color:var(--text);background:transparent;font-size:8px;
+      letter-spacing:.04em;transition:background .18s,color .18s;
+    }
+    .utility-button:last-of-type { border-right:1px solid var(--line); }
+    .utility-button:hover { border-color:var(--text);color:var(--bg);background:var(--text); }
+    .utility-button kbd { color:var(--muted);font:inherit; }
+    .utility-button:hover kbd { color:#c9c5bc; }
+
+    .hero {
+      position:relative;display:grid;grid-template-columns:minmax(0,1.5fr) minmax(220px,.5fr);
+      align-items:end;gap:36px;padding:clamp(70px,10vw,150px) 0 48px;
+      border-bottom:1px solid var(--text);
+    }
+    .hero-kicker { grid-column:1/-1;color:var(--cyan);font-size:10px; }
+    h1 {
+      max-width:1000px;margin:0;color:var(--text);
+      font-family:var(--display);font-size:clamp(76px,13vw,190px);
+      font-weight:400;line-height:.76;letter-spacing:-.075em;
+    }
+    h1 span { color:var(--cyan);text-shadow:none;font-style:italic; }
+    .intro {
+      max-width:310px;margin:0 0 3px;color:#4f4c46;
+      font-family:var(--display);font-size:clamp(18px,2vw,25px);
+      line-height:1.22;letter-spacing:-.025em;
+    }
+    .hero::after {
+      content:"INDEPENDENT SYSTEMS  /  BUILT IN PUBLIC  /  NO THEATRE";
+      position:absolute;right:0;top:34px;color:var(--muted);
+      font:9px var(--mono);letter-spacing:.13em;
+    }
+
+    .section { margin-top:68px; }
+    .section-head {
+      align-items:flex-end;gap:18px;margin-bottom:16px;padding-bottom:10px;
+      border-bottom:1px solid var(--text);
+    }
+    .section-label { margin:0;color:var(--text);font-size:10px;font-weight:600; }
+    .section-hint { color:var(--muted);font-size:8px;line-height:1.5;text-align:right; }
+    .app-grid {
+      display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:0;border-top:0;border-left:0;
+    }
+    .app-link {
+      position:relative;display:grid;grid-template-columns:48px minmax(0,1fr) 24px;
+      align-items:start;gap:14px;min-width:0;min-height:190px;padding:24px 22px 22px 0;
+      border:0;border-bottom:1px solid var(--line);border-radius:0;
+      background:transparent;text-decoration:none;transition:background .2s,padding .2s;
+    }
+    .app-link:nth-child(odd) { border-right:1px solid var(--line);padding-right:24px; }
+    .app-link:nth-child(even) { padding-left:24px; }
+    .app-link:nth-child(1) { grid-column:1/-1;min-height:250px;padding-top:30px;border-right:0; }
+    .app-link:nth-child(1) .app-name { font-size:clamp(38px,6vw,76px); }
+    .app-link:hover { z-index:1;padding-top:29px;background:rgba(216,58,37,.045); }
+    .app-link:nth-child(1):hover { padding-top:35px; }
+    .key {
+      display:block;padding-top:6px;color:var(--cyan);font-size:10px;
+      border:0;border-radius:0;background:none;
+    }
+    .app-copy { display:flex;min-width:0;flex-direction:column;align-items:flex-start; }
+    .app-name {
+      display:block;color:var(--text);font-family:var(--display);
+      font-size:clamp(27px,3.4vw,43px);font-weight:400;line-height:1.02;
+      letter-spacing:-.045em;transition:color .18s;
+    }
+    .app-link:hover .app-name { color:var(--cyan); }
+    .app-desc {
+      display:block;max-width:570px;margin-top:9px;color:#57544e;
+      font-family:var(--display);font-size:17px;line-height:1.35;
+    }
+    .app-path { margin-top:15px;color:var(--muted);font-size:8px; }
+    .stage-label {
+      display:inline-block;margin-top:12px;padding:4px 6px;border:1px solid var(--line);
+      border-radius:0;color:#3f3c36;background:transparent;font-size:7px;
+      letter-spacing:.1em;
+    }
+    .stage-note { margin-top:8px;color:#5d5952;font-size:8px;line-height:1.6; }
+    .stage-source { margin-top:5px;color:#888278;font-size:7px; }
+    .app-meta { margin-top:9px;color:var(--muted);font-size:8px;line-height:1.5; }
+    .arrow { align-self:start;color:var(--cyan);font-size:22px;transition:transform .18s; }
+    .app-link:hover .arrow { transform:translate(4px,-4px); }
+
+    .pinned-grid { grid-template-columns:repeat(3,minmax(0,1fr));gap:0;border-top:1px solid var(--line); }
+    .pinned-card {
+      min-height:110px;padding:15px 14px;border:0;border-right:1px solid var(--line);
+      border-bottom:1px solid var(--line);border-radius:0;background:transparent;
+    }
+    .pinned-card:nth-child(3n) { border-right:0; }
+    .pinned-name { font-family:var(--display);font-size:22px;font-weight:400; }
+    .pinned-detail { color:var(--muted);font-size:8px; }
+    .pin-remove,.palette-pin {
+      min-height:27px;padding:0 7px;border:1px solid var(--line);border-radius:0;
+      color:var(--text);background:transparent;font-size:8px;
+    }
+    .pin-remove:hover,.palette-pin:hover { border-color:var(--cyan);color:var(--cyan);background:transparent; }
+    .palette-pin[aria-pressed="true"] { color:var(--green);border-color:var(--green);background:transparent; }
+
+    .repo-tools { display:flex;gap:0;align-items:center;margin-bottom:12px;border:1px solid var(--text); }
+    .repo-search,.repo-sort {
+      min-height:42px;border:0;border-radius:0;color:var(--text);background:transparent;
+      font:9px var(--mono);
+    }
+    .repo-search { flex:1;min-width:0;padding:0 13px; }
+    .repo-search::placeholder { color:#8b867d; }
+    .repo-sort { padding:0 12px;border-left:1px solid var(--text); }
+    .repo-count { margin:0;padding:0 12px;color:var(--muted);font-size:8px;white-space:nowrap; }
+    .repo-grid { display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0;border-top:1px solid var(--line); }
+    .repo-card {
+      display:flex;min-width:0;min-height:145px;flex-direction:column;align-items:flex-start;
+      padding:17px 16px 18px 0;border:0;border-right:1px solid var(--line);
+      border-bottom:1px solid var(--line);border-radius:0;background:transparent;
+      text-decoration:none;transition:background .18s,padding .18s;
+    }
+    .repo-card:nth-child(3n) { border-right:0;padding-left:16px;padding-right:0; }
+    .repo-card:nth-child(3n+2) { padding-left:16px; }
+    .repo-card:hover { background:rgba(216,58,37,.04); }
+    .repo-card .app-name { font-size:23px; }
+    .repo-card .app-desc { margin-top:7px;font-family:var(--mono);font-size:8px;line-height:1.6; }
+    .repo-card .stage-label { margin-top:10px; }
+    .repo-card .app-meta { margin-top:auto;padding-top:10px; }
+    .repo-empty { color:var(--muted);font-size:9px;line-height:1.7; }
+
+    .monitor-grid { grid-template-columns:repeat(3,minmax(0,1fr));gap:0;border-top:1px solid var(--text); }
+    .monitor-card { min-height:115px;padding:14px 15px 14px 0;border:0;border-right:1px solid var(--line);border-radius:0;background:transparent; }
+    .monitor-card + .monitor-card { padding-left:15px; }
+    .monitor-card:last-child { border-right:0; }
+    .monitor-name { color:var(--muted);font-size:8px; }
+    .monitor-state { margin-top:15px;color:var(--text);font-size:10px; }
+    .monitor-state::before { width:6px;height:6px;flex-basis:6px;border-radius:0;box-shadow:none; }
+    .monitor-state[data-state="online"] { color:var(--green); }
+    .monitor-state[data-state="online"]::before { background:var(--green);box-shadow:none; }
+    .monitor-state[data-state="error"] { color:var(--cyan); }
+    .monitor-state[data-state="error"]::before { background:var(--cyan); }
+    .monitor-detail { color:var(--muted);font-size:8px; }
+
+    .nodes { border-top:1px solid var(--line);border-bottom:1px solid var(--line); }
+    .node-list { align-items:stretch;justify-content:flex-start;gap:0; }
+    .node-list > div { flex:1;padding:15px 16px 15px 0; }
+    .node-list > div + div { padding-left:16px;border-left:1px solid var(--line); }
+    .node-label { color:var(--muted);font-size:8px; }
+    .node { display:block;margin-top:8px;color:var(--text);font-family:var(--display);font-size:22px;text-decoration:none; }
+    .node:hover { color:var(--cyan); }
+
+    .activity-panel { border-top:1px solid var(--text);border-bottom:1px solid var(--text);border-radius:0;background:transparent; }
+    .activity-list { list-style:none;margin:0;padding:0; }
+    .activity-list li { display:grid;grid-template-columns:130px minmax(0,1fr) 110px;gap:16px;align-items:start;padding:14px 0;border-bottom:1px solid var(--line); }
+    .activity-list li:last-child { border-bottom:0; }
+    .activity-list time,.activity-list .activity-time { color:var(--muted);font-size:8px; }
+    .activity-list a { color:var(--text);font-family:var(--display);font-size:18px;text-decoration:none; }
+    .activity-list a:hover { color:var(--cyan); }
+    .activity-list p,.activity-list .activity-description { margin:4px 0 0;color:#5d5952;font-size:8px;line-height:1.6; }
+    .activity-controls { display:flex;align-items:center;gap:12px; }
+    .activity-refresh {
+      min-height:28px;padding:0 9px;border:1px solid var(--line);border-radius:0;
+      color:var(--text);background:transparent;font:8px var(--mono);cursor:pointer;
+    }
+    .activity-refresh:hover { border-color:var(--cyan);color:var(--cyan); }
+
+    .footer { padding-top:20px;border-top:1px solid var(--text);color:var(--muted);font-size:8px; }
+    .terminal,.boot-terminal { border:1px solid var(--text);border-radius:0;background:#171715;box-shadow:none;color:#eeeae1; }
+    .terminal-bar { padding:10px 13px;border-bottom:1px solid #55534d;background:#22221f; }
+    .dot { width:6px;height:6px;border-radius:0;background:#a39e93; }
+    .terminal-title { color:#c6c0b5;font-size:8px; }
+    .boot-output { color:#d2ccc0;font-size:9px; }
+    .boot-line::before { color:#e46a54; }
+    .boot-ok { color:#a7c7a9; }
+    .boot-cursor { width:6px;height:11px;background:#e46a54; }
+    .boot-screen { background:#171715; }
+    .boot-screen-inner { width:min(100%,720px); }
+    .boot-brand { color:#eeeae1;font:10px var(--mono); }
+    .boot-mark { width:32px;height:32px;border:1px solid #eeeae1;border-radius:0;color:#171715;background:#eeeae1; }
+    .boot-version,.boot-caption { color:#aaa398; }
+    .boot-progress { background:#4b4943; }
+    .boot-progress-bar { background:#e46a54;box-shadow:none; }
+    .boot-terminal { border-color:#69655d; }
+    .boot-screen .boot-output { min-height:155px; }
+
+    .palette-panel {
+      border:1px solid var(--text);border-radius:0;background:var(--bg);
+      box-shadow:12px 12px 0 rgba(23,23,21,.22);
+    }
+    .palette-input { border:0;border-bottom:1px solid var(--text);border-radius:0;color:var(--text);background:transparent;font:15px var(--mono); }
+    .palette-results { padding:8px; }
+    .palette-row { border-radius:0; }
+    .palette-result[aria-current="true"] { background:rgba(216,58,37,.08);outline:1px solid var(--cyan); }
+    .palette-result:hover { background:rgba(216,58,37,.06); }
+    .palette-hint { color:var(--muted);border-top:1px solid var(--line); }
+
+    .settings-dialog { border:1px solid var(--text);border-radius:0;color:var(--text);background:var(--bg);box-shadow:12px 12px 0 rgba(23,23,21,.22); }
+    .settings-dialog::backdrop { background:rgba(23,23,21,.62);backdrop-filter:none; }
+    .settings-panel { padding:25px; }
+    .settings-heading h2 { color:var(--text);font-family:var(--display);font-size:36px;font-weight:400; }
+    .settings-intro,.settings-group small,.settings-actions small,.settings-status { color:var(--muted); }
+    .settings-group { border-color:var(--line); }
+    .settings-group strong,.settings-actions strong { color:var(--text); }
+    .settings-close,.settings-select,.settings-action,.settings-done {
+      border:1px solid var(--text);border-radius:0;color:var(--text);background:transparent;
+    }
+    .settings-action:hover,.settings-done:hover { color:var(--bg);background:var(--text); }
+    .settings-danger { border-color:var(--cyan);color:var(--cyan); }
+    .settings-footer { border-color:var(--line); }
+
+    .desktop-overlay {
+      color:#eeeae1;background-color:#171715;
+      background-image:linear-gradient(rgba(238,234,225,.055) 1px,transparent 1px),linear-gradient(90deg,rgba(238,234,225,.055) 1px,transparent 1px);
+      background-size:32px 32px;
+    }
+    .desktop-topbar,.desktop-dock { border-color:#55534d;background:#171715;backdrop-filter:none; }
+    .desktop-brand { color:#eeeae1; }
+    .desktop-brand small { color:#aaa398; }
+    .desktop-brand-mark { border:1px solid #eeeae1;border-radius:0;color:#171715;background:#eeeae1; }
+    .desktop-top-actions { color:#aaa398; }
+    .desktop-session-action,.desktop-close {
+      border:1px solid #777268;border-radius:0;color:#eeeae1;background:transparent;
+    }
+    .desktop-session-action:hover,.desktop-close:hover { color:#171715;background:#eeeae1; }
+    .desktop-shortcuts { grid-template-columns:repeat(2,100px); }
+    .desktop-icon { border:0;border-radius:0;color:#eeeae1; }
+    .desktop-icon:hover,.desktop-icon:focus-visible { border-color:#e46a54;background:rgba(238,234,225,.08); }
+    .desktop-icon-glyph { width:auto;height:auto;border:0;border-radius:0;color:#e46a54;background:none;box-shadow:none;font:32px var(--display); }
+    .desktop-icon-name { color:#eeeae1;font-size:8px;text-shadow:none; }
+    .desktop-window {
+      border:1px solid #eeeae1;border-radius:0;background:#eeeae1;color:#171715;
+      box-shadow:10px 10px 0 rgba(0,0,0,.38);
+    }
+    .window-titlebar { border-color:#171715;background:#171715; }
+    .window-title { color:#eeeae1;font-size:9px; }
+    .window-control { border:1px solid #68665f;border-radius:0;color:#eeeae1;background:transparent; }
+    .window-control:hover { border-color:#eeeae1;color:#e46a54; }
+    .window-content { color:#171715;background:#eeeae1; }
+    .window-frame { background:#fff; }
+    .window-preview { color:#171715;background:#eeeae1; }
+    .window-preview .eyebrow { color:var(--cyan); }
+    .window-preview h3 { color:#171715;font-family:var(--display);font-size:clamp(30px,5vw,56px);font-weight:400; }
+    .window-preview p { color:#5d5952; }
+    .window-launch { border:1px solid #171715;border-radius:0;color:#171715;background:transparent; }
+    .window-launch:hover { color:#eeeae1;background:#171715; }
+    .window-footer { border-color:#b9b3a8;color:#6d6a63;background:#e5e0d6; }
+    .window-lifecycle { color:#6d6a63; }
+    .desktop-history-panel { border:1px solid #eeeae1;border-radius:0;background:#171715;box-shadow:8px 8px 0 rgba(0,0,0,.35); }
+    .desktop-history-panel strong { color:#e46a54; }
+    .desktop-history-panel button { border:1px solid #55534d;border-radius:0;color:#eeeae1;background:transparent; }
+    .desktop-history-panel button:hover { border-color:#e46a54;color:#e46a54; }
+    .dock-home,.dock-task { border:1px solid #777268;border-radius:0;color:#eeeae1;background:transparent; }
+    .dock-task[aria-pressed="true"] { border-color:#e46a54;color:#e46a54;background:rgba(216,58,37,.12); }
+    .dock-indicator { color:#aaa398; }
+    .tray-panel { border:1px solid #171715;border-radius:0;color:#171715;background:var(--bg);box-shadow:8px 8px 0 rgba(0,0,0,.3); }
+    .tray-panel-head button,.tray-notice button,.quick-actions button { border:1px solid var(--line);border-radius:0;color:var(--text);background:transparent; }
+    .tray-notice { border-color:var(--line); }
+    .tray-notice p,.tray-notice time,.tray-empty,.tray-panel-status { color:var(--muted); }
+    .quick-tile { border:1px solid var(--line);border-radius:0;color:var(--text);background:transparent; }
+    .quick-tile[aria-pressed="true"] { border-color:var(--cyan);background:rgba(216,58,37,.06); }
+    .quick-tile small { color:var(--muted); }
+
+    .desktop-session-action:focus-visible,.tray-button:focus-visible { outline-color:#e46a54; }
+    .shell.is-compact .section { margin-top:44px; }
+    @media (max-width:900px) {
+      .shell { width:min(100% - 40px,1440px); }
+      .repo-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+      .repo-card:nth-child(3n) { border-right:1px solid var(--line);padding-left:0;padding-right:16px; }
+      .repo-card:nth-child(3n+2) { padding-left:16px; }
+      .repo-card:nth-child(2n) { border-right:0;padding-right:0; }
+    }
+    @media (max-width:620px) {
+      body { background-size:100% 28px; }
+      .shell { width:calc(100% - 32px);padding-top:16px; }
+      .topbar { align-items:flex-start; }
+      .brand-mark { width:32px;height:32px; }
+      .brand .eyebrow { max-width:165px;font-size:7px;line-height:1.5; }
+      .top-actions { gap:0; }
+      .utility-button { min-height:30px;padding:0 7px;font-size:7px; }
+      .utility-button kbd { display:none; }
+      .hero { grid-template-columns:1fr;gap:20px;padding:82px 0 28px; }
+      .hero::after { top:27px;left:0;right:auto;font-size:7px; }
+      h1 { font-size:clamp(66px,17vw,112px);line-height:.82; }
+      .intro { max-width:330px;font-size:20px; }
+      .section { margin-top:48px; }
+      .section-head { align-items:flex-start;flex-direction:column;gap:7px; }
+      .section-hint { text-align:left; }
+      .app-grid { grid-template-columns:1fr; }
+      .app-link,.app-link:nth-child(odd),.app-link:nth-child(even),.app-link:nth-child(1) {
+        grid-column:auto;min-height:0;padding:19px 0;border-right:0;border-bottom:1px solid var(--line);
+      }
+      .app-link:nth-child(1) .app-name { font-size:46px; }
+      .app-name { font-size:32px; }
+      .app-desc { font-size:15px; }
+      .pinned-grid { grid-template-columns:1fr; }
+      .pinned-card,.pinned-card:nth-child(3n) { border-right:0;border-bottom:1px solid var(--line); }
+      .repo-tools { flex-wrap:wrap; }
+      .repo-search { flex-basis:100%;border-bottom:1px solid var(--line); }
+      .repo-sort { flex:1;border-left:0; }
+      .repo-grid { grid-template-columns:1fr; }
+      .repo-card,.repo-card:nth-child(2n),.repo-card:nth-child(3n),.repo-card:nth-child(3n+2) {
+        min-height:120px;padding:15px 0;border-right:0;
+      }
+      .monitor-grid { grid-template-columns:1fr; }
+      .monitor-card,.monitor-card + .monitor-card { min-height:0;padding:13px 0;border-right:0;border-bottom:1px solid var(--line); }
+      .node-list { flex-direction:column; }
+      .node-list > div,.node-list > div + div { padding:13px 0;border-left:0; }
+      .node-list > div + div { border-top:1px solid var(--line); }
+      .activity-list li { grid-template-columns:1fr;gap:5px; }
+      .activity-list a { font-size:19px; }
+      .activity-controls { align-items:flex-start;flex-direction:column;gap:8px; }
+      .desktop-topbar { padding-inline:8px; }
+      .desktop-top-actions { gap:5px; }
+      .desktop-top-actions #desktop-clock { display:none; }
+      .desktop-session-action { padding-inline:6px;font-size:7px; }
+      .desktop-window { box-shadow:5px 5px 0 rgba(0,0,0,.38); }
+      .settings-panel { padding:17px; }
+    }
+    @media (prefers-reduced-motion:reduce) {
+      *,*::before,*::after { scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important; }
+    }
+
   </style>
 </head>
 <body>
@@ -349,7 +719,7 @@
       <div class="brand">
         <div class="brand-mark" aria-hidden="true">⌘</div>
         <div>
-          <p class="eyebrow">Independent developer // portfolio gateway</p>
+          <p class="eyebrow">Independent systems // Engineering index</p>
           <p class="brand-name">MK.SYSTEMS</p>
         </div>
       </div>
@@ -357,16 +727,16 @@
     </header>
 
     <section class="hero" aria-labelledby="page-title">
-      <div class="hero-kicker">Root access // 00</div>
+      <div class="hero-kicker">A working index / No. 001 / 2026</div>
       <h1 id="page-title">MICHAEL <span>KAGE</span></h1>
-      <p class="intro">A central launch point for production applications, engineering repositories, and development logs. Select a system below to establish a route.</p>
+      <p class="intro">The work lives elsewhere. This is where you get to it. Production apps, open repositories, and the trail of decisions behind them.</p>
     </section>
 
 
     <section class="section" aria-labelledby="apps-title">
       <div class="section-head">
-        <h2 class="section-label" id="apps-title">01 // Application routing</h2>
-        <span class="section-hint">Maintained stage + live GitHub activity · Press 1–6</span>
+        <h2 class="section-label" id="apps-title">01 / The work</h2>
+        <span class="section-hint">Six live destinations · Press 1–6</span>
       </div>
       <nav class="app-grid" aria-label="Application launcher">
         <a class="app-link" href="./campus-plug67/" data-shortcut="1" data-repo="michaelkage/campus-plug67">
@@ -453,8 +823,8 @@
 
     <section class="section" id="pinned-section" aria-labelledby="pinned-title">
       <div class="section-head">
-        <h2 class="section-label" id="pinned-title">02 // Pinned systems</h2>
-        <span class="section-hint" id="pinned-count">0 favourites · stored on this device</span>
+        <h2 class="section-label" id="pinned-title">02 / Your shortcuts</h2>
+        <span class="section-hint" id="pinned-count">Saved on this device</span>
       </div>
       <div class="pinned-grid" id="pinned-grid">
         <p class="repo-empty" id="pinned-empty">No pinned systems yet. Open the command palette with Ctrl + K and pin your regular destinations.</p>
@@ -463,8 +833,8 @@
 
     <section class="section" aria-labelledby="repos-title">
       <div class="section-head">
-        <h2 class="section-label" id="repos-title">04 // Public repository directory</h2>
-        <span class="section-hint">14 additional repositories · live GitHub telemetry</span>
+        <h2 class="section-label" id="repos-title">03 / The archive</h2>
+        <span class="section-hint">Source code, experiments, and unfinished business</span>
       </div>
       <div class="repo-tools">
         <label class="sr-only" for="repo-search">Filter public repositories</label>
@@ -570,7 +940,7 @@
 
     <section class="section" aria-labelledby="monitor-title">
       <div class="section-head">
-        <h2 class="section-label" id="monitor-title">02 // System monitor</h2>
+        <h2 class="section-label" id="monitor-title">04 / System status</h2>
         <span class="section-hint" id="monitor-checked">Waiting for diagnostics</span>
       </div>
       <div class="monitor-grid" aria-live="polite">
@@ -582,7 +952,7 @@
 
     <section class="section" aria-labelledby="nodes-title">
       <div class="section-head">
-        <h2 class="section-label" id="nodes-title">02 // Active network nodes</h2>
+        <h2 class="section-label" id="nodes-title">05 / Elsewhere</h2>
         <span class="section-hint">Public endpoints</span>
       </div>
       <div class="nodes">
@@ -601,8 +971,8 @@
 
     <section class="section" aria-labelledby="activity-title">
       <div class="section-head">
-        <h2 class="section-label" id="activity-title">03 // Recent public activity</h2>
-        <div class="activity-controls"><span class="section-hint" id="activity-updated">GitHub event feed</span><button class="activity-refresh" id="activity-refresh" type="button">Refresh feed</button></div>
+        <h2 class="section-label" id="activity-title">06 / The public record</h2>
+        <div class="activity-controls"><span class="section-hint" id="activity-updated">Recent changes from GitHub</span><button class="activity-refresh" id="activity-refresh" type="button">Check again</button></div>
       </div>
       <div class="activity-panel">
         <ul class="activity-list" id="activity-list" aria-live="polite">
