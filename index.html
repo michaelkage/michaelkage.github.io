@@ -1107,26 +1107,35 @@
         sessionStorage.setItem(SESSION_MARKER_KEY, "active");
       } catch (_) { /* Session recovery is optional when session storage is blocked. */ }
 
+      const readRecordBounds = (record, stage, origin) => {
+        if (!record.element.hidden && stage.clientWidth > 0 && stage.clientHeight > 0) {
+          const rect = record.element.getBoundingClientRect();
+          const bounds = {
+            left: Math.round(rect.left - origin.left),
+            top: Math.round(rect.top - origin.top),
+            width: Math.round(rect.width),
+            height: Math.round(rect.height)
+          };
+          if (validBounds(bounds)) {
+            record.lastBounds = bounds;
+            return bounds;
+          }
+        }
+        const previous = savedSession?.windows?.find(item => item.appId === record.app.id);
+        const legacy = savedWindowState[record.app.id] || savedWindowState[record.app.legacyId];
+        const fallback = record.lastBounds || previous?.bounds || (validBounds(legacy) ? legacy : null);
+        return validBounds(fallback) ? fallback : null;
+      };
       const captureWindowState = () => {
         const stage = document.getElementById("desktop-stage");
         const origin = stage.getBoundingClientRect();
         const windows = [];
         for (const [id, record] of openWindows) {
-          const rect = record.element.getBoundingClientRect();
           const previous = savedSession?.windows?.find(item => item.appId === id);
-          const legacy = savedWindowState[id] || savedWindowState[record.app.legacyId];
-          const bounds = stage.clientWidth > 0 && stage.clientHeight > 0
-            ? {
-                left: Math.round(rect.left - origin.left),
-                top: Math.round(rect.top - origin.top),
-                width: Math.round(rect.width),
-                height: Math.round(rect.height)
-              }
-            : (previous?.bounds || (validBounds(legacy) ? legacy : null));
           windows.push({
             appId: id,
             state: record.state,
-            bounds,
+            bounds: readRecordBounds(record, stage, origin),
             maximized: stage.clientWidth > 0 ? record.element.classList.contains("is-maximized") : Boolean(previous?.maximized),
             previousBounds: record.previousBounds || null,
             order: Number(record.element.style.zIndex || 0)
@@ -1141,19 +1150,15 @@
         };
       };
       const persistWindowState = () => {
-        const state = {};
-        const origin = document.getElementById("desktop-stage").getBoundingClientRect();
+        const state = { ...savedWindowState };
+        const stage = document.getElementById("desktop-stage");
+        const origin = stage.getBoundingClientRect();
         for (const [id, record] of openWindows) {
           if (record.element.classList.contains("is-maximized")) {
             state[id] = { maximized: true, previousBounds: record.previousBounds || null };
           } else {
-            const rect = record.element.getBoundingClientRect();
-            state[id] = {
-              left: Math.round(rect.left - origin.left),
-              top: Math.round(rect.top - origin.top),
-              width: Math.round(rect.width),
-              height: Math.round(rect.height)
-            };
+            const bounds = readRecordBounds(record, stage, origin);
+            if (bounds) state[id] = bounds;
           }
         }
         if (safeWrite(WINDOW_STATE_KEY, state)) savedWindowState = state;
@@ -1214,6 +1219,7 @@
           task.setAttribute("aria-pressed", String(id === focusedWindow && !record.element.hidden));
           task.addEventListener("click", () => {
             if (!record.element.hidden && focusedWindow === id) {
+              persistWindowState();
               record.element.hidden = true;
               setLifecycle(id, "minimized");
               focusTopVisibleWindow();
@@ -1443,6 +1449,7 @@
         }
         element.addEventListener("pointerdown", () => focusWindow(app.id));
         minimize.addEventListener("click", () => {
+          persistWindowState();
           element.hidden = true;
           setLifecycle(app.id, "minimized");
           if (focusedWindow === app.id) focusTopVisibleWindow();
@@ -1624,6 +1631,7 @@
       desktopOpen.addEventListener("click", openDesktop);
       desktopClose.addEventListener("click", closeDesktop);
       document.getElementById("dock-home").addEventListener("click", () => {
+        persistWindowState();
         for (const [id, record] of openWindows) {
           record.element.hidden = true;
           setLifecycle(id, "minimized");
