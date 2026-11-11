@@ -155,15 +155,18 @@ jobs:
           set -euo pipefail
           root="https://michaelkage.github.io"
           expected_cache_line=$(grep -F 'const CACHE_NAME = CACHE_PREFIX +' sw.js | head -n 1)
-          if [ -z "$expected_cache_line" ]; then
-            echo "Could not determine the expected service-worker cache version."
+          expected_index_sha=$(sha256sum index.html | cut -d ' ' -f 1)
+          if [ -z "$expected_cache_line" ] || [ -z "$expected_index_sha" ]; then
+            echo "Could not determine the expected root shell fingerprint."
             exit 1
           fi
           for attempt in $(seq 1 60); do
-            if curl --fail --silent --show-error --max-time 10 "$root/sw.js" -o /tmp/live-sw.js 2>/dev/null &&
+            if curl --fail --silent --show-error --max-time 10 "$root/" -o /tmp/live-index.html 2>/dev/null &&
+              [ "$(sha256sum /tmp/live-index.html | cut -d ' ' -f 1)" = "$expected_index_sha" ] &&
+              curl --fail --silent --show-error --max-time 10 "$root/sw.js" -o /tmp/live-sw.js 2>/dev/null &&
               grep -Fq "$expected_cache_line" /tmp/live-sw.js &&
               curl --fail --silent --show-error --max-time 10 "$root/manifest.webmanifest" -o /dev/null 2>/dev/null; then
-              echo "The deployed root shell matches the repository service-worker version."
+              echo "The deployed homepage matches the repository byte-for-byte and the service-worker version is current."
               exit 0
             fi
             echo "Waiting for GitHub Pages deployment ($attempt/60)..."
