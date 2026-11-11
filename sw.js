@@ -1,7 +1,7 @@
 "use strict";
 
 const CACHE_PREFIX = "mk-gateway-shell-";
-const CACHE_NAME = CACHE_PREFIX + "v2";
+const CACHE_NAME = CACHE_PREFIX + "v3";
 const SHELL_URLS = [
   "./",
   "./manifest.webmanifest",
