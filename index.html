@@ -1219,7 +1219,7 @@
               focusTopVisibleWindow();
             } else {
               record.element.hidden = false;
-              if (record.state === "minimized") setLifecycle(id, record.faulted ? "faulted" : "running");
+              if (record.state === "minimized") setLifecycle(id, record.faulted ? "faulted" : (record.app.local && !record.frame ? "created" : "running"));
               focusWindow(id);
             }
             updateDock();
@@ -1296,8 +1296,9 @@
         frame.addEventListener("load", () => {
           if (record.loadTimer) clearTimeout(record.loadTimer);
           record.loadTimer = null;
+          record.frameLoaded = true;
           record.faulted = false;
-          setLifecycle(record.app.id, "running");
+          setLifecycle(record.app.id, record.element.hidden ? "minimized" : "running");
           record.route.textContent = "SAME-ORIGIN LIVE PREVIEW";
           record.resumePanel?.remove();
           record.resumePanel = null;
@@ -1314,7 +1315,7 @@
         record.content.replaceChildren(frame);
         record.route.textContent = "CONNECTING TO APPLICATION…";
         record.loadTimer = setTimeout(() => {
-          if (!record.frame || record.frame !== frame || record.state !== "created") return;
+          if (!record.frame || record.frame !== frame || record.frameLoaded) return;
           record.faulted = true;
           setLifecycle(record.app.id, "faulted");
           record.route.textContent = "APPLICATION LOAD NOT CONFIRMED";
@@ -1337,8 +1338,10 @@
         retry.addEventListener("click", () => {
           record.frame?.remove();
           record.frame = null;
+          record.frameLoaded = false;
           record.faulted = false;
           record.state = "created";
+          appLifecycle.set(record.app.id, "created");
           record.content.replaceChildren();
           record.resumePanel = null;
           mountApplicationFrame(record);
@@ -1356,7 +1359,7 @@
         const existing = openWindows.get(app.id);
         if (existing) {
           existing.element.hidden = false;
-          if (existing.state === "minimized") setLifecycle(app.id, existing.faulted ? "faulted" : "running");
+          if (existing.state === "minimized") setLifecycle(app.id, existing.faulted ? "faulted" : (app.local && !existing.frame ? "created" : "running"));
           if (options.resume && app.local && !existing.frame) mountApplicationFrame(existing);
           focusWindow(app.id);
           updateDock();
@@ -1462,7 +1465,12 @@
             resume.type = "button";
             resume.className = "window-launch";
             resume.textContent = "Resume application";
-            resume.addEventListener("click", () => mountApplicationFrame(record));
+            resume.addEventListener("click", () => {
+              record.state = "created";
+              record.faulted = false;
+              appLifecycle.set(app.id, "created");
+              mountApplicationFrame(record);
+            });
             panel.append(eyebrow, heading, message, resume);
             content.append(panel);
             record.resumePanel = panel;
