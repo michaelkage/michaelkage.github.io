@@ -17,14 +17,14 @@ permissions:
   contents: read
 
 concurrency:
-  group: portfolio-link-health
+  group: gateway-link-health
   cancel-in-progress: true
 
 jobs:
   check-public-routes:
     name: Check public gateway routes
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 20
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -142,7 +142,7 @@ jobs:
               echo "The deployed root shell matches the repository service-worker version."
               exit 0
             fi
-            echo "Waiting for GitHub Pages deployment ($attempt/30)..."
+            echo "Waiting for GitHub Pages deployment ($attempt/60)..."
             sleep 10
           done
           echo "The current root shell was not published within 10 minutes."
@@ -182,22 +182,26 @@ jobs:
             "https://github.com/michaelkage/Vanguard"
           )
 
-          failures=0
-          for url in "${urls[@]}"; do
-            printf 'Checking %s ... ' "$url"
-            if status=$(curl --location --silent --show-error --fail \
-              --retry 2 --retry-delay 2 --max-time 25 \
-              --output /dev/null --write-out '%{http_code}' "$url"); then
-              printf 'HTTP %s\n' "$status"
+          results_file="$(mktemp)"
+          export results_file
+          printf '%s\\0' "${urls[@]}" | xargs -0 -P 8 -I '{}' bash -c '
+            url="$1"
+            if status=$(curl --location --silent --show-error --fail \\
+              --retry 2 --retry-delay 2 --max-time 20 \\
+              --output /dev/null --write-out "%{http_code}" "$url"); then
+              printf "OK %s %s\\n" "$status" "$url" >> "$results_file"
             else
-              printf 'FAILED\n'
-              failures=$((failures + 1))
+              printf "FAIL - %s\\n" "$url" >> "$results_file"
             fi
-          done
+          ' _ '{}'
+
+          sort "$results_file"
+          failures=$(grep -c '^FAIL ' "$results_file" || true)
+          rm -f "$results_file"
 
           if [ "$failures" -gt 0 ]; then
             printf '\n%s route(s) failed health checks.\n' "$failures"
             exit 1
           fi
 
-          printf '\nAll gateway routes are responding.\n'
+          printf '\nAll %s gateway routes are responding.\n' "${#urls[@]}"
