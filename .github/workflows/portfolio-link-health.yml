@@ -184,14 +184,14 @@ jobs:
 
           results_file="$(mktemp)"
           export results_file
-          printf '%s\\0' "${urls[@]}" | xargs -0 -P 8 -I '{}' bash -c '
+          printf '%s\0' "${urls[@]}" | xargs -0 -P 8 -I '{}' bash -c '
             url="$1"
-            if status=$(curl --location --silent --show-error --fail \\
-              --retry 2 --retry-delay 2 --max-time 20 \\
+            if status=$(curl --location --silent --show-error --fail \
+              --retry 2 --retry-delay 2 --max-time 20 \
               --output /dev/null --write-out "%{http_code}" "$url"); then
-              printf "OK %s %s\\n" "$status" "$url" >> "$results_file"
+              printf "OK %s %s\n" "$status" "$url" >> "$results_file"
             else
-              printf "FAIL - %s\\n" "$url" >> "$results_file"
+              printf "FAIL - %s\n" "$url" >> "$results_file"
             fi
           ' _ '{}'
 
