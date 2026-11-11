@@ -95,17 +95,33 @@ jobs:
           node --check sw.js
           node - <<'JS'
           const fs = require("node:fs");
+          const html = fs.readFileSync("index.html", "utf8");
           const manifest = JSON.parse(fs.readFileSync("manifest.webmanifest", "utf8"));
+          const icon = fs.readFileSync("icons/mk-system.svg", "utf8");
+          const sw = fs.readFileSync("sw.js", "utf8");
           if (manifest.start_url !== "./" || manifest.scope !== "./" || manifest.display !== "standalone") {
             throw new Error("Manifest must launch the root gateway in standalone mode.");
           }
           if (!Array.isArray(manifest.icons) || !manifest.icons.some(icon => icon.src === "./icons/mk-system.svg")) {
             throw new Error("Manifest is missing the MK.SYSTEMS application icon.");
           }
+          const metaTheme = html.match(/<meta name="theme-color" content="([^"]+)"/)?.[1];
+          if (!metaTheme || metaTheme !== manifest.theme_color || manifest.background_color !== manifest.theme_color) {
+            throw new Error("Browser theme, PWA theme, and PWA background colors must match.");
+          }
+          if (/linearGradient|radialGradient/.test(icon)) {
+            throw new Error("The editorial application icon must not contain gradients.");
+          }
+          for (const token of ["--bg: #eeeae1", "--text: #171715", "--cyan: #d83a25", "--display:"]) {
+            if (!html.includes(token)) throw new Error("Editorial design token missing: " + token);
+          }
+          if (!/CACHE_NAME\\s*=\\s*CACHE_PREFIX\\s*\\+\\s*"v3"/.test(sw)) {
+            throw new Error("The shell cache must be versioned for the current icon and manifest.");
+          }
           for (const file of ["sw.js", "icons/mk-system.svg"]) {
             if (!fs.existsSync(file)) throw new Error("Missing PWA asset: " + file);
           }
-          console.log("Manifest, service worker, and application icon are present.");
+          console.log("Manifest, matching theme colors, editorial tokens, flat icon, and versioned service worker are valid.");
           JS
 
       - name: Wait for the root shell deployment
