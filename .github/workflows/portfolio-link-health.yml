@@ -89,6 +89,30 @@ jobs:
           console.log("Stable app identity, session recovery, lifecycle states, and launch history are present.");
           JS
 
+      - name: Validate repository telemetry recovery
+        shell: bash
+        run: |
+          node - <<'JS'
+          const fs = require("node:fs");
+          const html = fs.readFileSync("index.html", "utf8");
+          const start = html.indexOf("<script>");
+          const end = html.indexOf("</script>", start);
+          const script = start >= 0 && end > start ? html.slice(start + 8, end) : "";
+          if (!html.includes('id="telemetry-refresh"')) {
+            throw new Error("Repository telemetry retry control is missing.");
+          }
+          if (!/telemetryRefresh\.addEventListener\("click",\s*loadRepositoryTelemetry\)/.test(script)) {
+            throw new Error("Repository telemetry retry control is not connected to its loader.");
+          }
+          if (!/telemetryRefresh\.disabled\s*=\s*false/.test(script)) {
+            throw new Error("Repository telemetry retry control is not re-enabled after requests.");
+          }
+          if (script.includes("retry on page refresh")) {
+            throw new Error("Obsolete full-page retry instruction remains in telemetry errors.");
+          }
+          console.log("Repository telemetry has a dedicated, recoverable retry path.");
+          JS
+
       - name: Validate installable offline shell
         shell: bash
         run: |
