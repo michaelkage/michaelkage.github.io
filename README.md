@@ -1,6 +1,6 @@
-# MK.SYSTEMS // Root Gateway
+# MK.SYSTEMS // System Gateway
 
-The root domain is the central launcher for production applications, public repositories, and engineering activity.
+The root domain is the central launcher for production applications, public repositories, and engineering activity. Its visual system follows an editorial Swiss direction: warm paper, near-black ink, restrained vermilion, expressive serif display type, and precise monospace utility text.
 
 **Live:** https://michaelkage.github.io/
 
@@ -87,6 +87,12 @@ Clearing browser storage resets these local preferences. It does not change depl
 ├── sw.js
 └── README.md
 ```
+
+## Visual system and typography
+
+The interface uses Newsreader for display typography and IBM Plex Mono for utility text. Both are loaded from Google Fonts with local serif and monospace fallbacks. The core gateway remains dependency-free and runs as static HTML, CSS, and JavaScript.
+
+The PWA manifest, browser theme color, and maskable SVG icon share the same paper-and-ink palette as the live interface. The desktop workspace intentionally uses a dark, high-contrast counterpart to distinguish the working environment from the editorial launcher.
 
 ## Validation and deployment
 
