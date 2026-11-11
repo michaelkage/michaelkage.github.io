@@ -76,7 +76,9 @@ jobs:
           node - <<'JS'
           const fs = require("node:fs");
           const html = fs.readFileSync("index.html", "utf8");
-          const script = html.match(/<script\\b[^>]*>([\\s\\S]*?)<\\/script>/i)?.[1];
+          const scriptStart = html.indexOf("<script>");
+          const scriptEnd = html.indexOf("</script>", scriptStart);
+          const script = scriptStart >= 0 && scriptEnd > scriptStart ? html.slice(scriptStart + 8, scriptEnd) : "";
           if (!script) throw new Error("Inline application script not found.");
           for (const token of ["mk.system.session.v1", "mk.system.launch-history.v1", "restoreSession", "stableAppId", "faulted", "minimized"]) {
             if (!script.includes(token)) throw new Error("Lifecycle feature missing: " + token);
