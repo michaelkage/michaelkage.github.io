@@ -96,7 +96,7 @@ The PWA manifest, browser theme color, and maskable SVG icon share the same pape
 
 ## Validation and deployment
 
-GitHub Pages publishes the root gateway through its managed deployment workflow. Source pushes trigger structural and JavaScript validation, then wait up to ten minutes for the deployed service-worker version to match the repository before checking public routes. Public route checks run in parallel with bounded retries. The workflow has a twenty-minute job ceiling to accommodate GitHub Pages deployment delays. Scheduled and manual runs also check public routes.
+GitHub Pages publishes the root gateway through its managed deployment workflow. Source pushes trigger structural and JavaScript validation, then wait up to ten minutes for the deployed homepage to match the repository byte-for-byte and the service-worker version to match before checking public routes. Public route checks run in parallel with bounded retries. The workflow has a twenty-minute job ceiling to accommodate GitHub Pages deployment delays. Scheduled and manual runs also check public routes.
 
 The workflow validates:
 - HTML structure and unique element IDs.
