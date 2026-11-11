@@ -70,6 +70,23 @@ jobs:
           PY
           node --check /tmp/portfolio-inline.js
 
+      - name: Validate application lifecycle manager
+        shell: bash
+        run: |
+          node - <<'JS'
+          const fs = require("node:fs");
+          const html = fs.readFileSync("index.html", "utf8");
+          const script = html.match(/<script\\b[^>]*>([\\s\\S]*?)<\\/script>/i)?.[1];
+          if (!script) throw new Error("Inline application script not found.");
+          for (const token of ["mk.system.session.v1", "mk.system.launch-history.v1", "restoreSession", "stableAppId", "faulted", "minimized"]) {
+            if (!script.includes(token)) throw new Error("Lifecycle feature missing: " + token);
+          }
+          for (const id of ["desktop-restore-session", "desktop-history-toggle"]) {
+            if (!html.includes('id="' + id + '"')) throw new Error("Missing lifecycle control: " + id);
+          }
+          console.log("Stable app identity, session recovery, lifecycle states, and launch history are present.");
+          JS
+
       - name: Validate installable offline shell
         shell: bash
         run: |
