@@ -2173,7 +2173,7 @@
               : "GitHub telemetry unavailable";
           for (const card of repoCards) {
             const target = card.querySelector("[data-repo-meta]");
-            target.textContent = reason + " · retry on page refresh";
+            target.textContent = reason + " · use Refresh telemetry to try again";
             target.dataset.state = "error";
           }
         } finally {
