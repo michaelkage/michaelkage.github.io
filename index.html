@@ -1550,11 +1550,14 @@
           if (record && item.state === "minimized") {
             record.element.hidden = true;
             record.state = "minimized";
+            record.status.textContent = "MINIMIZED";
+            record.element.dataset.lifecycle = "minimized";
             appLifecycle.set(app.id, "minimized");
           } else if (record && item.state === "faulted") {
             record.state = "faulted";
             record.faulted = true;
             record.status.textContent = "FAULTED";
+            record.element.dataset.lifecycle = "faulted";
             appLifecycle.set(app.id, "faulted");
           }
         }
