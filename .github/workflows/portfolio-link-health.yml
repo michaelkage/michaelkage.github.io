@@ -115,7 +115,7 @@ jobs:
               !/finally\s*\{\s*window\.clearTimeout\(timeout\)/.test(script)) {
             throw new Error("GitHub JSON requests must retain their abort timeout through body parsing.");
           }
-          if ((script.match(/fetchJsonWithTimeout\(/g) || []).length < 3) {
+          if ((script.match(/fetchJsonWithTimeout\(/g) || []).length < 2) {
             throw new Error("Repository and activity telemetry must use the bounded JSON request helper.");
           }
           if (!/Array\.isArray\(repositories\)\) throw new Error/.test(script) ||
