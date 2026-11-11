@@ -110,7 +110,19 @@ jobs:
           if (script.includes("retry on page refresh")) {
             throw new Error("Obsolete full-page retry instruction remains in telemetry errors.");
           }
-          console.log("Repository telemetry has a dedicated, recoverable retry path.");
+          if (!/const fetchJsonWithTimeout = async/.test(script) ||
+              !/await response\.json\(\)/.test(script) ||
+              !/finally\s*\{\s*window\.clearTimeout\(timeout\)/.test(script)) {
+            throw new Error("GitHub JSON requests must retain their abort timeout through body parsing.");
+          }
+          if ((script.match(/fetchJsonWithTimeout\(/g) || []).length < 3) {
+            throw new Error("Repository and activity telemetry must use the bounded JSON request helper.");
+          }
+          if (!/Array\.isArray\(repositories\)\) throw new Error/.test(script) ||
+              !/Array\.isArray\(events\)\) throw new Error/.test(script)) {
+            throw new Error("Telemetry payloads must be validated before being marked healthy.");
+          }
+          console.log("Repository telemetry retry and end-to-end JSON timeout behavior are present.");
           JS
 
       - name: Validate installable offline shell
