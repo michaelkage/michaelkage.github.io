@@ -1079,6 +1079,11 @@
       if (rawSession && rawSession.version === 1 && Number.isFinite(rawSession.updatedAt) &&
           Array.isArray(rawSession.windows) && rawSession.windows.length <= appDefinitions.length) {
         savedSession = rawSession;
+        if (rawSession.appStates && typeof rawSession.appStates === "object" && !Array.isArray(rawSession.appStates)) {
+          for (const [id, state] of Object.entries(rawSession.appStates)) {
+            if (appsById.has(id) && ["created", "running", "minimized", "closed", "faulted"].includes(state)) appLifecycle.set(id, state);
+          }
+        }
         for (const item of rawSession.windows) {
           if (item && typeof item.appId === "string" && appsById.has(item.appId) &&
               ["created", "running", "minimized", "faulted"].includes(item.state)) {
@@ -1108,17 +1113,21 @@
         const windows = [];
         for (const [id, record] of openWindows) {
           const rect = record.element.getBoundingClientRect();
-          const bounds = {
-            left: Math.round(rect.left - origin.left),
-            top: Math.round(rect.top - origin.top),
-            width: Math.round(rect.width),
-            height: Math.round(rect.height)
-          };
+          const previous = savedSession?.windows?.find(item => item.appId === id);
+          const legacy = savedWindowState[id] || savedWindowState[record.app.legacyId];
+          const bounds = stage.clientWidth > 0 && stage.clientHeight > 0
+            ? {
+                left: Math.round(rect.left - origin.left),
+                top: Math.round(rect.top - origin.top),
+                width: Math.round(rect.width),
+                height: Math.round(rect.height)
+              }
+            : (previous?.bounds || (validBounds(legacy) ? legacy : null));
           windows.push({
             appId: id,
             state: record.state,
             bounds,
-            maximized: record.element.classList.contains("is-maximized"),
+            maximized: stage.clientWidth > 0 ? record.element.classList.contains("is-maximized") : Boolean(previous?.maximized),
             previousBounds: record.previousBounds || null,
             order: Number(record.element.style.zIndex || 0)
           });
@@ -1488,7 +1497,7 @@
         status.textContent = record.state.toUpperCase();
         element.dataset.lifecycle = record.state;
         focusWindow(app.id);
-        recordLaunch(app, record.state);
+        if (!options.restoring) recordLaunch(app, record.state);
         persistWindowState();
         updateDock();
         return record;
@@ -1523,6 +1532,7 @@
           if (!app || openWindows.has(app.id)) continue;
           createWindow(app, {
             deferFrame: app.local,
+            restoring: true,
             bounds: item.bounds,
             maximized: item.maximized,
             previousBounds: item.previousBounds,
