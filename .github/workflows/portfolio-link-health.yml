@@ -122,7 +122,25 @@ jobs:
               !/Array\.isArray\(events\)\) throw new Error/.test(script)) {
             throw new Error("Telemetry payloads must be validated before being marked healthy.");
           }
-          console.log("Repository telemetry retry and end-to-end JSON timeout behavior are present.");
+          if (!script.includes('"Updated branch "') || !script.includes('"Pushed changes"') ||
+              !script.includes('distinct_size') || !script.includes('" pushes"')) {
+            throw new Error("Push events must handle missing commit metadata and collapse duplicate branch updates.");
+          }
+          const formatterStart = script.indexOf("const describeEvent =");
+          const formatterEnd = script.indexOf("const loadRecentActivity", formatterStart);
+          if (formatterStart < 0 || formatterEnd < 0) throw new Error("Activity event formatter is missing.");
+          const formatter = script.slice(formatterStart, formatterEnd);
+          const vm = require("node:vm");
+          const cases = [
+            [{ type: "PushEvent", payload: { size: 0, distinct_size: 0, ref: "refs/heads/main" } }, "Updated branch main"],
+            [{ type: "PushEvent", payload: { size: 2, ref: "refs/heads/fix/api" } }, "Pushed 2 commits to fix/api"],
+            [{ type: "PushEvent", payload: { commits: [{ message: "Fix telemetry\\n\\nDetails" }] } }, "Fix telemetry"]
+          ];
+          for (const [event, expected] of cases) {
+            const actual = vm.runInNewContext(formatter + "; describeEvent(" + JSON.stringify(event) + ")");
+            if (actual !== expected) throw new Error("Push event formatter mismatch: " + actual + " !== " + expected);
+          }
+          console.log("Repository telemetry retry, JSON timeout, and push-event formatting are present.");
           JS
 
       - name: Validate installable offline shell
