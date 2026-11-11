@@ -2094,6 +2094,21 @@
           window.clearTimeout(timeout);
         }
       };
+      const fetchJsonWithTimeout = async (url, timeoutMs = 8000) => {
+        const controller = new AbortController();
+        const timeout = window.setTimeout(() => controller.abort(), timeoutMs);
+        try {
+          const response = await fetch(url, {
+            signal: controller.signal,
+            headers: { Accept: "application/vnd.github+json" },
+          });
+          if (!response.ok) throw new Error("GitHub API " + response.status);
+          const data = await response.json();
+          return { response, data };
+        } finally {
+          window.clearTimeout(timeout);
+        }
+      };
 
 
       const monitorStates=new Map();
@@ -2141,11 +2156,10 @@
         telemetryRefresh.disabled = true;
         telemetryRefresh.textContent = "Refreshing…";
         try {
-          const response = await fetchWithTimeout("https://api.github.com/users/michaelkage/repos?per_page=100&type=public");
-          if (!response.ok) throw new Error("GitHub repositories API " + response.status);
-          const repositories = await response.json();
+          const { response, data: repositories } = await fetchJsonWithTimeout("https://api.github.com/users/michaelkage/repos?per_page=100&type=public");
+          if (!Array.isArray(repositories)) throw new Error("Unexpected GitHub repositories response");
           setMonitor("api", "online", repositories.length + " public repositories returned · HTTP " + response.status);
-          const byName = new Map(repositories.map((repo) => [repo.full_name.toLowerCase(), repo]));
+          const byName = new Map(repositories.filter(repo => repo && typeof repo.full_name === "string").map((repo) => [repo.full_name.toLowerCase(), repo]));
           for (const card of repoCards) {
             const target = card.querySelector("[data-repo-meta]");
             const repository = byName.get(card.dataset.repo.toLowerCase());
@@ -2237,11 +2251,9 @@
           // Fetch a wider event window before filtering. The previous per_page=8
           // request often contained only WatchEvent/ForkEvent noise and hid
           // useful activity that appeared immediately after those events.
-          const response = await fetchWithTimeout("https://api.github.com/users/michaelkage/events/public?per_page=100");
-          if (!response.ok) throw new Error("GitHub events API " + response.status);
-          const events = await response.json();
-          setMonitor("activity", "online", events.length + " recent public events returned · HTTP " + response.status);
+          const { response, data: events } = await fetchJsonWithTimeout("https://api.github.com/users/michaelkage/events/public?per_page=100");
           if (!Array.isArray(events)) throw new Error("Unexpected GitHub events response");
+          setMonitor("activity", "online", events.length + " recent public events returned · HTTP " + response.status);
           const relevant = events
             .map((event) => ({ event, description: describeEvent(event) }))
             .filter((entry) => entry.description)
