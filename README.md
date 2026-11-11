@@ -26,7 +26,9 @@ The root gateway links to the public repository directory and keeps manually mai
 - System monitor for GitHub API, activity feed, and production-route reachability.
 - Desktop environment with live same-origin previews for Campus Plug and OmniPocket.
 - Window controls: drag, resize, minimize, maximize, restore, and close.
-- Locally pinned systems and persisted window geometry.
+- Locally pinned systems, persisted window geometry, and stable per-application identities.
+- Application lifecycle tracking (created, running, minimized, closed, faulted), crash recovery, and coordinated window restoration.
+- Bounded recent-launch history with one-click relaunch; restored embedded apps wait for an explicit resume action.
 - Settings for compact layout and reduced motion.
 - System tray with health state, persistent notifications, and quick settings.
 - Installable/offline-ready root shell where browser support permits.
@@ -65,6 +67,9 @@ The gateway stores preferences in the current browser profile. These values are 
 | `mk.system.pinned.v1` | Pinned application and repository links |
 | `mk.system.notifications.v1` | Recent system notifications and read state |
 | `mk.system.windows.v1` | Per-application window geometry |
+| `mk.system.session.v1` | Last desktop session, lifecycle states, focus, and window layout |
+| `mk.system.session.marker.v1` (session storage) | Detects an interrupted tab session for crash recovery |
+| `mk.system.launch-history.v1` | Last 30 application launches |
 
 Clearing browser storage resets these local preferences. It does not change deployed application data.
 
