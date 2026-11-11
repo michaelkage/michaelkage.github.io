@@ -166,6 +166,19 @@
     .desktop-brand small { display:block; margin-top:3px; color:#72839c; font-size:7px; font-weight:400; }
     .desktop-brand-mark { display:grid; width:27px; height:27px; place-items:center; border:1px solid rgba(0,229,255,.5); border-radius:7px; color:var(--cyan); background:rgba(0,229,255,.08); font-size:9px; }
     .desktop-top-actions { color:#8495ad; font-size:8px; letter-spacing:.12em; }
+    .desktop-session-action { min-height:27px; padding:0 9px; border:1px solid rgba(0,229,255,.25); border-radius:6px; color:var(--cyan); background:rgba(0,229,255,.06); font:inherit; font-size:8px; cursor:pointer; letter-spacing:.04em; }
+    .desktop-session-action[hidden] { display:none; }
+    .desktop-history-panel { position:absolute; z-index:40; top:8px; right:10px; display:grid; gap:7px; width:min(270px,calc(100% - 20px)); padding:12px; border:1px solid rgba(0,229,255,.28); border-radius:10px; background:rgba(8,15,27,.97); box-shadow:0 18px 55px rgba(0,0,0,.5); }
+    .desktop-history-panel[hidden] { display:none; }
+    .desktop-history-panel strong { color:var(--cyan); font-size:9px; letter-spacing:.12em; }
+    .desktop-history-panel p { margin:4px 0; color:var(--muted); font-size:9px; }
+    .desktop-history-panel button { padding:8px; border:1px solid rgba(125,151,183,.16); border-radius:6px; color:#dce8f7; background:rgba(255,255,255,.03); font:inherit; font-size:9px; text-align:left; cursor:pointer; }
+    .desktop-history-panel button:hover { border-color:rgba(0,229,255,.4); color:var(--cyan); }
+    .window-lifecycle { color:#7f91aa; font-size:7px; letter-spacing:.1em; white-space:nowrap; }
+    .desktop-window[data-lifecycle="faulted"] { border-color:rgba(255,120,120,.5); }
+    .desktop-window[data-lifecycle="faulted"] .window-lifecycle { color:#ff9b9b; }
+    .window-recovery { align-items:flex-start; }
+
     .desktop-close { width:29px; height:29px; border:1px solid rgba(255,255,255,.13); border-radius:7px; color:#aab8ca; background:rgba(255,255,255,.04); font-size:18px; cursor:pointer; }
     .desktop-stage { position:relative; flex:1; min-height:0; overflow:hidden; }
     .desktop-shortcuts { position:absolute; z-index:1; top:17px; left:17px; display:grid; grid-template-columns:repeat(2,82px); align-content:start; gap:10px; }
@@ -643,7 +656,7 @@
   <section class="desktop-overlay" id="desktop-overlay" role="dialog" aria-modal="true" aria-label="MK Systems desktop environment" tabindex="-1" hidden>
     <header class="desktop-topbar">
       <div class="desktop-brand"><span class="desktop-brand-mark">MK</span><span>MK.SYSTEMS <small>DESKTOP ENVIRONMENT</small></span></div>
-      <div class="desktop-top-actions"><span id="desktop-clock" aria-live="off">LOCAL SESSION</span><button class="desktop-close" id="desktop-close" type="button" aria-label="Close desktop">×</button></div>
+      <div class="desktop-top-actions"><span id="desktop-clock" aria-live="off">LOCAL SESSION</span><button class="desktop-session-action" id="desktop-restore-session" type="button" hidden>Restore session</button><button class="desktop-session-action" id="desktop-history-toggle" type="button" aria-expanded="false">Recent</button><button class="desktop-close" id="desktop-close" type="button" aria-label="Close desktop">×</button></div>
     </header>
     <div class="desktop-stage" id="desktop-stage">
       <nav class="desktop-shortcuts" id="desktop-shortcuts" aria-label="Desktop applications"></nav>
@@ -1011,8 +1024,17 @@
       const dockRunning = document.getElementById("dock-running");
       const dockIndicator = document.getElementById("dock-indicator");
       const desktopClock = document.getElementById("desktop-clock");
+      const stableAppId = (href) => {
+        const url = new URL(href, window.location.href);
+        const identity = (url.hostname + url.pathname).toLowerCase()
+          .replace(/\/+$/, "")
+          .replace(/[^a-z0-9]+/g, "-")
+          .replace(/^-|-$/g, "");
+        return "app-" + (identity || "root");
+      };
       const appDefinitions = [...document.querySelectorAll(".app-link")].map((element, index) => ({
-        id: "app-" + index,
+        id: stableAppId(element.href),
+        legacyId: "app-" + index,
         name: element.querySelector(".app-name")?.textContent.trim() || "Application",
         description: element.querySelector(".app-desc")?.textContent.trim() || "",
         stage: element.querySelector(".stage-label")?.textContent.trim() || "APPLICATION",
@@ -1020,19 +1042,139 @@
         local: element.origin === window.location.origin,
         element
       }));
+      const appsById = new Map(appDefinitions.map(app => [app.id, app]));
       const openWindows = new Map();
+      const appLifecycle = new Map(appDefinitions.map(app => [app.id, "closed"]));
       let focusedWindow = null;
       let windowLayer = 10;
       const WINDOW_STATE_KEY = "mk.system.windows.v1";
+      const SESSION_KEY = "mk.system.session.v1";
+      const SESSION_MARKER_KEY = "mk.system.session.marker.v1";
+      const HISTORY_KEY = "mk.system.launch-history.v1";
+      const HISTORY_LIMIT = 30;
+      const SESSION_MAX_AGE = 24 * 60 * 60 * 1000;
       let savedWindowState = {};
-      try { const value=JSON.parse(localStorage.getItem(WINDOW_STATE_KEY)||"{}"); if(value&&typeof value==="object"&&!Array.isArray(value))savedWindowState=value; } catch (_) {}
-      const persistWindowState = () => {
-        const state={},origin=document.getElementById("desktop-stage").getBoundingClientRect();
-        for(const [id,record] of openWindows){
-          if(record.element.classList.contains("is-maximized"))state[id]={maximized:true,previousBounds:record.previousBounds||null};
-          else {const r=record.element.getBoundingClientRect();state[id]={left:Math.round(r.left-origin.left),top:Math.round(r.top-origin.top),width:Math.round(r.width),height:Math.round(r.height)};}
+      let savedSession = null;
+      let launchHistory = [];
+      let recoveryAvailable = false;
+      let recoveryNotice = null;
+      const safeRead = (key, fallback) => {
+        try {
+          const value = JSON.parse(localStorage.getItem(key) || "null");
+          return value === null ? fallback : value;
+        } catch (_) { return fallback; }
+      };
+      const safeWrite = (key, value) => {
+        try { localStorage.setItem(key, JSON.stringify(value)); return true; }
+        catch (_) { return false; }
+      };
+      const validBounds = (bounds) => bounds && ["left", "top", "width", "height"].every(key =>
+        Number.isFinite(Number(bounds[key])) && Math.abs(Number(bounds[key])) <= 10000
+      ) && Number(bounds.width) >= 300 && Number(bounds.height) >= 210;
+      const rawWindowState = safeRead(WINDOW_STATE_KEY, {});
+      if (rawWindowState && typeof rawWindowState === "object" && !Array.isArray(rawWindowState)) {
+        savedWindowState = rawWindowState;
+      }
+      const rawSession = safeRead(SESSION_KEY, null);
+      if (rawSession && rawSession.version === 1 && Number.isFinite(rawSession.updatedAt) &&
+          Array.isArray(rawSession.windows) && rawSession.windows.length <= appDefinitions.length) {
+        savedSession = rawSession;
+        for (const item of rawSession.windows) {
+          if (item && typeof item.appId === "string" && appsById.has(item.appId) &&
+              ["created", "running", "minimized", "faulted"].includes(item.state)) {
+            appLifecycle.set(item.appId, item.state);
+          }
         }
-        try{localStorage.setItem(WINDOW_STATE_KEY,JSON.stringify(state));savedWindowState=state;}catch(_){}
+      }
+      const rawHistory = safeRead(HISTORY_KEY, []);
+      if (Array.isArray(rawHistory)) {
+        launchHistory = rawHistory.filter(item => item && typeof item.appId === "string" &&
+          appsById.has(item.appId) && typeof item.name === "string" &&
+          Number.isFinite(item.launchedAt) && item.launchedAt > 0 &&
+          typeof item.href === "string").slice(0, HISTORY_LIMIT);
+      }
+      try {
+        const previousMarker = sessionStorage.getItem(SESSION_MARKER_KEY);
+        recoveryAvailable = previousMarker === "active" && Boolean(savedSession) &&
+          Date.now() - savedSession.updatedAt <= SESSION_MAX_AGE &&
+          savedSession.windows.some(item => item && ["running", "minimized", "faulted"].includes(item.state));
+        if (recoveryAvailable) recoveryNotice = "An interrupted desktop session was found. Restore it from the desktop toolbar.";
+        sessionStorage.setItem(SESSION_MARKER_KEY, "active");
+      } catch (_) { /* Session recovery is optional when session storage is blocked. */ }
+
+      const captureWindowState = () => {
+        const stage = document.getElementById("desktop-stage");
+        const origin = stage.getBoundingClientRect();
+        const windows = [];
+        for (const [id, record] of openWindows) {
+          const rect = record.element.getBoundingClientRect();
+          const bounds = {
+            left: Math.round(rect.left - origin.left),
+            top: Math.round(rect.top - origin.top),
+            width: Math.round(rect.width),
+            height: Math.round(rect.height)
+          };
+          windows.push({
+            appId: id,
+            state: record.state,
+            bounds,
+            maximized: record.element.classList.contains("is-maximized"),
+            previousBounds: record.previousBounds || null,
+            order: Number(record.element.style.zIndex || 0)
+          });
+        }
+        return {
+          version: 1,
+          updatedAt: Date.now(),
+          focusedAppId: focusedWindow,
+          appStates: Object.fromEntries(appLifecycle),
+          windows
+        };
+      };
+      const persistWindowState = () => {
+        const state = {};
+        const origin = document.getElementById("desktop-stage").getBoundingClientRect();
+        for (const [id, record] of openWindows) {
+          if (record.element.classList.contains("is-maximized")) {
+            state[id] = { maximized: true, previousBounds: record.previousBounds || null };
+          } else {
+            const rect = record.element.getBoundingClientRect();
+            state[id] = {
+              left: Math.round(rect.left - origin.left),
+              top: Math.round(rect.top - origin.top),
+              width: Math.round(rect.width),
+              height: Math.round(rect.height)
+            };
+          }
+        }
+        if (safeWrite(WINDOW_STATE_KEY, state)) savedWindowState = state;
+        const session = captureWindowState();
+        if (safeWrite(SESSION_KEY, session)) savedSession = session;
+      };
+      const persistHistory = () => safeWrite(HISTORY_KEY, launchHistory.slice(0, HISTORY_LIMIT));
+      const recordLaunch = (app, state) => {
+        const entry = {
+          appId: app.id,
+          name: app.name.slice(0, 100),
+          href: app.href,
+          launchedAt: Date.now(),
+          state: state || "running"
+        };
+        launchHistory.unshift(entry);
+        launchHistory = launchHistory.slice(0, HISTORY_LIMIT);
+        persistHistory();
+      };
+      const setLifecycle = (id, state) => {
+        if (!appsById.has(id)) return;
+        appLifecycle.set(id, state);
+        const record = openWindows.get(id);
+        if (record) {
+          record.state = state;
+          record.status.textContent = state.toUpperCase();
+          record.element.dataset.lifecycle = state;
+        }
+        persistWindowState();
+        updateDock();
       };
       const focusWindow = (id) => {
         const record = openWindows.get(id);
@@ -1042,13 +1184,14 @@
         for (const [windowId, entry] of openWindows) {
           if (entry.task) entry.task.setAttribute("aria-pressed", String(windowId === id && !entry.element.hidden));
         }
+        persistWindowState();
       };
       const focusTopVisibleWindow = () => {
         const visible = [...openWindows.entries()]
           .filter(([, entry]) => !entry.element.hidden)
           .sort((a, b) => Number(a[1].element.style.zIndex || 0) - Number(b[1].element.style.zIndex || 0));
         if (visible.length) focusWindow(visible[visible.length - 1][0]);
-        else focusedWindow = null;
+        else { focusedWindow = null; persistWindowState(); }
       };
       const updateDock = () => {
         dockRunning.replaceChildren();
@@ -1058,15 +1201,16 @@
           task.type = "button";
           task.className = "dock-task";
           task.textContent = record.app.name;
-          task.title = record.app.name;
+          task.title = record.app.name + " · " + record.state;
           task.setAttribute("aria-pressed", String(id === focusedWindow && !record.element.hidden));
           task.addEventListener("click", () => {
             if (!record.element.hidden && focusedWindow === id) {
               record.element.hidden = true;
+              setLifecycle(id, "minimized");
               focusTopVisibleWindow();
-              task.setAttribute("aria-pressed", "false");
             } else {
               record.element.hidden = false;
+              if (record.state === "minimized") setLifecycle(id, record.faulted ? "faulted" : "running");
               focusWindow(id);
             }
             updateDock();
@@ -1075,13 +1219,19 @@
           dockRunning.append(task);
           if (!record.element.hidden) visible++;
         }
-        dockIndicator.textContent = visible + " ACTIVE / " + openWindows.size + " WINDOWS";
+        const faulted = [...openWindows.values()].filter(record => record.state === "faulted").length;
+        dockIndicator.textContent = visible + " ACTIVE / " + openWindows.size + " WINDOWS" + (faulted ? " / " + faulted + " FAULTED" : "");
       };
       const closeWindow = (id) => {
         const record = openWindows.get(id);
         if (!record) return;
         record.resizeObserver?.disconnect();
-        record.element.remove();record.task?.remove();openWindows.delete(id);persistWindowState();
+        if (record.loadTimer) clearTimeout(record.loadTimer);
+        record.element.remove();
+        record.task?.remove();
+        openWindows.delete(id);
+        appLifecycle.set(id, "closed");
+        persistWindowState();
         if (focusedWindow === id) focusedWindow = null;
         focusTopVisibleWindow();
         updateDock();
@@ -1117,10 +1267,8 @@
           const stageRect = document.getElementById("desktop-stage").getBoundingClientRect();
           const maxLeft = Math.max(0, stageRect.width - record.element.offsetWidth);
           const maxTop = Math.max(0, stageRect.height - record.element.offsetHeight);
-          const nextLeft = Math.min(maxLeft, Math.max(0, drag.left + event.clientX - drag.x));
-          const nextTop = Math.min(maxTop, Math.max(0, drag.top + event.clientY - drag.y));
-          record.element.style.left = nextLeft + "px";
-          record.element.style.top = nextTop + "px";
+          record.element.style.left = Math.min(maxLeft, Math.max(0, drag.left + event.clientX - drag.x)) + "px";
+          record.element.style.top = Math.min(maxTop, Math.max(0, drag.top + event.clientY - drag.y)) + "px";
           record.element.style.transform = "none";
         });
         const stopDrag = (event) => {
@@ -1129,14 +1277,83 @@
         titlebar.addEventListener("pointerup", stopDrag);
         titlebar.addEventListener("pointercancel", stopDrag);
       };
-      const createWindow = (app) => {
+      const mountApplicationFrame = (record) => {
+        if (!record.app.local || record.frame) return;
+        const frame = document.createElement("iframe");
+        frame.className = "window-frame";
+        frame.title = record.app.name + " live application preview";
+        frame.loading = "eager";
+        frame.referrerPolicy = "same-origin";
+        frame.addEventListener("load", () => {
+          if (record.loadTimer) clearTimeout(record.loadTimer);
+          record.loadTimer = null;
+          record.faulted = false;
+          setLifecycle(record.app.id, "running");
+          record.route.textContent = "SAME-ORIGIN LIVE PREVIEW";
+          record.resumePanel?.remove();
+          record.resumePanel = null;
+        }, { once: true });
+        frame.addEventListener("error", () => {
+          if (record.loadTimer) clearTimeout(record.loadTimer);
+          record.loadTimer = null;
+          record.faulted = true;
+          setLifecycle(record.app.id, "faulted");
+          record.route.textContent = "APPLICATION FRAME FAILED";
+          showFrameRecovery(record);
+        });
+        record.frame = frame;
+        record.content.replaceChildren(frame);
+        record.route.textContent = "CONNECTING TO APPLICATION…";
+        record.loadTimer = setTimeout(() => {
+          if (!record.frame || record.frame !== frame || record.state !== "created") return;
+          record.faulted = true;
+          setLifecycle(record.app.id, "faulted");
+          record.route.textContent = "APPLICATION LOAD NOT CONFIRMED";
+          showFrameRecovery(record);
+        }, 15000);
+        frame.src = record.app.href;
+      };
+      const showFrameRecovery = (record) => {
+        if (record.resumePanel) return;
+        const panel = document.createElement("div");
+        panel.className = "window-preview window-recovery";
+        const heading = document.createElement("h3");
+        heading.textContent = "Application did not load";
+        const message = document.createElement("p");
+        message.textContent = "The gateway could not confirm that this embedded application loaded. The production route remains available separately.";
+        const retry = document.createElement("button");
+        retry.type = "button";
+        retry.className = "window-launch";
+        retry.textContent = "Retry application";
+        retry.addEventListener("click", () => {
+          record.frame?.remove();
+          record.frame = null;
+          record.faulted = false;
+          record.state = "created";
+          record.content.replaceChildren();
+          record.resumePanel = null;
+          mountApplicationFrame(record);
+        });
+        const direct = document.createElement("a");
+        direct.className = "window-launch";
+        direct.href = record.app.href;
+        direct.textContent = "Open production route ↗";
+        direct.style.marginLeft = "8px";
+        panel.append(heading, message, retry, direct);
+        record.content.replaceChildren(panel);
+        record.resumePanel = panel;
+      };
+      const createWindow = (app, options = {}) => {
         const existing = openWindows.get(app.id);
         if (existing) {
           existing.element.hidden = false;
+          if (existing.state === "minimized") setLifecycle(app.id, existing.faulted ? "faulted" : "running");
+          if (options.resume && app.local && !existing.frame) mountApplicationFrame(existing);
           focusWindow(app.id);
           updateDock();
-          return;
+          return existing;
         }
+        appLifecycle.set(app.id, "created");
         const element = document.createElement("section");
         element.className = "desktop-window";
         element.setAttribute("role", "region");
@@ -1167,14 +1384,83 @@
         titlebar.append(title, controls);
         const content = document.createElement("div");
         content.className = "window-content";
+        const footer = document.createElement("div");
+        footer.className = "window-footer";
+        const route = document.createElement("span");
+        route.textContent = app.local ? "APPLICATION CREATED" : "EXTERNAL DESTINATION";
+        const status = document.createElement("span");
+        status.className = "window-lifecycle";
+        status.textContent = "CREATED";
+        const openLink = document.createElement("a");
+        openLink.href = app.href;
+        openLink.target = app.local ? "_self" : "_blank";
+        openLink.rel = "noopener noreferrer";
+        openLink.textContent = app.local ? "Open full application ↗" : "Open destination ↗";
+        openLink.style.color = "var(--cyan)";
+        openLink.style.textDecoration = "none";
+        footer.append(route, status, openLink);
+        element.append(titlebar, content, footer);
+        desktopWindows.append(element);
+        const record = { app, element, content, route, status, task:null, previousBounds:null, frame:null, loadTimer:null, faulted:false, state:"created", resumePanel:null };
+        openWindows.set(app.id, record);
+        const stage = document.getElementById("desktop-stage");
+        const saved = options.saved || savedSession?.windows?.find(item => item.appId === app.id) || savedWindowState[app.id] ||
+          savedWindowState[app.legacyId];
+        if (saved?.maximized === true || options.maximized === true) {
+          element.classList.add("is-maximized");
+          record.previousBounds = saved.previousBounds || options.previousBounds || null;
+        } else {
+          const bounds = options.bounds || (validBounds(saved) ? saved : null);
+          if (validBounds(bounds)) {
+            element.style.width = Math.min(Number(bounds.width), Math.max(300, stage.clientWidth - 16)) + "px";
+            element.style.height = Math.min(Number(bounds.height), Math.max(210, stage.clientHeight - 16)) + "px";
+            element.style.left = Math.max(8, Math.min(Number(bounds.left), stage.clientWidth - 300)) + "px";
+            element.style.top = Math.max(8, Math.min(Number(bounds.top), stage.clientHeight - 210)) + "px";
+            element.style.transform = "none";
+          }
+        }
+        makeDraggable(record, titlebar);
+        if (typeof ResizeObserver === "function") {
+          let timer;
+          const observer = new ResizeObserver(() => {
+            clearTimeout(timer);
+            timer = setTimeout(persistWindowState, 180);
+          });
+          observer.observe(element);
+          record.resizeObserver = observer;
+        }
+        element.addEventListener("pointerdown", () => focusWindow(app.id));
+        minimize.addEventListener("click", () => {
+          element.hidden = true;
+          setLifecycle(app.id, "minimized");
+          if (focusedWindow === app.id) focusTopVisibleWindow();
+          updateDock();
+        });
+        maximize.addEventListener("click", () => toggleMaximize(record));
+        close.addEventListener("click", () => closeWindow(app.id));
         if (app.local) {
-          const frame = document.createElement("iframe");
-          frame.className = "window-frame";
-          frame.title = app.name + " live application preview";
-          frame.src = app.href;
-          frame.loading = "lazy";
-          frame.referrerPolicy = "same-origin";
-          content.append(frame);
+          if (options.deferFrame) {
+            const panel = document.createElement("div");
+            panel.className = "window-preview window-recovery";
+            const eyebrow = document.createElement("p");
+            eyebrow.className = "eyebrow";
+            eyebrow.textContent = "SESSION RESTORED";
+            const heading = document.createElement("h3");
+            heading.textContent = app.name;
+            const message = document.createElement("p");
+            message.textContent = "Your window and layout were recovered. Resume the application when you are ready; embedded apps are not reloaded automatically.";
+            const resume = document.createElement("button");
+            resume.type = "button";
+            resume.className = "window-launch";
+            resume.textContent = "Resume application";
+            resume.addEventListener("click", () => mountApplicationFrame(record));
+            panel.append(eyebrow, heading, message, resume);
+            content.append(panel);
+            record.resumePanel = panel;
+            record.state = "created";
+          } else {
+            mountApplicationFrame(record);
+          }
         } else {
           const preview = document.createElement("div");
           preview.className = "window-preview";
@@ -1185,55 +1471,27 @@
           heading.textContent = app.name;
           const description = document.createElement("p");
           description.textContent = app.description;
-          const stage = document.createElement("span");
-          stage.className = "stage-label";
-          stage.textContent = app.stage;
+          const stageLabel = document.createElement("span");
+          stageLabel.className = "stage-label";
+          stageLabel.textContent = app.stage;
           const launch = document.createElement("a");
           launch.className = "window-launch";
           launch.href = app.href;
           launch.target = "_blank";
           launch.rel = "noopener noreferrer";
           launch.textContent = "Open repository ↗";
-          preview.append(eyebrow, heading, description, stage, launch);
+          preview.append(eyebrow, heading, description, stageLabel, launch);
           content.append(preview);
+          record.state = "running";
         }
-        const footer = document.createElement("div");
-        footer.className = "window-footer";
-        const route = document.createElement("span");
-        route.textContent = app.local ? "SAME-ORIGIN LIVE PREVIEW" : "EXTERNAL DESTINATION";
-        const openLink = document.createElement("a");
-        openLink.href = app.href;
-        openLink.target = app.local ? "_self" : "_blank";
-        openLink.rel = "noopener noreferrer";
-        openLink.textContent = app.local ? "Open full application ↗" : "Open destination ↗";
-        openLink.style.color = "var(--cyan)";
-        openLink.style.textDecoration = "none";
-        footer.append(route, openLink);
-        element.append(titlebar, content, footer);
-        desktopWindows.append(element);
-        const record = { app, element, task:null, previousBounds:null };
-        openWindows.set(app.id, record);
-        const saved=savedWindowState[app.id],stage=document.getElementById("desktop-stage");
-        if(saved&&saved.maximized===true){element.classList.add("is-maximized");record.previousBounds=saved.previousBounds||null;}
-        else if(saved&&[saved.left,saved.top,saved.width,saved.height].every(v=>Number.isFinite(Number(v)))&&Number(saved.width)>=300&&Number(saved.height)>=210){
-          element.style.width=Math.min(Number(saved.width),Math.max(300,stage.clientWidth-16))+"px";
-          element.style.height=Math.min(Number(saved.height),Math.max(210,stage.clientHeight-16))+"px";
-          element.style.left=Math.max(8,Math.min(Number(saved.left),stage.clientWidth-300))+"px";
-          element.style.top=Math.max(8,Math.min(Number(saved.top),stage.clientHeight-210))+"px";element.style.transform="none";
-        }
-        makeDraggable(record, titlebar);
-        if(typeof ResizeObserver==="function"){let timer;const observer=new ResizeObserver(()=>{clearTimeout(timer);timer=setTimeout(persistWindowState,180);});observer.observe(element);record.resizeObserver=observer;}
-        element.addEventListener("pointerdown", () => focusWindow(app.id));
-        minimize.addEventListener("click", () => {
-          element.hidden = true;
-          if (focusedWindow === app.id) focusTopVisibleWindow();
-          updateDock();
-        });
-        maximize.addEventListener("click", () => toggleMaximize(record));
-        close.addEventListener("click", () => closeWindow(app.id));
+        appLifecycle.set(app.id, record.state);
+        status.textContent = record.state.toUpperCase();
+        element.dataset.lifecycle = record.state;
         focusWindow(app.id);
+        recordLaunch(app, record.state);
         persistWindowState();
         updateDock();
+        return record;
       };
       const renderDesktopShortcuts = () => {
         desktopShortcuts.replaceChildren();
@@ -1253,6 +1511,84 @@
           desktopShortcuts.append(button);
         }
       };
+      const restoreSession = () => {
+        const session = savedSession;
+        if (!session || !Array.isArray(session.windows) || !session.windows.length) return;
+        const stage = document.getElementById("desktop-stage");
+        const ordered = [...session.windows].filter(item => item && appsById.has(item.appId) &&
+          ["running", "minimized", "faulted", "created"].includes(item.state))
+          .sort((a, b) => Number(a.order || 0) - Number(b.order || 0));
+        for (const item of ordered) {
+          const app = appsById.get(item.appId);
+          if (!app || openWindows.has(app.id)) continue;
+          createWindow(app, {
+            deferFrame: app.local,
+            bounds: item.bounds,
+            maximized: item.maximized,
+            previousBounds: item.previousBounds,
+            saved: item
+          });
+          const record = openWindows.get(app.id);
+          if (record && item.state === "minimized") {
+            record.element.hidden = true;
+            record.state = "minimized";
+            appLifecycle.set(app.id, "minimized");
+          } else if (record && item.state === "faulted") {
+            record.state = "faulted";
+            record.faulted = true;
+            record.status.textContent = "FAULTED";
+            appLifecycle.set(app.id, "faulted");
+          }
+        }
+        if (session.focusedAppId && openWindows.has(session.focusedAppId)) {
+          const active = openWindows.get(session.focusedAppId);
+          active.element.hidden = false;
+          focusWindow(session.focusedAppId);
+        } else focusTopVisibleWindow();
+        persistWindowState();
+        updateDock();
+        recoveryAvailable = false;
+        document.getElementById("desktop-restore-session").hidden = true;
+      };
+      const renderLaunchHistory = () => {
+        const panel = document.getElementById("desktop-history-panel");
+        panel.replaceChildren();
+        const heading = document.createElement("strong");
+        heading.textContent = "RECENTLY LAUNCHED";
+        panel.append(heading);
+        if (!launchHistory.length) {
+          const empty = document.createElement("p");
+          empty.textContent = "No launch history yet.";
+          panel.append(empty);
+        } else {
+          for (const item of launchHistory.slice(0, 8)) {
+            const app = appsById.get(item.appId);
+            if (!app) continue;
+            const button = document.createElement("button");
+            button.type = "button";
+            button.textContent = app.name + " · " + new Date(item.launchedAt).toLocaleTimeString([], {hour:"2-digit",minute:"2-digit"});
+            button.addEventListener("click", () => {
+              createWindow(app);
+              panel.hidden = true;
+            });
+            panel.append(button);
+          }
+        }
+      };
+      const historyPanel = document.createElement("section");
+      historyPanel.id = "desktop-history-panel";
+      historyPanel.className = "desktop-history-panel";
+      historyPanel.setAttribute("aria-label", "Recent application launches");
+      historyPanel.hidden = true;
+      desktop.append(historyPanel);
+      const historyToggle = document.getElementById("desktop-history-toggle");
+      historyToggle.addEventListener("click", () => {
+        renderLaunchHistory();
+        historyPanel.hidden = !historyPanel.hidden;
+        historyToggle.setAttribute("aria-expanded", String(!historyPanel.hidden));
+      });
+      document.getElementById("desktop-restore-session").hidden = !savedSession?.windows?.length;
+      document.getElementById("desktop-restore-session").addEventListener("click", restoreSession);
       const openDesktop = () => {
         desktop.hidden = false;
         shell.inert = true;
@@ -1267,12 +1603,15 @@
       desktopOpen.addEventListener("click", openDesktop);
       desktopClose.addEventListener("click", closeDesktop);
       document.getElementById("dock-home").addEventListener("click", () => {
-        for (const record of openWindows.values()) record.element.hidden = true;
+        for (const [id, record] of openWindows) {
+          record.element.hidden = true;
+          setLifecycle(id, "minimized");
+        }
         focusedWindow = null;
         updateDock();
       });
       document.addEventListener("keydown", (event) => {
-        if (event.key === "Escape" && !desktop.hidden && !settingsDialog.open && palette.hidden && noticePanel.hidden && quickPanel.hidden) {
+        if (event.key === "Escape" && !desktop.hidden && !settingsDialog.open && palette.hidden && noticePanel.hidden && quickPanel.hidden && historyPanel.hidden) {
           event.preventDefault();
           closeDesktop();
         }
@@ -1289,7 +1628,12 @@
       };
       updateDesktopClock();
       window.setInterval(updateDesktopClock, 30000);
-
+      window.addEventListener("pagehide", () => {
+        const snapshot = captureWindowState();
+        snapshot.cleanShutdown = true;
+        safeWrite(SESSION_KEY, snapshot);
+        try { sessionStorage.setItem(SESSION_MARKER_KEY, "clean"); } catch (_) {}
+      });
       // Persistent notification center and quick controls share existing settings state.
       const NOTICE_KEY="mk.system.notifications.v1",noticeList=document.getElementById("tray-notification-list");
       const noticePanel=document.getElementById("tray-notifications"),noticeToggle=document.getElementById("tray-notifications-toggle");
@@ -1310,6 +1654,8 @@
           dismiss.addEventListener("click",()=>{notifications=notifications.filter(x=>x.id!==n.id);persistNotifications();renderNotifications();});row.append(copy,dismiss);noticeList.append(row);}
       };
       const pushNotification=(title,message)=>{notifications.unshift({id:Date.now().toString(36)+Math.random().toString(36).slice(2,7),title,message,createdAt:Date.now(),read:false});notifications=notifications.slice(0,20);persistNotifications();renderNotifications();};
+      if(recoveryNotice)pushNotification("Desktop session interrupted",recoveryNotice);
+
       const setTrayPanel=name=>{const show=name==="notifications";noticePanel.hidden=!show;quickPanel.hidden=name!=="quick";noticeToggle.setAttribute("aria-expanded",String(show));quickToggle.setAttribute("aria-expanded",String(name==="quick"));if(show){notifications=notifications.map(n=>({...n,read:true}));persistNotifications();renderNotifications();}};
       noticeToggle.addEventListener("click",()=>setTrayPanel(noticePanel.hidden?"notifications":null));
       quickToggle.addEventListener("click",()=>setTrayPanel(quickPanel.hidden?"quick":null));
