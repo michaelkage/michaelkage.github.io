@@ -115,7 +115,7 @@ jobs:
           for (const token of ["--bg: #eeeae1", "--text: #171715", "--cyan: #d83a25", "--display:"]) {
             if (!html.includes(token)) throw new Error("Editorial design token missing: " + token);
           }
-          if (!/CACHE_NAME\\s*=\\s*CACHE_PREFIX\\s*\\+\\s*"v3"/.test(sw)) {
+          if (!/CACHE_NAME\s*=\s*CACHE_PREFIX\s*\+\s*"v3"/.test(sw)) {
             throw new Error("The shell cache must be versioned for the current icon and manifest.");
           }
           for (const file of ["sw.js", "icons/mk-system.svg"]) {
