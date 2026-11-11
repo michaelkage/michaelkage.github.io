@@ -135,7 +135,7 @@ jobs:
             echo "Could not determine the expected service-worker cache version."
             exit 1
           fi
-          for attempt in $(seq 1 30); do
+          for attempt in $(seq 1 60); do
             if curl --fail --silent --show-error --max-time 10 "$root/sw.js" -o /tmp/live-sw.js 2>/dev/null &&
               grep -Fq "$expected_cache_line" /tmp/live-sw.js &&
               curl --fail --silent --show-error --max-time 10 "$root/manifest.webmanifest" -o /dev/null 2>/dev/null; then
@@ -143,9 +143,9 @@ jobs:
               exit 0
             fi
             echo "Waiting for GitHub Pages deployment ($attempt/30)..."
-            sleep 5
+            sleep 10
           done
-          echo "The current root shell was not published within 150 seconds."
+          echo "The current root shell was not published within 10 minutes."
           exit 1
 
       - name: Check production applications and repositories
